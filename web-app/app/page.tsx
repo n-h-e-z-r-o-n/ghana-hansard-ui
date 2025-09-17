@@ -1,24 +1,16 @@
 'use client';
 
 import { 
-  HomeIcon, 
-  MicrophoneIcon, 
-  DocumentTextIcon, 
-  UserGroupIcon, 
-  ChartBarIcon, 
-  CalendarIcon, 
-  FolderIcon,
-  MagnifyingGlassIcon,
-  ChevronDownIcon,
   ArrowUpIcon,
   ArrowDownIcon,
   FaceSmileIcon,
   FaceFrownIcon,
-  PaperAirplaneIcon,
-  CpuChipIcon,
-  ArrowPathIcon
+  ArrowPathIcon,
+  MicrophoneIcon,
+  PaperAirplaneIcon
 } from '@heroicons/react/24/outline';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import Navigation from './components/Navigation';
 
 const debateData = [
   { month: 'Jan', debates: 120, bills: 45 },
@@ -76,97 +68,8 @@ const hotTopics = [
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-blue-900 text-white px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <div className="w-8 h-8 bg-yellow-400 rounded flex items-center justify-center">
-            <div className="w-6 h-6 bg-blue-900 rounded-sm flex items-center justify-center">
-              <div className="w-4 h-4 border border-yellow-400"></div>
-            </div>
-          </div>
-          <div>
-            <h1 className="text-xl font-bold">Ghana Parliamentary Hub</h1>
-            <p className="text-sm text-blue-200">Interactive, Voice-Enabled Analytics Platform</p>
-          </div>
-        </div>
-        <div className="flex items-center space-x-4">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search debates, bills, or members..."
-              className="w-80 px-4 py-2 pl-10 bg-blue-800 text-white placeholder-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
-            />
-            <MagnifyingGlassIcon className="w-5 h-5 text-blue-200 absolute left-3 top-2.5" />
-          </div>
-          <div className="flex items-center space-x-2 bg-blue-800 px-3 py-2 rounded-lg cursor-pointer">
-            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-sm font-semibold">
-              AD
-            </div>
-            <ChevronDownIcon className="w-4 h-4" />
-          </div>
-        </div>
-      </header>
-
-      <div className="flex">
-        {/* Sidebar */}
-        <aside className="w-64 bg-white shadow-lg min-h-screen">
-          <div className="p-6">
-            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Navigation</h2>
-            <nav className="space-y-2">
-              {[
-                { icon: HomeIcon, label: 'Dashboard', active: true },
-                { icon: MicrophoneIcon, label: 'Debates' },
-                { icon: DocumentTextIcon, label: 'Bills & Legislation' },
-                { icon: UserGroupIcon, label: 'Members' },
-                { icon: ChartBarIcon, label: 'Analytics' },
-                { icon: CalendarIcon, label: 'Schedule' },
-                { icon: FolderIcon, label: 'Archives' },
-              ].map((item, index) => (
-                <div
-                  key={index}
-                  className={`flex items-center space-x-3 px-3 py-2 rounded-lg cursor-pointer ${
-                    item.active ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  <item.icon className="w-5 h-5" />
-                  <span className="text-sm font-medium">{item.label}</span>
-                </div>
-              ))}
-            </nav>
-
-            <div className="mt-8">
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Filters</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
-                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option>Last 30 days</option>
-                    <option>Last 3 months</option>
-                    <option>Last year</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Party</label>
-                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option>All Parties</option>
-                    <option>NPP</option>
-                    <option>NDC</option>
-                    <option>Independent</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <button className="w-full mt-8 bg-blue-600 text-white px-4 py-3 rounded-lg flex items-center justify-center space-x-2 hover:bg-blue-700 transition-colors">
-              <CpuChipIcon className="w-5 h-5" />
-              <span className="font-medium">AI Assistant</span>
-            </button>
-          </div>
-        </aside>
-
-        {/* Main Content */}
-        <main className="flex-1 p-6">
+    <Navigation>
+      <div className="p-6">
           {/* Purple Banner */}
           <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-6 rounded-lg mb-6">
             <h2 className="text-2xl font-bold mb-2">Transforming Ghana's Parliament into an Interactive Hub</h2>
@@ -354,8 +257,7 @@ export default function Home() {
               </button>
             </div>
           </div>
-        </main>
       </div>
-    </div>
+    </Navigation>
   );
 }

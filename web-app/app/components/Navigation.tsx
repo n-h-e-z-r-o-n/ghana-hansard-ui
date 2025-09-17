@@ -1,0 +1,285 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
+import { 
+  HomeIcon, 
+  MicrophoneIcon, 
+  DocumentTextIcon, 
+  UserGroupIcon, 
+  ChartBarIcon, 
+  CalendarIcon, 
+  FolderIcon,
+  MagnifyingGlassIcon,
+  ChevronDownIcon,
+  BellIcon,
+  Cog6ToothIcon,
+  ArrowRightOnRectangleIcon,
+  Bars3Icon,
+  XMarkIcon,
+  SpeakerWaveIcon
+} from '@heroicons/react/24/outline';
+import AIAssistant from './AIAssistant';
+
+interface NavigationProps {
+  children: React.ReactNode;
+}
+
+export default function Navigation({ children }: NavigationProps) {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const pathname = usePathname();
+
+  const navigationItems = [
+    { 
+      icon: HomeIcon, 
+      label: 'Dashboard', 
+      href: '/',
+      description: 'Overview and analytics'
+    },
+    { 
+      icon: MicrophoneIcon, 
+      label: 'Debates', 
+      href: '/debates',
+      description: 'Parliamentary debates'
+    },
+    { 
+      icon: DocumentTextIcon, 
+      label: 'Bills & Legislation', 
+      href: '/bills',
+      description: 'Legislative tracking'
+    },
+    { 
+      icon: UserGroupIcon, 
+      label: 'Members', 
+      href: '/members',
+      description: 'Parliamentary members'
+    },
+    { 
+      icon: ChartBarIcon, 
+      label: 'Analytics', 
+      href: '/analytics',
+      description: 'Data insights'
+    },
+    { 
+      icon: CalendarIcon, 
+      label: 'Schedule', 
+      href: '/schedule',
+      description: 'Parliamentary calendar'
+    },
+    { 
+      icon: FolderIcon, 
+      label: 'Archives', 
+      href: '/archives',
+      description: 'Historical records'
+    }
+  ];
+
+  const isActive = (href: string) => {
+    if (href === '/') {
+      return pathname === '/';
+    }
+    return pathname.startsWith(href);
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Implement search functionality
+    console.log('Searching for:', searchQuery);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Mobile menu overlay */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="fixed inset-0 bg-black bg-opacity-25" onClick={() => setIsMobileMenuOpen(false)}></div>
+          <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-xl">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900">Menu</h2>
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <XMarkIcon className="w-6 h-6" />
+              </button>
+            </div>
+            <nav className="p-4 space-y-2">
+              {navigationItems.map((item, index) => (
+                <Link
+                  key={index}
+                  href={item.href}
+                  className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors ${
+                    isActive(item.href)
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <item.icon className="w-5 h-5" />
+                  <div>
+                    <span className="text-sm font-medium">{item.label}</span>
+                    <p className="text-xs text-gray-500">{item.description}</p>
+                  </div>
+                </Link>
+              ))}
+            </nav>
+          </div>
+        </div>
+      )}
+
+      {/* Header */}
+      <header className="bg-blue-900 text-white shadow-lg">
+        <div className="px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo and title */}
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => setIsMobileMenuOpen(true)}
+                className="lg:hidden text-white hover:text-blue-200"
+              >
+                <Bars3Icon className="w-6 h-6" />
+              </button>
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-yellow-400 rounded flex items-center justify-center">
+                  <div className="w-6 h-6 bg-blue-900 rounded-sm flex items-center justify-center">
+                    <div className="w-4 h-4 border border-yellow-400"></div>
+                  </div>
+                </div>
+                <div className="hidden sm:block">
+                  <h1 className="text-xl font-bold">Ghana Parliamentary Hub</h1>
+                  <p className="text-sm text-blue-200">Interactive, Voice-Enabled Analytics Platform</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Search bar */}
+            <div className="flex-1 max-w-lg mx-4 hidden md:block">
+              <form onSubmit={handleSearch} className="relative">
+                <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-200" />
+                <input
+                  type="text"
+                  placeholder="Search debates, bills, or members..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 bg-blue-800 text-white placeholder-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
+                />
+              </form>
+            </div>
+
+            {/* Right side actions */}
+            <div className="flex items-center space-x-4">
+              {/* Notifications */}
+              <button className="relative p-2 text-blue-200 hover:text-white hover:bg-blue-800 rounded-lg">
+                <BellIcon className="w-5 h-5" />
+                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+              </button>
+
+              {/* User menu */}
+              <div className="relative">
+                <button
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className="flex items-center space-x-2 bg-blue-800 px-3 py-2 rounded-lg hover:bg-blue-700"
+                >
+                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-sm font-semibold">
+                    AD
+                  </div>
+                  <ChevronDownIcon className="w-4 h-4" />
+                </button>
+
+                {/* User dropdown */}
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50">
+                    <div className="px-4 py-2 border-b border-gray-200">
+                      <p className="text-sm font-medium text-gray-900">Admin User</p>
+                      <p className="text-xs text-gray-500">admin@parliament.gh</p>
+                    </div>
+                    <Link
+                      href="/profile"
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <Cog6ToothIcon className="w-4 h-4 mr-3" />
+                      Settings
+                    </Link>
+                    <button className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      <ArrowRightOnRectangleIcon className="w-4 h-4 mr-3" />
+                      Sign out
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex">
+        {/* Desktop Sidebar */}
+        <aside className="hidden lg:block w-64 bg-white shadow-lg min-h-screen">
+          <div className="p-6">
+            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Navigation</h2>
+            <nav className="space-y-2">
+              {navigationItems.map((item, index) => (
+                <Link
+                  key={index}
+                  href={item.href}
+                  className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
+                    isActive(item.href)
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  <item.icon className="w-5 h-5" />
+                  <div className="flex-1">
+                    <span className="text-sm font-medium">{item.label}</span>
+                    <p className="text-xs text-gray-500">{item.description}</p>
+                  </div>
+                </Link>
+              ))}
+            </nav>
+
+            {/* Filters Section */}
+            <div className="mt-8">
+              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Quick Filters</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
+                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                    <option>Last 30 days</option>
+                    <option>Last 3 months</option>
+                    <option>Last year</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Party</label>
+                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                    <option>All Parties</option>
+                    <option>NPP</option>
+                    <option>NDC</option>
+                    <option>Independent</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* AI Assistant Button */}
+            <button className="w-full mt-8 bg-blue-600 text-white px-4 py-3 rounded-lg flex items-center justify-center space-x-2 hover:bg-blue-700 transition-colors">
+              <SpeakerWaveIcon className="w-5 h-5" />
+              <span className="font-medium">AI Assistant</span>
+            </button>
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1">
+          {children}
+        </main>
+      </div>
+
+      {/* AI Assistant Widget */}
+      <AIAssistant />
+    </div>
+  );
+}

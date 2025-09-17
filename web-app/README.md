@@ -21,6 +21,10 @@ A modern, responsive web application built with Next.js that provides an interac
 - **Type Safety**: Built with TypeScript for better development experience
 - **Component Architecture**: Modular, reusable React components
 - **Performance Optimized**: Fast loading with Next.js 15 and Turbopack
+- **Voice Input**: Microphone integration with speech-to-text capabilities
+- **Dual Input Modes**: Toggle between text and voice input for AI Assistant
+- **User Onboarding**: Interactive tour and guidance for new users
+- **Smart Notifications**: Contextual prompts to encourage AI Assistant usage
 
 ## 🛠️ Tech Stack
 
@@ -66,8 +70,8 @@ web-app/
    ```
 
 3. **Start the development server**
-   ```bash
-   npm run dev
+```bash
+npm run dev
    ```
 
 4. **Open your browser**
@@ -79,6 +83,82 @@ web-app/
 - `npm run build` - Build for production with Turbopack
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
+
+## 🎤 AI Assistant with Microphone Integration
+
+### Voice Input Features
+The AI Assistant includes advanced microphone functionality with the following capabilities:
+
+#### **Dual Input Modes**
+- **Text Mode**: Traditional text input with send button
+- **Voice Mode**: Microphone recording with real-time feedback
+- **Toggle Switch**: Easy switching between input modes
+
+#### **Voice Recording Process**
+1. **Permission Request**: Automatically requests microphone access
+2. **Real-time Recognition**: Uses Web Speech API for live speech-to-text
+3. **Visual Feedback**: Recording status indicators and processing states
+4. **Speech-to-Text**: Real transcription using browser's native speech recognition
+5. **Error Handling**: Graceful fallback for unsupported browsers
+
+#### **Technical Implementation**
+```typescript
+// Speech recognition state management
+const [inputMode, setInputMode] = useState<'text' | 'voice'>('text');
+const [isRecording, setIsRecording] = useState(false);
+const [isProcessing, setIsProcessing] = useState(false);
+const recognitionRef = useRef<any>(null);
+
+// Web Speech API integration
+const startRecording = async () => {
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognitionRef.current = recognition;
+    
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+    
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setTranscript(transcript);
+      addMessage(transcript, true, true);
+      generateAIResponse(transcript);
+    };
+    
+    recognition.start();
+    setIsRecording(true);
+  }
+};
+```
+
+#### **Browser Compatibility**
+- **Supported**: Chrome, Edge, Safari (Web Speech API)
+- **Required**: HTTPS connection for microphone access
+- **Fallback**: MediaRecorder API for unsupported browsers
+- **User Feedback**: Clear messaging for unsupported browsers
+
+#### **Security & Privacy**
+- **Browser Processing**: Speech recognition handled by browser's Web Speech API
+- **No Storage**: Audio data is not permanently stored
+- **Permission Handling**: Proper user consent and error handling
+- **HTTPS Required**: Microphone access requires secure context
+- **Local Processing**: Speech recognition happens locally in the browser
+
+### AI Assistant Widget Features
+
+#### **Popup Design**
+- **Fixed Position**: Bottom-right corner with floating button
+- **Expandable**: Collapsible conversation area
+- **Responsive**: Adapts to different screen sizes
+- **Non-intrusive**: Doesn't interfere with main content
+
+#### **Conversation Management**
+- **Message History**: Persistent conversation storage
+- **Timestamps**: Each message includes time stamp
+- **Voice Indicators**: Visual markers for voice messages
+- **Auto-scroll**: Automatic scrolling to latest messages
 
 ## 🏗️ Code Architecture
 
@@ -115,6 +195,30 @@ web-app/
 - Line Chart: Debate activity trends (6 months)
 - Pie Chart: Sentiment distribution
 - Responsive containers for mobile compatibility
+```
+
+#### **AI Assistant Widget**
+```typescript
+// Located in app/components/AIAssistant.tsx
+- Floating popup widget (bottom-right corner)
+- Expandable/collapsible conversation area
+- Dual input modes (text and voice)
+- Microphone integration with MediaRecorder API
+- Real-time recording status indicators
+- Speech-to-text processing simulation
+- Message history with timestamps
+- Voice message indicators
+- Auto-scroll to latest messages
+- Responsive design for all screen sizes
+```
+
+#### **AI Analysis Insights**
+```typescript
+// Located in app/page.tsx (lines 330-347)
+- Static AI-generated insights display
+- Recent analysis updates with timestamps
+- Parliamentary data analysis summaries
+- Sentiment analysis results
 ```
 
 ### Data Structure
@@ -227,12 +331,88 @@ The application is fully responsive with breakpoints:
    # Check ResponsiveContainer wrapper is present
    ```
 
+4. **Microphone Not Working**
+   ```bash
+   # Check browser permissions for microphone access
+   # Ensure HTTPS connection (required for microphone API)
+   # Verify browser supports MediaRecorder API
+   # Check console for permission denied errors
+   ```
+
+5. **Voice Input Issues**
+   ```bash
+   # Test microphone in browser settings first
+   # Check if other applications can access microphone
+   # Try refreshing the page and granting permissions again
+   # Fallback to text input if voice fails
+   ```
+
 ### Development Tips
 
 - Use `npm run dev` for development with hot reload
 - Check browser console for runtime errors
 - Use TypeScript for better error catching
 - Test responsive design on different screen sizes
+- Test microphone functionality on HTTPS (required for production)
+- Test voice input in different browsers for compatibility
+
+### Real Speech-to-Text Integration
+
+The current implementation includes a mock speech-to-text system. To integrate with real services:
+
+#### **Option 1: Web Speech API (Browser Native)**
+```typescript
+// Replace the processAudio function with:
+const processAudio = async (audioBlob: Blob) => {
+  const recognition = new (window as any).webkitSpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  
+  recognition.onresult = (event: any) => {
+    const transcript = event.results[0][0].transcript;
+    setTranscript(transcript);
+    setInputValue(transcript);
+  };
+  
+  recognition.start();
+};
+```
+
+#### **Option 2: Cloud Services (Google, Azure, AWS)**
+```typescript
+// Example with Google Cloud Speech-to-Text
+const processAudio = async (audioBlob: Blob) => {
+  const formData = new FormData();
+  formData.append('audio', audioBlob, 'recording.wav');
+  
+  const response = await fetch('/api/speech-to-text', {
+    method: 'POST',
+    body: formData,
+  });
+  
+  const { transcript } = await response.json();
+  setTranscript(transcript);
+  setInputValue(transcript);
+};
+```
+
+#### **Option 3: Real-time Streaming (Advanced)**
+```typescript
+// For real-time speech recognition
+const startRecording = async () => {
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  const mediaRecorder = new MediaRecorder(stream, {
+    mimeType: 'audio/webm;codecs=opus'
+  });
+  
+  // Process audio chunks in real-time
+  mediaRecorder.ondataavailable = async (event) => {
+    if (event.data.size > 0) {
+      await processAudioChunk(event.data);
+    }
+  };
+};
+```
 
 ## 🤝 Contributing
 
