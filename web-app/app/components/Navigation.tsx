@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { 
@@ -17,8 +17,7 @@ import {
   Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
   Bars3Icon,
-  XMarkIcon,
-  SpeakerWaveIcon
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 import AIAssistant from './AIAssistant';
 
@@ -264,11 +263,6 @@ export default function Navigation({ children }: NavigationProps) {
               </div>
             </div>
 
-            {/* AI Assistant Button */}
-            <button className="w-full mt-8 bg-blue-600 text-white px-4 py-3 rounded-lg flex items-center justify-center space-x-2 hover:bg-blue-700 transition-colors">
-              <SpeakerWaveIcon className="w-5 h-5" />
-              <span className="font-medium">AI Assistant</span>
-            </button>
           </div>
         </aside>
 
