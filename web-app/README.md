@@ -1,6 +1,6 @@
 # Ghana Parliamentary Hub - Interactive Analytics Platform
 
-A modern, responsive web application built with Next.js that provides an interactive, voice-enabled analytics platform for Ghana's Parliament. This dashboard offers real-time insights, data visualization, and AI-powered analysis of parliamentary proceedings.
+A comprehensive, modern web application built with Next.js that provides an interactive, voice-enabled analytics platform for Ghana's Parliament. This multi-page dashboard offers real-time insights, data visualization, AI-powered analysis, and complete parliamentary management capabilities.
 
 ## 🚀 Features
 
@@ -10,21 +10,30 @@ A modern, responsive web application built with Next.js that provides an interac
 - **Member Analytics**: Monitor top speakers and participation rates
 - **AI Insights**: Get automated analysis and recommendations
 
+### 🏛️ **Complete Parliamentary Management**
+- **Debates Page**: Comprehensive debate tracking with search, filtering, and detailed views
+- **Bills & Legislation**: Legislative workflow management with status tracking
+- **Members Directory**: Complete member profiles with performance analytics
+- **Schedule Management**: Parliamentary calendar with session tracking
+- **Archives System**: Historical document management and retrieval
+- **Analytics Dashboard**: Advanced data visualization and insights
+
 ### 🎯 **Key Components**
-- **Header Navigation**: Search functionality and user profile management
-- **Sidebar Navigation**: Intuitive menu with filters and AI assistant access
+- **Unified Navigation**: Consistent navigation across all pages
+- **AI Assistant Widget**: Active floating AI assistant with voice capabilities
 - **Data Visualization**: Interactive charts using Recharts library
 - **Responsive Design**: Optimized for desktop, tablet, and mobile devices
+- **Search & Filtering**: Advanced search across all parliamentary data
 
 ### 🔧 **Technical Features**
 - **Modern UI**: Clean, professional design with Tailwind CSS
 - **Type Safety**: Built with TypeScript for better development experience
 - **Component Architecture**: Modular, reusable React components
 - **Performance Optimized**: Fast loading with Next.js 15 and Turbopack
-- **Voice Input**: Microphone integration with speech-to-text capabilities
+- **Voice Input**: Microphone integration with Web Speech API
 - **Dual Input Modes**: Toggle between text and voice input for AI Assistant
-- **User Onboarding**: Interactive tour and guidance for new users
-- **Smart Notifications**: Contextual prompts to encourage AI Assistant usage
+- **Real-time Processing**: Live speech-to-text conversion
+- **Export Functionality**: Download and share data across all pages
 
 ## 🛠️ Tech Stack
 
@@ -40,6 +49,21 @@ A modern, responsive web application built with Next.js that provides an interac
 ```
 web-app/
 ├── app/
+│   ├── components/
+│   │   ├── Navigation.tsx   # Unified navigation component
+│   │   └── AIAssistant.tsx  # AI Assistant floating widget
+│   ├── debates/
+│   │   └── page.tsx         # Debates management page
+│   ├── bills/
+│   │   └── page.tsx         # Bills & Legislation page
+│   ├── members/
+│   │   └── page.tsx         # Members directory page
+│   ├── schedule/
+│   │   └── page.tsx         # Parliamentary schedule page
+│   ├── archives/
+│   │   └── page.tsx         # Archives management page
+│   ├── analytics/
+│   │   └── page.tsx         # Analytics dashboard page
 │   ├── globals.css          # Global styles and Tailwind configuration
 │   ├── layout.tsx           # Root layout with metadata
 │   └── page.tsx             # Main dashboard page
@@ -83,6 +107,56 @@ npm run dev
 - `npm run build` - Build for production with Turbopack
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
+
+## 📄 Page Overview
+
+### 🏠 **Dashboard** (`/`)
+- **Overview Metrics**: Key parliamentary statistics and trends
+- **Interactive Charts**: Debate activity and sentiment analysis
+- **Recent Activity**: Latest debates and hot topics
+- **AI Insights**: Automated analysis and recommendations
+
+### 🎤 **Debates** (`/debates`)
+- **Comprehensive Search**: Advanced filtering by topic, speaker, date
+- **Debate Listings**: Grid and list view options
+- **Detailed Views**: Complete debate information with transcripts
+- **Sentiment Analysis**: Real-time mood tracking
+- **Speaker Analytics**: Performance metrics and participation rates
+
+### 📋 **Bills & Legislation** (`/bills`)
+- **Legislative Tracking**: Complete bill lifecycle management
+- **Status Monitoring**: Real-time progress updates
+- **Committee Assignments**: Bill routing and review process
+- **Voting Records**: Historical voting patterns and results
+- **Document Management**: Bill texts and amendments
+
+### 👥 **Members** (`/members`)
+- **Member Directory**: Complete parliamentary member profiles
+- **Performance Analytics**: Attendance, speaking time, efficiency metrics
+- **Contact Information**: Direct communication channels
+- **Committee Assignments**: Roles and responsibilities
+- **Voting Records**: Individual member voting history
+
+### 📅 **Schedule** (`/schedule`)
+- **Parliamentary Calendar**: Complete session and meeting schedule
+- **Live Sessions**: Real-time session monitoring
+- **Committee Meetings**: Detailed meeting information
+- **Public Hearings**: Public access events and schedules
+- **Export Options**: Calendar integration and sharing
+
+### 📚 **Archives** (`/archives`)
+- **Document Management**: Historical parliamentary records
+- **Search & Filter**: Advanced document discovery
+- **Metadata System**: Comprehensive document classification
+- **Access Control**: Public, restricted, and confidential access levels
+- **Download Options**: Document retrieval and sharing
+
+### 📊 **Analytics** (`/analytics`)
+- **Data Visualization**: Interactive charts and graphs
+- **Performance Metrics**: KPI tracking and trend analysis
+- **Comparative Analysis**: Cross-party and cross-regional insights
+- **Export Functionality**: Data download and sharing
+- **Real-time Updates**: Live data refresh and monitoring
 
 ## 🎤 AI Assistant with Microphone Integration
 
@@ -148,77 +222,130 @@ const startRecording = async () => {
 
 ### AI Assistant Widget Features
 
-#### **Popup Design**
-- **Fixed Position**: Bottom-right corner with floating button
-- **Expandable**: Collapsible conversation area
-- **Responsive**: Adapts to different screen sizes
-- **Non-intrusive**: Doesn't interfere with main content
+#### **Active Floating Widget**
+- **Prominent Position**: Bottom-right corner with gradient floating button
+- **Always Visible**: Persistent presence with "AI Active" indicator
+- **Expandable Panel**: Large conversation area with modern design
+- **Gradient Styling**: Blue to purple gradient with enhanced shadows
+- **Pulse Animation**: Visual indication that AI is active and ready
+
+#### **Enhanced Interface**
+- **Modern Design**: Rounded corners, gradients, and enhanced shadows
+- **Dual Input Modes**: Toggle between text and voice input
+- **Voice Interface**: Large microphone button (20x20) with scale animations
+- **Text Interface**: Enhanced input field with gradient send button
+- **Message Bubbles**: Gradient message bubbles with better spacing
 
 #### **Conversation Management**
-- **Message History**: Persistent conversation storage
+- **Message History**: Persistent conversation storage across sessions
 - **Timestamps**: Each message includes time stamp
 - **Voice Indicators**: Visual markers for voice messages
 - **Auto-scroll**: Automatic scrolling to latest messages
+- **Processing States**: Visual feedback for recording and processing
 
 ## 🏗️ Code Architecture
 
 ### Main Components
 
-#### **Header Component**
+#### **Unified Navigation Component**
 ```typescript
-// Located in app/page.tsx (lines 82-110)
-- Logo with parliamentary building design
-- Search bar with magnifying glass icon
-- User profile dropdown
-```
-
-#### **Sidebar Navigation**
-```typescript
-// Located in app/page.tsx (lines 113-167)
-- Navigation menu items
-- Filter dropdowns (Date Range, Party)
-- AI Assistant button
-```
-
-#### **Key Metrics Cards**
-```typescript
-// Located in app/page.tsx (lines 178-203)
-- Total Debates: 178 (+12%)
-- Active Members: 15 (+5%)
-- New Bills: 59 (-3%)
-- Average Duration: 29m (+8%)
-```
-
-#### **Data Visualization**
-```typescript
-// Located in app/page.tsx (lines 205-253)
-- Line Chart: Debate activity trends (6 months)
-- Pie Chart: Sentiment distribution
-- Responsive containers for mobile compatibility
+// Located in app/components/Navigation.tsx
+- Header with logo, search, and user profile
+- Desktop sidebar with navigation links
+- Mobile hamburger menu with slide-out panel
+- Quick filters (Date Range, Party)
+- Responsive design for all screen sizes
+- Consistent navigation across all pages
 ```
 
 #### **AI Assistant Widget**
 ```typescript
 // Located in app/components/AIAssistant.tsx
-- Floating popup widget (bottom-right corner)
-- Expandable/collapsible conversation area
+- Active floating widget (bottom-right corner)
+- Gradient styling with pulse animation
 - Dual input modes (text and voice)
-- Microphone integration with MediaRecorder API
-- Real-time recording status indicators
-- Speech-to-text processing simulation
+- Web Speech API integration for real-time recognition
+- Enhanced interface with modern design
 - Message history with timestamps
 - Voice message indicators
 - Auto-scroll to latest messages
-- Responsive design for all screen sizes
+- Processing states and error handling
 ```
 
-#### **AI Analysis Insights**
+#### **Dashboard Page**
 ```typescript
-// Located in app/page.tsx (lines 330-347)
-- Static AI-generated insights display
-- Recent analysis updates with timestamps
-- Parliamentary data analysis summaries
-- Sentiment analysis results
+// Located in app/page.tsx
+- Key metrics cards with trend indicators
+- Interactive charts (Line, Pie, Bar)
+- Recent debates and hot topics
+- AI insights and recommendations
+- Responsive grid layout
+```
+
+#### **Debates Page**
+```typescript
+// Located in app/debates/page.tsx
+- Advanced search and filtering system
+- Grid and list view options
+- Detailed debate modal with transcripts
+- Sentiment analysis charts
+- Speaker performance metrics
+- Export and sharing functionality
+```
+
+#### **Bills & Legislation Page**
+```typescript
+// Located in app/bills/page.tsx
+- Legislative workflow tracking
+- Bill status monitoring and updates
+- Committee assignment management
+- Voting records and patterns
+- Document management system
+- Advanced filtering and search
+```
+
+#### **Members Page**
+```typescript
+// Located in app/members/page.tsx
+- Complete member directory
+- Performance analytics and metrics
+- Contact information and social links
+- Committee assignments and roles
+- Voting records and attendance
+- Member comparison and ranking
+```
+
+#### **Schedule Page**
+```typescript
+// Located in app/schedule/page.tsx
+- Parliamentary calendar management
+- Live session monitoring
+- Committee meeting tracking
+- Public hearing schedules
+- Export and sharing options
+- Real-time status updates
+```
+
+#### **Archives Page**
+```typescript
+// Located in app/archives/page.tsx
+- Historical document management
+- Advanced search and filtering
+- Document classification system
+- Access control levels
+- Metadata management
+- Download and sharing functionality
+```
+
+#### **Analytics Page**
+```typescript
+// Located in app/analytics/page.tsx
+- Comprehensive data visualizations
+- Interactive charts and graphs
+- Performance metrics and KPIs
+- Comparative analysis tools
+- Export and sharing functionality
+- Real-time data updates
 ```
 
 ### Data Structure
@@ -414,6 +541,38 @@ const startRecording = async () => {
 };
 ```
 
+## 🌟 Key Features & Capabilities
+
+### 🔍 **Advanced Search & Filtering**
+- **Global Search**: Search across all parliamentary data
+- **Multi-dimensional Filters**: Filter by party, committee, region, date
+- **Real-time Results**: Instant filtering and search results
+- **Saved Searches**: Save and reuse common search queries
+
+### 📊 **Data Visualization**
+- **Interactive Charts**: Line, Bar, Pie, Area, Radar, Composed charts
+- **Real-time Updates**: Live data refresh and monitoring
+- **Export Options**: Download charts and data in multiple formats
+- **Responsive Design**: Charts adapt to all screen sizes
+
+### 🤖 **AI-Powered Analytics**
+- **Voice Interaction**: Natural language queries via microphone
+- **Smart Responses**: Context-aware AI responses
+- **Sentiment Analysis**: Real-time mood and opinion tracking
+- **Predictive Insights**: Trend analysis and forecasting
+
+### 📱 **Mobile-First Design**
+- **Responsive Layout**: Optimized for all device sizes
+- **Touch-Friendly**: Intuitive touch interactions
+- **Progressive Web App**: App-like experience on mobile
+- **Offline Capability**: Basic functionality without internet
+
+### 🔐 **Security & Privacy**
+- **HTTPS Required**: Secure connections for all features
+- **Data Privacy**: No permanent storage of sensitive data
+- **Access Control**: Role-based access to different features
+- **Audit Trail**: Complete activity logging and tracking
+
 ## 🤝 Contributing
 
 1. Fork the repository
@@ -428,11 +587,13 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 🙏 Acknowledgments
 
-- **Next.js Team** for the amazing framework
+- **Next.js Team** for the amazing framework and App Router
 - **Tailwind CSS** for the utility-first CSS framework
-- **Heroicons** for the beautiful icon set
-- **Recharts** for the charting library
-- **Ghana Parliament** for the inspiration
+- **Heroicons** for the comprehensive icon set
+- **Recharts** for the powerful charting library
+- **TypeScript Team** for the type safety and developer experience
+- **Ghana Parliament** for the inspiration and democratic values
+- **Open Source Community** for the tools and libraries that made this possible
 
 ## 📞 Support
 
@@ -440,7 +601,19 @@ For support and questions:
 - Create an issue in the repository
 - Contact the development team
 - Check the documentation for common solutions
+- Review the troubleshooting section for known issues
+
+## 🚀 Future Enhancements
+
+- **Real-time Data Integration**: Live parliamentary data feeds
+- **Advanced AI Features**: Machine learning-powered insights
+- **Mobile App**: Native mobile applications
+- **API Development**: RESTful API for external integrations
+- **Multi-language Support**: Localization for different languages
+- **Advanced Analytics**: Predictive modeling and forecasting
 
 ---
 
 **Built with ❤️ for Ghana's Parliamentary Democracy**
+
+*Empowering transparency, accountability, and citizen engagement through technology*
