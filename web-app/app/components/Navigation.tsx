@@ -20,6 +20,7 @@ import {
   XMarkIcon
 } from '@heroicons/react/24/outline';
 import AIAssistant from './AIAssistant';
+import { useAuth } from '../contexts/AuthContext';
 
 interface NavigationProps {
   children: React.ReactNode;
@@ -30,12 +31,13 @@ export default function Navigation({ children }: NavigationProps) {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const pathname = usePathname();
+  const { user, logout } = useAuth();
 
   const navigationItems = [
     { 
       icon: HomeIcon, 
       label: 'Dashboard', 
-      href: '/',
+      href: '/dashboard',
       description: 'Overview and analytics'
     },
     { 
@@ -77,8 +79,8 @@ export default function Navigation({ children }: NavigationProps) {
   ];
 
   const isActive = (href: string) => {
-    if (href === '/') {
-      return pathname === '/';
+    if (href === '/dashboard') {
+      return pathname === '/dashboard';
     }
     return pathname.startsWith(href);
   };
@@ -183,7 +185,7 @@ export default function Navigation({ children }: NavigationProps) {
                   className="flex items-center space-x-2 bg-blue-800 px-3 py-2 rounded-lg hover:bg-blue-700"
                 >
                   <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-sm font-semibold">
-                    AD
+                    {user?.email?.charAt(0).toUpperCase() || 'U'}
                   </div>
                   <ChevronDownIcon className="w-4 h-4" />
                 </button>
@@ -192,8 +194,8 @@ export default function Navigation({ children }: NavigationProps) {
                 {isUserMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50">
                     <div className="px-4 py-2 border-b border-gray-200">
-                      <p className="text-sm font-medium text-gray-900">Admin User</p>
-                      <p className="text-xs text-gray-500">admin@parliament.gh</p>
+                      <p className="text-sm font-medium text-gray-900">User</p>
+                      <p className="text-xs text-gray-500">{user?.email}</p>
                     </div>
                     <Link
                       href="/profile"
@@ -202,7 +204,10 @@ export default function Navigation({ children }: NavigationProps) {
                       <Cog6ToothIcon className="w-4 h-4 mr-3" />
                       Settings
                     </Link>
-                    <button className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <button 
+                      onClick={logout}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
                       <ArrowRightOnRectangleIcon className="w-4 h-4 mr-3" />
                       Sign out
                     </button>

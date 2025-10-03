@@ -273,10 +273,10 @@ export default function AIAssistant() {
   return (
     <>
       {/* Active Floating Button */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 flex items-center justify-center z-50 animate-pulse"
-      >
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 hover:from-red-700 hover:via-yellow-600 hover:to-green-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 flex items-center justify-center z-50 animate-pulse"
+            >
         {isOpen ? (
           <XMarkIcon className="w-7 h-7" />
         ) : (
@@ -293,16 +293,16 @@ export default function AIAssistant() {
 
       {/* Active Popup Widget */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 w-96 h-[500px] bg-white rounded-xl shadow-2xl border-2 border-blue-200 z-40 flex flex-col animate-slide-up">
+        <div className="fixed bottom-24 right-6 w-96 h-[500px] bg-white rounded-xl shadow-2xl border-2 border-red-200 z-40 flex flex-col animate-slide-up">
           {/* Active Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50 rounded-t-xl">
+          <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-red-50 via-yellow-50 to-green-50 rounded-t-xl">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center animate-pulse">
+              <div className="w-10 h-10 bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 rounded-full flex items-center justify-center animate-pulse">
                 <CpuChipIcon className="w-6 h-6 text-white" />
               </div>
               <div>
                 <h3 className="font-bold text-gray-900 text-lg">AI Assistant</h3>
-                <p className="text-sm text-blue-600 font-medium">Parliamentary Analytics • Active</p>
+                <p className="text-sm text-red-600 font-medium">Parliamentary Analytics • Active</p>
               </div>
             </div>
             <button
@@ -323,7 +323,7 @@ export default function AIAssistant() {
                 <div
                   className={`max-w-xs px-4 py-3 rounded-xl shadow-sm ${
                     message.isUser
-                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
+                      ? 'bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 text-white'
                       : 'bg-white border border-gray-200 text-gray-900'
                   }`}
                 >
@@ -356,14 +356,14 @@ export default function AIAssistant() {
           </div>
 
           {/* Enhanced Input Area */}
-          <div className="p-4 border-t border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
+          <div className="p-4 border-t border-gray-200 bg-gradient-to-r from-red-50 via-yellow-50 to-green-50">
             {/* Enhanced Input Mode Toggle */}
             <div className="flex bg-white rounded-xl p-1 mb-4 shadow-sm border border-gray-200">
               <button
                 onClick={() => setInputMode('text')}
                 className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 ${
                   inputMode === 'text'
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                    ? 'bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 text-white shadow-lg'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
@@ -374,7 +374,7 @@ export default function AIAssistant() {
                 onClick={() => setInputMode('voice')}
                 className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 ${
                   inputMode === 'voice'
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                    ? 'bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 text-white shadow-lg'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
@@ -391,12 +391,12 @@ export default function AIAssistant() {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   placeholder="Ask about parliamentary data..."
-                  className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-medium shadow-sm"
+                  className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm font-medium shadow-sm"
                 />
                 <button
                   type="submit"
                   disabled={!inputValue.trim()}
-                  className="p-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-all duration-200"
+                  className="p-3 bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 text-white rounded-xl hover:from-red-700 hover:via-yellow-600 hover:to-green-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-all duration-200"
                 >
                   <PaperAirplaneIcon className="w-5 h-5" />
                 </button>
@@ -404,8 +404,8 @@ export default function AIAssistant() {
             ) : (
               <div className="flex flex-col space-y-4">
                 {transcript && (
-                  <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200">
-                    <p className="text-sm text-blue-800 font-medium">
+                  <div className="p-4 bg-gradient-to-r from-red-50 via-yellow-50 to-green-50 rounded-xl border border-red-200">
+                    <p className="text-sm text-red-800 font-medium">
                       <strong>Transcribed:</strong> {transcript}
                     </p>
                   </div>
@@ -416,7 +416,7 @@ export default function AIAssistant() {
                     className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl ${
                       isRecording
                         ? 'bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 animate-pulse scale-110'
-                        : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:scale-105'
+                        : 'bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 hover:from-red-700 hover:via-yellow-600 hover:to-green-700 hover:scale-105'
                     } text-white`}
                   >
                     <MicrophoneIcon className="w-8 h-8" />
