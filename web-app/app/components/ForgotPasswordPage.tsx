@@ -5,31 +5,50 @@ import Link from 'next/link';
 import { 
   ArrowLeftIcon,
   EnvelopeIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
+  ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const { forgotPassword } = useAuth();
+
+  const validateEmail = (email: string) => {
+    if (!email.trim()) {
+      setError('Please enter your email address');
+      return false;
+    }
+    if (!email.includes('@') || !email.includes('.')) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+    return true;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setError('');
 
+    if (!validateEmail(email)) {
+      return;
+    }
+
+    setIsLoading(true);
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const result = await forgotPassword(email);
       
-      if (email) {
+      if (result.success) {
         setIsSubmitted(true);
       } else {
-        setError('Please enter your email address');
+        setError(result.message || 'Failed to send reset email. Please try again.');
       }
-    } catch (err) {
-      setError('Something went wrong. Please try again.');
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -37,7 +56,7 @@ export default function ForgotPasswordPage() {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-yellow-50 to-green-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           {/* Success State */}
           <div className="text-center">
@@ -57,7 +76,7 @@ export default function ForgotPasswordPage() {
             <div className="space-y-4">
               <Link
                 href="/login"
-                className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
               >
                 Back to Sign In
               </Link>
@@ -67,7 +86,7 @@ export default function ForgotPasswordPage() {
                   Didn't receive the email?{' '}
                   <button
                     onClick={() => setIsSubmitted(false)}
-                    className="text-blue-600 hover:text-blue-700 font-medium"
+                    className="text-red-600 hover:text-red-700 font-medium"
                   >
                     Try again
                   </button>
@@ -81,14 +100,14 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-yellow-50 to-green-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
           <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+            <div className="w-16 h-16 bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 rounded-xl flex items-center justify-center">
               <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
-                <div className="w-8 h-8 border border-blue-600"></div>
+                <div className="w-8 h-8 border border-red-600"></div>
               </div>
             </div>
           </div>
@@ -104,8 +123,9 @@ export default function ForgotPasswordPage() {
         <div className="bg-white py-8 px-6 shadow-xl rounded-2xl border border-gray-100">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                {error}
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center">
+                <ExclamationTriangleIcon className="w-5 h-5 mr-2 flex-shrink-0" />
+                <span className="text-sm font-medium">{error}</span>
               </div>
             )}
 
@@ -125,7 +145,7 @@ export default function ForgotPasswordPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                   placeholder="Enter your email address"
                 />
               </div>
@@ -134,7 +154,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isLoading ? (
                 <div className="flex items-center">
@@ -148,9 +168,9 @@ export default function ForgotPasswordPage() {
           </form>
 
           {/* Help Text */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-            <h3 className="text-sm font-medium text-blue-900 mb-2">Need Help?</h3>
-            <p className="text-xs text-blue-700">
+          <div className="mt-6 p-4 bg-red-50 rounded-lg">
+            <h3 className="text-sm font-medium text-red-900 mb-2">Need Help?</h3>
+            <p className="text-xs text-red-700">
               If you're having trouble accessing your account, please contact our support team at{' '}
               <a href="mailto:support@parliamentaryhub.gh" className="underline">
                 support@parliamentaryhub.gh
@@ -173,3 +193,6 @@ export default function ForgotPasswordPage() {
     </div>
   );
 }
+
+
+

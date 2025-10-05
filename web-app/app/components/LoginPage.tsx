@@ -19,6 +19,7 @@ export default function LoginPage() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
 
@@ -35,29 +36,32 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
 
     try {
-      const success = await login(formData.email, formData.password);
+      const result = await login(formData.email, formData.password);
       
-      if (success) {
+      if (result.success) {
         router.push('/dashboard');
       } else {
-        setError('Please fill in all fields');
+        setError(result.message || 'Login failed. Please try again.');
       }
-    } catch (err) {
-      setError('Login failed. Please try again.');
+    } catch (err: any) {
+      setError(err.message || 'Login failed. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-yellow-50 to-green-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
           <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+            <div className="w-16 h-16 bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 rounded-xl flex items-center justify-center">
               <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
-                <div className="w-8 h-8 border border-blue-600"></div>
+                <div className="w-8 h-8 border border-red-600"></div>
               </div>
             </div>
           </div>
@@ -94,7 +98,7 @@ export default function LoginPage() {
                   required
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                   placeholder="Enter your email"
                 />
               </div>
@@ -116,7 +120,7 @@ export default function LoginPage() {
                   required
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                   placeholder="Enter your password"
                 />
                 <button
@@ -139,14 +143,14 @@ export default function LoginPage() {
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
                 />
                 <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
                   Remember me
                 </label>
               </div>
               <div className="text-sm">
-                <Link href="/forgot-password" className="text-blue-600 hover:text-blue-700">
+                <Link href="/forgot-password" className="text-red-600 hover:text-red-700">
                   Forgot password?
                 </Link>
               </div>
@@ -154,20 +158,33 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              disabled={isLoading}
+              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <div className="flex items-center">
-                Sign In
-                <ArrowRightIcon className="ml-2 w-5 h-5" />
+                {isLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Signing In...
+                  </>
+                ) : (
+                  <>
+                    Sign In
+                    <ArrowRightIcon className="ml-2 w-5 h-5" />
+                  </>
+                )}
               </div>
             </button>
           </form>
 
           {/* Demo Credentials */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-            <h3 className="text-sm font-medium text-blue-900 mb-2">Demo Credentials</h3>
-            <p className="text-xs text-blue-700 mb-1">Email: demo@parliament.gh</p>
-            <p className="text-xs text-blue-700">Password: demo123</p>
+          <div className="mt-6 p-4 bg-red-50 rounded-lg">
+            <h3 className="text-sm font-medium text-red-900 mb-2">Test Credentials</h3>
+            <div className="space-y-1">
+              <p className="text-xs text-red-700"><strong>Admin:</strong> admin@parliament.gh / admin123</p>
+              <p className="text-xs text-red-700"><strong>Member:</strong> member@parliament.gh / member123</p>
+              <p className="text-xs text-red-700"><strong>Citizen:</strong> citizen@example.com / citizen123</p>
+            </div>
           </div>
         </div>
 
@@ -175,7 +192,7 @@ export default function LoginPage() {
         <div className="text-center">
           <p className="text-sm text-gray-600">
             Don't have an account?{' '}
-            <Link href="/register" className="text-blue-600 hover:text-blue-700 font-medium">
+            <Link href="/register" className="text-red-600 hover:text-red-700 font-medium">
               Sign up here
             </Link>
           </p>

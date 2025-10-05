@@ -11,7 +11,8 @@ import {
   LockClosedIcon,
   EnvelopeIcon,
   BuildingOfficeIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
+  ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -29,7 +30,7 @@ export default function SignUpPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { register, login } = useAuth();
   const router = useRouter();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,19 +44,27 @@ export default function SignUpPage() {
   };
 
   const validateForm = () => {
-    if (!formData.firstName || !formData.lastName) {
-      setError('Please enter your first and last name');
+    if (!formData.firstName.trim()) {
+      setError('Please enter your first name');
       return false;
     }
-    if (!formData.email) {
+    if (!formData.lastName.trim()) {
+      setError('Please enter your last name');
+      return false;
+    }
+    if (!formData.email.trim()) {
       setError('Please enter your email address');
       return false;
     }
-    if (!formData.organization) {
+    if (!formData.email.includes('@') || !formData.email.includes('.')) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+    if (!formData.organization.trim()) {
       setError('Please enter your organization');
       return false;
     }
-    if (!formData.password) {
+    if (!formData.password.trim()) {
       setError('Please enter a password');
       return false;
     }
@@ -85,33 +94,43 @@ export default function SignUpPage() {
     setIsLoading(true);
 
     try {
-      // Simulate API call for registration
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Register the user
+      const registerResult = await register({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        role: 'citizen' // Default role for new registrations
+      });
       
-      // For demo purposes, automatically log in the user after registration
-      const success = await login(formData.email, formData.password);
-      
-      if (success) {
-        router.push('/dashboard');
+      if (registerResult.success) {
+        // Automatically log in the user after successful registration
+        const loginResult = await login(formData.email, formData.password);
+        
+        if (loginResult.success) {
+          router.push('/dashboard');
+        } else {
+          setError('Registration successful, but login failed. Please try logging in manually.');
+        }
       } else {
-        setError('Registration failed. Please try again.');
+        setError(registerResult.message || 'Registration failed. Please try again.');
       }
-    } catch (err) {
-      setError('Registration failed. Please try again.');
+    } catch (err: any) {
+      setError(err.message || 'Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-yellow-50 to-green-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
           <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+            <div className="w-16 h-16 bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 rounded-xl flex items-center justify-center">
               <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
-                <div className="w-8 h-8 border border-blue-600"></div>
+                <div className="w-8 h-8 border border-red-600"></div>
               </div>
             </div>
           </div>
@@ -127,8 +146,9 @@ export default function SignUpPage() {
         <div className="bg-white py-8 px-6 shadow-xl rounded-2xl border border-gray-100">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                {error}
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center">
+                <ExclamationTriangleIcon className="w-5 h-5 mr-2 flex-shrink-0" />
+                <span className="text-sm font-medium">{error}</span>
               </div>
             )}
 
@@ -150,7 +170,7 @@ export default function SignUpPage() {
                     required
                     value={formData.firstName}
                     onChange={handleInputChange}
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                     placeholder="First name"
                   />
                 </div>
@@ -167,7 +187,7 @@ export default function SignUpPage() {
                   required
                   value={formData.lastName}
                   onChange={handleInputChange}
-                  className="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                   placeholder="Last name"
                 />
               </div>
@@ -190,7 +210,7 @@ export default function SignUpPage() {
                   required
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                   placeholder="Enter your email"
                 />
               </div>
@@ -213,7 +233,7 @@ export default function SignUpPage() {
                   required
                   value={formData.organization}
                   onChange={handleInputChange}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                   placeholder="Your organization"
                 />
               </div>
@@ -236,7 +256,7 @@ export default function SignUpPage() {
                   required
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                   placeholder="Create a password"
                 />
                 <button
@@ -270,7 +290,7 @@ export default function SignUpPage() {
                   required
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
-                  className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                   placeholder="Confirm your password"
                 />
                 <button
@@ -296,17 +316,17 @@ export default function SignUpPage() {
                   type="checkbox"
                   checked={formData.agreeToTerms}
                   onChange={handleInputChange}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-red-600 focus:ring-yellow-500 border-gray-300 rounded"
                 />
               </div>
               <div className="ml-3 text-sm">
                 <label htmlFor="agreeToTerms" className="text-gray-700">
                   I agree to the{' '}
-                  <Link href="/terms" className="text-blue-600 hover:text-blue-700">
+                  <Link href="/terms" className="text-red-600 hover:text-red-700">
                     Terms of Service
                   </Link>{' '}
                   and{' '}
-                  <Link href="/privacy" className="text-blue-600 hover:text-blue-700">
+                  <Link href="/privacy" className="text-red-600 hover:text-red-700">
                     Privacy Policy
                   </Link>
                 </label>
@@ -316,7 +336,7 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isLoading ? (
                 <div className="flex items-center">
@@ -332,12 +352,12 @@ export default function SignUpPage() {
             </button>
           </form>
 
-          {/* Demo Info */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-            <h3 className="text-sm font-medium text-blue-900 mb-2">Demo Registration</h3>
-            <p className="text-xs text-blue-700">
-              This is a demo registration. Any valid email and password combination will work.
-              After registration, you'll be automatically logged in and redirected to the dashboard.
+          {/* Registration Info */}
+          <div className="mt-6 p-4 bg-red-50 rounded-lg">
+            <h3 className="text-sm font-medium text-red-900 mb-2">Registration Info</h3>
+            <p className="text-xs text-red-700">
+              New users are registered as "Citizen" by default. After successful registration, 
+              you'll be automatically logged in and redirected to the dashboard.
             </p>
           </div>
         </div>
@@ -346,7 +366,7 @@ export default function SignUpPage() {
         <div className="text-center">
           <p className="text-sm text-gray-600">
             Already have an account?{' '}
-            <Link href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+            <Link href="/login" className="text-red-600 hover:text-red-700 font-medium">
               Sign in here
             </Link>
           </p>
@@ -360,3 +380,6 @@ export default function SignUpPage() {
     </div>
   );
 }
+
+
+

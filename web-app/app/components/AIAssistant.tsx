@@ -8,8 +8,12 @@ import {
   ChevronUpIcon,
   ChevronDownIcon,
   CpuChipIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
+  SpeakerWaveIcon,
+  ExclamationTriangleIcon,
+  CheckCircleIcon
 } from '@heroicons/react/24/outline';
+import webhookService, { WebhookRequest } from '../lib/webhook';
 
 interface Message {
   id: string;
@@ -24,7 +28,7 @@ export default function AIAssistant() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hello! I'm your AI Parliamentary Assistant. I can help you analyze debates, find information about bills, or answer questions about parliamentary proceedings. How can I assist you today?",
+      text: "Hello! I'm your AI Parliamentary Assistant. I can help you analyze debates, find information about bills, or answer questions about parliamentary proceedings. You can use text input or voice commands (if supported by your browser). How can I assist you today?",
       isUser: false,
       timestamp: new Date(),
     }
@@ -34,6 +38,14 @@ export default function AIAssistant() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [inputMode, setInputMode] = useState<'text' | 'voice'>('text');
   const [transcript, setTranscript] = useState('');
+  const [isListening, setIsListening] = useState(false);
+  const [voiceError, setVoiceError] = useState('');
+  const [recognitionSupported, setRecognitionSupported] = useState(false);
+  const [audioLevel, setAudioLevel] = useState(0);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [sessionId, setSessionId] = useState<string>('');
+  const [userId, setUserId] = useState<string>('');
+  const [webhookConnected, setWebhookConnected] = useState<boolean | null>(null);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -48,7 +60,47 @@ export default function AIAssistant() {
     scrollToBottom();
   }, [messages]);
 
-  const addMessage = (text: string, isUser: boolean, isVoice = false) => {
+  // Check for speech recognition support and browser capabilities
+  useEffect(() => {
+    const checkBrowserSupport = () => {
+      const speechSupported = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+      const mediaSupported = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+      
+      setRecognitionSupported(speechSupported);
+      
+      if (!speechSupported) {
+        if (mediaSupported) {
+          setVoiceError('Speech recognition not available, but audio recording is supported. You can record audio and we\'ll process it.');
+        } else {
+          setVoiceError('Voice features are not supported in this browser. Please use text input.');
+        }
+      }
+    };
+
+    const initializeWebhook = async () => {
+      // Generate session and user IDs
+      const newSessionId = webhookService.generateSessionId();
+      const newUserId = webhookService.generateUserId();
+      
+      setSessionId(newSessionId);
+      setUserId(newUserId);
+      
+      // Test webhook connection
+      try {
+        const connected = await webhookService.testConnection();
+        setWebhookConnected(connected);
+        console.log('Webhook connection test:', connected ? 'Connected' : 'Failed');
+      } catch (error) {
+        console.error('Webhook initialization error:', error);
+        setWebhookConnected(false);
+      }
+    };
+
+    checkBrowserSupport();
+    initializeWebhook();
+  }, []);
+
+  const addMessage = (text: string, isUser: boolean, isVoice = false, shouldSpeak = false) => {
     const newMessage: Message = {
       id: Date.now().toString(),
       text,
@@ -57,77 +109,184 @@ export default function AIAssistant() {
       isVoice,
     };
     setMessages(prev => [...prev, newMessage]);
+    
+    // Speak AI responses if requested
+    if (!isUser && shouldSpeak && 'speechSynthesis' in window) {
+      setTimeout(() => speakText(text), 500);
+    }
   };
 
-  const handleTextSubmit = (e: React.FormEvent) => {
+  const sendToWebhook = async (message: string, isVoice: boolean = false): Promise<string> => {
+    try {
+      const webhookRequest: WebhookRequest = {
+        message,
+        userId,
+        sessionId,
+        metadata: {
+          source: isVoice ? 'voice' : 'text',
+          browser: navigator.userAgent,
+        },
+      };
+
+      const response = await webhookService.sendMessage(webhookRequest);
+      
+      if (response.success && response.data?.response) {
+        return response.data.response;
+      } else {
+        throw new Error(response.error || 'No response from chatbot');
+      }
+    } catch (error) {
+      console.error('Webhook error:', error);
+      throw error;
+    }
+  };
+
+  const handleTextSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim()) return;
 
-    addMessage(inputValue, true);
+    const userMessage = inputValue.trim();
+    addMessage(userMessage, true);
     setInputValue('');
     
-    // Simulate AI response
-    setTimeout(() => {
-      const responses = [
-        "I understand you're asking about parliamentary data. Let me analyze the recent debates and provide you with insights.",
-        "Based on the current parliamentary session, I can see there's been increased activity in healthcare discussions. Would you like me to provide a detailed breakdown?",
-        "I've found relevant information about the bills you mentioned. The sentiment analysis shows mixed reactions from different parties.",
-        "Let me search through the parliamentary records for that specific topic. I'll provide you with a comprehensive analysis.",
-        "I can help you track the progress of specific bills or analyze member participation patterns. What specific data would you like to explore?"
+    // Show processing indicator
+    setIsProcessing(true);
+    
+    try {
+      // Send to webhook
+      const response = await sendToWebhook(userMessage, false);
+      addMessage(response, false);
+    } catch (error) {
+      console.error('Error getting response from webhook:', error);
+      
+      // Fallback to local response if webhook fails
+      const fallbackResponses = [
+        "I'm having trouble connecting to the chatbot service right now. Let me provide a local response: I understand you're asking about parliamentary data. Please try again in a moment for the full AI experience.",
+        "The chatbot service is temporarily unavailable. Here's a local response: Based on parliamentary data, I can help you with debates, bills, and member information. Please try again shortly.",
+        "Connection issue with the AI service. Local response: I can assist with parliamentary analytics, voting patterns, and legislative tracking. Please retry for enhanced AI responses."
       ];
-      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-      addMessage(randomResponse, false);
-    }, 1000);
+      const fallbackResponse = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+      addMessage(fallbackResponse, false);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const startRecording = async () => {
     try {
+      setVoiceError('');
+      setIsListening(true);
+      
       // Check if Web Speech API is available
-      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      if (recognitionSupported) {
         // Use Web Speech API directly for better real-time recognition
         const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
         const recognition = new SpeechRecognition();
         recognitionRef.current = recognition;
         
         recognition.continuous = false;
-        recognition.interimResults = false;
+        recognition.interimResults = true; // Enable interim results for better UX
         recognition.lang = 'en-US';
+        recognition.maxAlternatives = 1;
         
         recognition.onstart = () => {
           console.log('Speech recognition started');
           setIsRecording(true);
+          setIsListening(true);
         };
         
         recognition.onresult = (event: any) => {
-          const transcript = event.results[0][0].transcript;
-          console.log('Speech recognition result:', transcript);
-          setTranscript(transcript);
-          addMessage(transcript, true, true);
+          let finalTranscript = '';
+          let interimTranscript = '';
+          
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              finalTranscript += transcript;
+            } else {
+              interimTranscript += transcript;
+            }
+          }
+          
+          // Update transcript in real-time
+          if (interimTranscript) {
+            setTranscript(interimTranscript);
+          }
+          
+          if (finalTranscript) {
+            console.log('Speech recognition result:', finalTranscript);
+            setTranscript(finalTranscript);
+            addMessage(finalTranscript, true, true);
           
           // Generate AI response based on actual transcript
-          setTimeout(() => {
-            const response = generateAIResponse(transcript);
-            addMessage(response, false);
+            setTimeout(async () => {
+              try {
+                setIsProcessing(true);
+                const response = await sendToWebhook(finalTranscript, true);
+                addMessage(response, false, false, true); // Enable text-to-speech for voice responses
+              } catch (error) {
+                console.error('Error getting webhook response for voice:', error);
+                // Fallback to local response
+                const response = generateAIResponse(finalTranscript);
+                addMessage(response, false, false, true);
+              } finally {
+                setIsProcessing(false);
             setIsRecording(false);
+                setIsListening(false);
+              }
           }, 1000);
+          }
         };
         
         recognition.onerror = (event: any) => {
           console.error('Speech recognition error:', event.error);
-          addMessage("Sorry, I couldn't understand your voice. Please try again or use text input.", false);
+          let errorMessage = "Sorry, I couldn't understand your voice. Please try again.";
+          
+          switch (event.error) {
+            case 'no-speech':
+              errorMessage = "No speech detected. Please speak clearly and try again.";
+              break;
+            case 'audio-capture':
+              errorMessage = "Microphone access denied. Please allow microphone access and try again.";
+              break;
+            case 'not-allowed':
+              errorMessage = "Microphone access denied. Please allow microphone access and try again.";
+              break;
+            case 'network':
+              errorMessage = "Network error. Please check your connection and try again.";
+              break;
+            case 'aborted':
+              errorMessage = "Speech recognition was interrupted. Please try again.";
+              break;
+            default:
+              errorMessage = `Speech recognition error: ${event.error}. Please try again.`;
+          }
+          
+          setVoiceError(errorMessage);
+          addMessage(errorMessage, false);
           setIsRecording(false);
+          setIsListening(false);
         };
         
         recognition.onend = () => {
           console.log('Speech recognition ended');
           setIsRecording(false);
+          setIsListening(false);
         };
         
         // Start recognition
         recognition.start();
       } else {
         // Fallback to MediaRecorder for browsers without Web Speech API
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          const stream = await navigator.mediaDevices.getUserMedia({ 
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true
+            }
+          });
+          
         const mediaRecorder = new MediaRecorder(stream);
         mediaRecorderRef.current = mediaRecorder;
         audioChunksRef.current = [];
@@ -146,25 +305,77 @@ export default function AIAssistant() {
 
         mediaRecorder.start();
         setIsRecording(true);
+          setIsListening(true);
+          
+          // Show user that we're recording audio
+          setTranscript('Recording audio... Click stop when finished.');
+        } else {
+          throw new Error('No audio recording support available');
+        }
       }
     } catch (error) {
       console.error('Error accessing microphone:', error);
-      addMessage('Microphone access denied. Please allow microphone access and try again.', false);
+      const errorMessage = 'Microphone access denied. Please allow microphone access and try again.';
+      setVoiceError(errorMessage);
+      addMessage(errorMessage, false);
+      setIsRecording(false);
+      setIsListening(false);
     }
   };
 
   const stopRecording = () => {
-    if (isRecording) {
+    console.log('Stopping recording...', { isRecording, recognitionRef: recognitionRef.current });
+    
       // Stop Web Speech API recognition
       if (recognitionRef.current) {
+      console.log('Stopping speech recognition');
         recognitionRef.current.stop();
         recognitionRef.current = null;
       }
+    
       // Stop MediaRecorder fallback
-      if (mediaRecorderRef.current) {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      console.log('Stopping media recorder');
         mediaRecorderRef.current.stop();
       }
+    
+    // Force state update
       setIsRecording(false);
+    setIsListening(false);
+    setVoiceError(''); // Clear any errors
+  };
+
+  // Text-to-Speech function for AI responses
+  const speakText = (text: string) => {
+    if ('speechSynthesis' in window) {
+      // Stop any ongoing speech
+      window.speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.9;
+      utterance.pitch = 1;
+      utterance.volume = 0.8;
+      
+      utterance.onstart = () => {
+        setIsSpeaking(true);
+      };
+      
+      utterance.onend = () => {
+        setIsSpeaking(false);
+      };
+      
+      utterance.onerror = () => {
+        setIsSpeaking(false);
+      };
+      
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const stopSpeaking = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
     }
   };
 
@@ -194,7 +405,7 @@ export default function AIAssistant() {
           // Generate AI response based on actual transcript
           setTimeout(() => {
             const response = generateAIResponse(transcript);
-            addMessage(response, false);
+            addMessage(response, false, false, true);
             setIsProcessing(false);
           }, 1000);
         };
@@ -212,9 +423,21 @@ export default function AIAssistant() {
         // Start recognition
         recognition.start();
       } else {
-        // Fallback for browsers without speech recognition
-        addMessage("Speech recognition is not supported in this browser. Please use text input instead.", false);
+        // Fallback for browsers without speech recognition - simulate processing
+        addMessage("Audio recorded successfully! Processing...", false);
+        
+        // Simulate processing time
+        setTimeout(() => {
+          const simulatedTranscript = "I heard your audio message. While speech recognition isn't available in this browser, I can still help you with parliamentary data. Please use text input for the best experience.";
+          setTranscript(simulatedTranscript);
+          addMessage(simulatedTranscript, true, true);
+          
+          setTimeout(() => {
+            const response = "I understand you're trying to use voice input. For the best experience with parliamentary data analysis, I recommend using text input. You can ask me about debates, bills, voting patterns, or member information.";
+            addMessage(response, false, false, true);
         setIsProcessing(false);
+          }, 1000);
+        }, 2000);
       }
     } catch (error) {
       console.error('Error with speech recognition:', error);
@@ -275,7 +498,7 @@ export default function AIAssistant() {
       {/* Active Floating Button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 hover:from-red-700 hover:via-yellow-600 hover:to-green-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 flex items-center justify-center z-50 animate-pulse"
+               className="fixed bottom-6 right-6 w-16 h-16 bg-green-800 hover:bg-green-900 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 flex items-center justify-center z-50 animate-pulse"
             >
         {isOpen ? (
           <XMarkIcon className="w-7 h-7" />
@@ -286,23 +509,43 @@ export default function AIAssistant() {
 
       {/* Active Indicator */}
       {!isOpen && (
-        <div className="fixed bottom-20 right-6 bg-red-500 text-white text-xs px-2 py-1 rounded-full shadow-lg z-50 animate-bounce">
+        <div className="fixed bottom-20 right-6 bg-green-800 text-white text-xs px-2 py-1 rounded-full shadow-lg z-50 animate-bounce">
           AI Active
         </div>
       )}
 
       {/* Active Popup Widget */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 w-96 h-[500px] bg-white rounded-xl shadow-2xl border-2 border-red-200 z-40 flex flex-col animate-slide-up">
+        <div className="fixed bottom-24 right-6 w-96 h-[500px] bg-white rounded-xl shadow-2xl border-2 border-green-200 z-40 flex flex-col animate-slide-up">
           {/* Active Header */}
           <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-red-50 via-yellow-50 to-green-50 rounded-t-xl">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 rounded-full flex items-center justify-center animate-pulse">
+              <div className="w-10 h-10 bg-green-800 rounded-full flex items-center justify-center animate-pulse">
                 <CpuChipIcon className="w-6 h-6 text-white" />
               </div>
               <div>
                 <h3 className="font-bold text-gray-900 text-lg">AI Assistant</h3>
-                <p className="text-sm text-red-600 font-medium">Parliamentary Analytics • Active</p>
+                <div className="flex items-center space-x-2">
+                  <p className="text-sm text-green-800 font-medium">Parliamentary Analytics</p>
+                  {webhookConnected === true && (
+                    <div className="flex items-center space-x-1">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="text-xs text-green-600 font-medium">AI Connected</span>
+                    </div>
+                  )}
+                  {webhookConnected === false && (
+                    <div className="flex items-center space-x-1">
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                      <span className="text-xs text-yellow-600 font-medium">Local Mode</span>
+                    </div>
+                  )}
+                  {webhookConnected === null && (
+                    <div className="flex items-center space-x-1">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                      <span className="text-xs text-gray-600 font-medium">Connecting...</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             <button
@@ -323,17 +566,28 @@ export default function AIAssistant() {
                 <div
                   className={`max-w-xs px-4 py-3 rounded-xl shadow-sm ${
                     message.isUser
-                      ? 'bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 text-white'
+                        ? 'bg-green-800 text-white'
                       : 'bg-white border border-gray-200 text-gray-900'
                   }`}
                 >
-                  <div className="flex items-center space-x-2 mb-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-2">
                     {message.isVoice && (
                       <MicrophoneIcon className="w-4 h-4" />
                     )}
                     <span className="text-xs opacity-75 font-medium">
                       {message.timestamp.toLocaleTimeString()}
                     </span>
+                    </div>
+                    {!message.isUser && 'speechSynthesis' in window && (
+                      <button
+                        onClick={() => speakText(message.text)}
+                        className="text-gray-400 hover:text-green-600 transition-colors"
+                        title="Speak this message"
+                      >
+                        <SpeakerWaveIcon className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                   <p className="text-sm leading-relaxed">{message.text}</p>
                 </div>
@@ -345,8 +599,10 @@ export default function AIAssistant() {
               <div className="flex justify-start">
                 <div className="bg-white border border-gray-200 px-4 py-3 rounded-xl shadow-sm">
                   <div className="flex items-center space-x-3">
-                    <div className="animate-spin w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full"></div>
-                    <span className="text-sm text-gray-700 font-medium">Processing audio...</span>
+                    <div className="animate-spin w-5 h-5 border-2 border-green-600 border-t-transparent rounded-full"></div>
+                    <span className="text-sm text-gray-700 font-medium">
+                      {webhookConnected ? 'AI is thinking...' : 'Processing locally...'}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -363,7 +619,7 @@ export default function AIAssistant() {
                 onClick={() => setInputMode('text')}
                 className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 ${
                   inputMode === 'text'
-                    ? 'bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 text-white shadow-lg'
+                    ? 'bg-green-800 text-white shadow-lg'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
@@ -374,7 +630,7 @@ export default function AIAssistant() {
                 onClick={() => setInputMode('voice')}
                 className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 ${
                   inputMode === 'voice'
-                    ? 'bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 text-white shadow-lg'
+                    ? 'bg-green-800 text-white shadow-lg'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
@@ -391,40 +647,151 @@ export default function AIAssistant() {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   placeholder="Ask about parliamentary data..."
-                  className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm font-medium shadow-sm"
+                  className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm font-medium shadow-sm text-gray-900 placeholder-gray-500"
                 />
                 <button
                   type="submit"
                   disabled={!inputValue.trim()}
-                  className="p-3 bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 text-white rounded-xl hover:from-red-700 hover:via-yellow-600 hover:to-green-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-all duration-200"
+                  className="p-3 bg-green-800 text-white rounded-xl hover:bg-green-900 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-all duration-200"
                 >
                   <PaperAirplaneIcon className="w-5 h-5" />
                 </button>
               </form>
             ) : (
               <div className="flex flex-col space-y-4">
-                {transcript && (
-                  <div className="p-4 bg-gradient-to-r from-red-50 via-yellow-50 to-green-50 rounded-xl border border-red-200">
-                    <p className="text-sm text-red-800 font-medium">
-                      <strong>Transcribed:</strong> {transcript}
-                    </p>
+                {/* Voice Error Display */}
+                {voiceError && (
+                  <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg flex items-center">
+                    <ExclamationTriangleIcon className="w-4 h-4 mr-2 flex-shrink-0" />
+                    <span className="text-sm font-medium">{voiceError}</span>
                   </div>
                 )}
+
+                {/* Real-time Transcript Display */}
+                {transcript && (
+                  <div className="p-4 bg-gradient-to-r from-red-50 via-yellow-50 to-green-50 rounded-xl border border-red-200">
+                    <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm text-red-800 font-medium">
+                        <strong>Transcribed:</strong>
+                      </p>
+                      <div className="flex items-center space-x-2">
+                        {isListening && (
+                          <div className="flex items-center space-x-1">
+                            <div className="w-2 h-2 bg-green-600 rounded-full animate-pulse"></div>
+                            <span className="text-xs text-red-600">Listening...</span>
+                          </div>
+                        )}
+                        <button
+                          onClick={() => setTranscript('')}
+                          className="text-gray-400 hover:text-red-600 transition-colors"
+                          title="Clear transcript"
+                        >
+                          <XMarkIcon className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-800 bg-white p-2 rounded border">{transcript}</p>
+                  </div>
+                )}
+
+                {/* Voice Recording Button */}
                 <div className="flex justify-center">
                   <button
-                    onClick={isRecording ? stopRecording : startRecording}
+                    onClick={() => {
+                      console.log('Button clicked:', { isRecording, isListening });
+                      if (isRecording || isListening) {
+                        stopRecording();
+                      } else {
+                        startRecording();
+                      }
+                    }}
+                    disabled={!recognitionSupported && !(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)}
                     className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl ${
-                      isRecording
-                        ? 'bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 animate-pulse scale-110'
-                        : 'bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 hover:from-red-700 hover:via-yellow-600 hover:to-green-700 hover:scale-105'
+                      isRecording || isListening
+                        ? 'bg-green-600 hover:bg-green-700 animate-pulse scale-110'
+                        : recognitionSupported
+                        ? 'bg-green-800 hover:bg-green-900 hover:scale-105'
+                        : (navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+                        ? 'bg-green-700 hover:bg-green-800 hover:scale-105'
+                        : 'bg-gray-400 cursor-not-allowed'
                     } text-white`}
                   >
+                    {isRecording || isListening ? (
+                      <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+                        <div className="w-4 h-4 bg-green-600 rounded"></div>
+                      </div>
+                    ) : (
                     <MicrophoneIcon className="w-8 h-8" />
+                    )}
                   </button>
                 </div>
-                <p className="text-center text-sm text-gray-600 font-medium">
-                  {isRecording ? '🎤 Listening... Click to stop' : '🎤 Click to start recording'}
-                </p>
+
+                {/* Voice Status */}
+                <div className="text-center">
+                  <p className="text-sm text-gray-600 font-medium">
+                    {isRecording || isListening ? (
+                      <span className="flex items-center justify-center space-x-2">
+                        <div className="w-2 h-2 bg-green-600 rounded-full animate-pulse"></div>
+                        <span>Listening... Click to stop</span>
+                      </span>
+                    ) : recognitionSupported ? (
+                      '🎤 Click to start recording'
+                    ) : navigator.mediaDevices && navigator.mediaDevices.getUserMedia ? (
+                      '🎤 Audio recording available (limited)'
+                    ) : (
+                      '❌ Voice not supported in this browser'
+                    )}
+                  </p>
+                  
+                  {/* Browser Support Info */}
+                  {!recognitionSupported && (
+                    <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
+                      <p className="text-xs text-yellow-800">
+                        <strong>Browser Support:</strong><br/>
+                        • Chrome/Edge: Full voice support<br/>
+                        • Safari: Limited support<br/>
+                        • Firefox: Audio recording only<br/>
+                        • Mobile: Varies by browser
+                      </p>
+                    </div>
+                  )}
+                  
+                  {/* Emergency Stop Button */}
+                  {(isRecording || isListening) && (
+                      <button
+                        onClick={stopRecording}
+                        className="mt-2 px-3 py-1 bg-green-600 text-white text-xs rounded-full hover:bg-green-700 transition-colors"
+                      >
+                      Force Stop
+                    </button>
+                  )}
+                </div>
+
+                {/* Text-to-Speech Controls */}
+                {messages.length > 1 && (
+                  <div className="flex justify-center space-x-2">
+                    <button
+                      onClick={() => {
+                        const lastAIMessage = messages.filter(m => !m.isUser).pop();
+                        if (lastAIMessage) speakText(lastAIMessage.text);
+                      }}
+                      disabled={isSpeaking}
+                      className="px-4 py-2 bg-green-800 text-white rounded-lg hover:bg-green-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center space-x-2"
+                    >
+                      <SpeakerWaveIcon className="w-4 h-4" />
+                      <span className="text-sm font-medium">Speak Last Response</span>
+                    </button>
+                    {isSpeaking && (
+                        <button
+                          onClick={stopSpeaking}
+                          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 flex items-center space-x-2"
+                        >
+                        <XMarkIcon className="w-4 h-4" />
+                        <span className="text-sm font-medium">Stop</span>
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>

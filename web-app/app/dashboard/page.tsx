@@ -29,9 +29,9 @@ const sentimentData = [
 ];
 
 const topSpeakers = [
-  { initials: 'JS', name: 'Rt Hon. Jane Smith', title: 'Speaker of Parliament', count: 24, color: 'bg-blue-500' },
+  { initials: 'JS', name: 'Rt Hon. Jane Smith', title: 'Speaker of Parliament', count: 24, color: 'bg-red-500' },
   { initials: 'DJ', name: 'David Johnson MP', title: 'Majority Leader', count: 19, color: 'bg-gray-500' },
-  { initials: 'SW', name: 'Dr. Sarah Williams', title: 'Minority Whip', count: 17, color: 'bg-blue-500' },
+  { initials: 'SW', name: 'Dr. Sarah Williams', title: 'Minority Whip', count: 17, color: 'bg-green-500' },
   { initials: 'MB', name: 'Michael Brown MP', title: 'Minister of Health', count: 15, color: 'bg-gray-500' },
 ];
 
@@ -73,9 +73,9 @@ export default function Dashboard() {
       <Navigation>
       <div className="p-6">
           {/* Welcome Banner */}
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-lg mb-6">
+          <div className="bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 text-white p-6 rounded-lg mb-6">
             <h2 className="text-2xl font-bold mb-2">Welcome to Your Parliamentary Dashboard</h2>
-            <p className="text-blue-100">Get AI-powered insights, voice-enabled analysis, and real-time tracking of parliamentary proceedings.</p>
+            <p className="text-yellow-100">Get AI-powered insights, voice-enabled analysis, and real-time tracking of parliamentary proceedings.</p>
           </div>
 
           {/* Key Metrics */}
@@ -112,7 +112,7 @@ export default function Dashboard() {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">Debate Activity Trend</h3>
                 <div className="flex items-center space-x-2">
-                  <button className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-md">Monthly</button>
+                  <button className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded-md">Monthly</button>
                   <button className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-md">Export</button>
                 </div>
               </div>
@@ -134,7 +134,7 @@ export default function Dashboard() {
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">Top Speakers</h3>
-                <button className="text-sm text-blue-600 hover:text-blue-700">View All</button>
+                <button className="text-sm text-red-600 hover:text-red-700">View All</button>
               </div>
               <div className="space-y-4">
                 {topSpeakers.map((speaker, index) => (
@@ -161,7 +161,7 @@ export default function Dashboard() {
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">Recent Debates</h3>
-                <button className="text-sm text-blue-600 hover:text-blue-700">View All</button>
+                <button className="text-sm text-red-600 hover:text-red-700">View All</button>
               </div>
               <div className="space-y-4">
                 {recentDebates.map((debate, index) => (
@@ -169,7 +169,7 @@ export default function Dashboard() {
                     <div className="flex items-start justify-between mb-2">
                       <h4 className="font-medium text-gray-900">{debate.title}</h4>
                       <div className="flex items-center space-x-2">
-                        <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">{debate.category}</span>
+                        <span className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full">{debate.category}</span>
                         {debate.sentiment === 'positive' && <FaceSmileIcon className="w-4 h-4 text-green-500" />}
                         {debate.sentiment === 'negative' && <FaceFrownIcon className="w-4 h-4 text-red-500" />}
                         {debate.sentiment === 'neutral' && <div className="w-4 h-4 bg-gray-500 rounded-full"></div>}
@@ -252,9 +252,9 @@ export default function Dashboard() {
               <input
                 type="text"
                 placeholder="Ask the AI assistant about any parliamentary data..."
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
               />
-              <button className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              <button className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
                 <PaperAirplaneIcon className="w-5 h-5" />
               </button>
             </div>
