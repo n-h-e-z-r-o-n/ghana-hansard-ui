@@ -35,6 +35,7 @@ export default function UnifiedAuthPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isEmailSent, setIsEmailSent] = useState(false);
+
   const { login, register, forgotPassword } = useAuth();
   const router = useRouter();
 
@@ -189,6 +190,7 @@ export default function UnifiedAuthPage() {
       setError('Please enter your email address');
       return;
     }
+
     if (!formData.email.includes('@') || !formData.email.includes('.')) {
       setError('Please enter a valid email address');
       return;
@@ -239,9 +241,11 @@ export default function UnifiedAuthPage() {
                 <CheckCircleIcon className="w-8 h-8 text-green-600" />
               </div>
             </div>
+
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
               Check Your Email
             </h2>
+
             <p className="text-gray-600 mb-8">
               We've sent a password reset link to <strong>{formData.email}</strong>. 
               Please check your email and follow the instructions to reset your password.
@@ -285,11 +289,13 @@ export default function UnifiedAuthPage() {
               </div>
             </div>
           </div>
+
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
             {authMode === 'login' && 'Welcome Back'}
             {authMode === 'signup' && 'Create Your Account'}
             {authMode === 'forgot-password' && 'Forgot Password?'}
           </h2>
+
           <p className="text-gray-600">
             {authMode === 'login' && 'Sign in to access the Ghana Parliamentary Hub'}
             {authMode === 'signup' && 'Join the Ghana Parliamentary Hub and start exploring parliamentary insights'}
@@ -310,6 +316,7 @@ export default function UnifiedAuthPage() {
             >
               Sign In
             </button>
+
             <button
               onClick={() => switchMode('signup')}
               className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
@@ -320,6 +327,7 @@ export default function UnifiedAuthPage() {
             >
               Sign Up
             </button>
+
             <button
               onClick={() => switchMode('forgot-password')}
               className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
@@ -340,12 +348,12 @@ export default function UnifiedAuthPage() {
             authMode === 'signup' ? handleSignup :
             handleForgotPassword
           }>
-             {error && (
+            {error && (
                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center">
                  <ExclamationTriangleIcon className="w-5 h-5 mr-2 flex-shrink-0" />
                  <span className="text-sm font-medium">{error}</span>
-               </div>
-             )}
+              </div>
+            )}
 
             {/* Sign Up Fields */}
             {authMode === 'signup' && (
@@ -358,34 +366,35 @@ export default function UnifiedAuthPage() {
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <UserIcon className="h-5 w-5 text-gray-400" />
                     </div>
-                     <input
-                       id="firstName"
-                       name="firstName"
-                       type="text"
-                       autoComplete="given-name"
-                       required
-                       value={formData.firstName}
-                       onChange={handleInputChange}
-                       className={getInputClassName()}
-                       placeholder="First name"
-                     />
+                    <input
+                      id="firstName"
+                      name="firstName"
+                      type="text"
+                      autoComplete="given-name"
+                      required
+                      value={formData.firstName}
+                      onChange={handleInputChange}
+                      className={getInputClassName()}
+                      placeholder="First name"
+                    />
                   </div>
                 </div>
+
                 <div>
                   <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
                     Last Name
                   </label>
-                   <input
-                     id="lastName"
-                     name="lastName"
-                     type="text"
-                     autoComplete="family-name"
-                     required
-                     value={formData.lastName}
-                     onChange={handleInputChange}
-                     className={getInputClassName()}
-                     placeholder="Last name"
-                   />
+                  <input
+                    id="lastName"
+                    name="lastName"
+                    type="text"
+                    autoComplete="family-name"
+                    required
+                    value={formData.lastName}
+                    onChange={handleInputChange}
+                    className={getInputClassName()}
+                    placeholder="Last name"
+                  />
                 </div>
               </div>
             )}
@@ -399,17 +408,17 @@ export default function UnifiedAuthPage() {
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <EnvelopeIcon className="h-5 w-5 text-gray-400" />
                 </div>
-                 <input
-                   id="email"
-                   name="email"
-                   type="email"
-                   autoComplete="email"
-                   required
-                   value={formData.email}
-                   onChange={handleInputChange}
-                   className={getInputClassName()}
-                   placeholder="Enter your email"
-                 />
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className={getInputClassName()}
+                  placeholder="Enter your email"
+                />
               </div>
             </div>
 
@@ -423,17 +432,17 @@ export default function UnifiedAuthPage() {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <BuildingOfficeIcon className="h-5 w-5 text-gray-400" />
                   </div>
-                   <input
-                     id="organization"
-                     name="organization"
-                     type="text"
-                     autoComplete="organization"
-                     required
-                     value={formData.organization}
-                     onChange={handleInputChange}
-                     className={getInputClassName()}
-                     placeholder="Your organization"
-                   />
+                  <input
+                    id="organization"
+                    name="organization"
+                    type="text"
+                    autoComplete="organization"
+                    required
+                    value={formData.organization}
+                    onChange={handleInputChange}
+                    className={getInputClassName()}
+                    placeholder="Your organization"
+                  />
                 </div>
               </div>
             )}
@@ -449,17 +458,17 @@ export default function UnifiedAuthPage() {
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <LockClosedIcon className="h-5 w-5 text-gray-400" />
                     </div>
-                     <input
-                       id="password"
-                       name="password"
-                       type={showPassword ? 'text' : 'password'}
-                       autoComplete={authMode === 'login' ? 'current-password' : 'new-password'}
-                       required
-                       value={formData.password}
-                       onChange={handleInputChange}
-                       className={getPasswordInputClassName()}
-                       placeholder={authMode === 'login' ? 'Enter your password' : 'Create a password'}
-                     />
+                    <input
+                      id="password"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete={authMode === 'login' ? 'current-password' : 'new-password'}
+                      required
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      className={getPasswordInputClassName()}
+                      placeholder={authMode === 'login' ? 'Enter your password' : 'Create a password'}
+                    />
                     <button
                       type="button"
                       className="absolute inset-y-0 right-0 pr-3 flex items-center"
@@ -484,17 +493,17 @@ export default function UnifiedAuthPage() {
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <LockClosedIcon className="h-5 w-5 text-gray-400" />
                       </div>
-                       <input
-                         id="confirmPassword"
-                         name="confirmPassword"
-                         type={showConfirmPassword ? 'text' : 'password'}
-                         autoComplete="new-password"
-                         required
-                         value={formData.confirmPassword}
-                         onChange={handleInputChange}
-                         className={getPasswordInputClassName()}
-                         placeholder="Confirm your password"
-                       />
+                      <input
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        autoComplete="new-password"
+                        required
+                        value={formData.confirmPassword}
+                        onChange={handleInputChange}
+                        className={getPasswordInputClassName()}
+                        placeholder="Confirm your password"
+                      />
                       <button
                         type="button"
                         className="absolute inset-y-0 right-0 pr-3 flex items-center"
@@ -579,7 +588,6 @@ export default function UnifiedAuthPage() {
               )}
             </button>
           </form>
-
         </div>
 
         {/* Footer Links */}
@@ -593,6 +601,3 @@ export default function UnifiedAuthPage() {
     </div>
   );
 }
-
-
-

@@ -144,10 +144,12 @@ export default function Navigation({ children }: NavigationProps) {
                 <Bars3Icon className="w-6 h-6" />
               </button>
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-yellow-400 rounded flex items-center justify-center">
-                  <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
-                    <div className="w-4 h-4 border border-yellow-400"></div>
-                  </div>
+                <div className="w-8 h-8 rounded flex items-center justify-center">
+                  <img 
+                    src="/logo.png" 
+                    alt="Ghana Parliamentary Hub Logo" 
+                    className="w-8 h-8 rounded object-contain"
+                  />
                 </div>
                 <div className="hidden sm:block">
                   <h1 className="text-xl font-bold">Ghana Parliamentary Hub</h1>

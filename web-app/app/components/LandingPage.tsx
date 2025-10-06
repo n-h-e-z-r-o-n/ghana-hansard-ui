@@ -85,10 +85,12 @@ export default function LandingPage() {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 rounded flex items-center justify-center">
-                <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
-                  <div className="w-4 h-4 bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 rounded-sm"></div>
-                </div>
+              <div className="w-8 h-8 rounded flex items-center justify-center">
+                <img 
+                  src="/logo.png" 
+                  alt="Ghana Parliamentary Hub Logo" 
+                  className="w-8 h-8 rounded object-contain"
+                />
               </div>
               <span className="text-xl font-bold text-gray-900">Ghana Parliamentary Hub</span>
             </div>
@@ -444,8 +446,8 @@ export default function LandingPage() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-shadow duration-300">
               <div className="w-full overflow-hidden rounded-t-xl">
                 <img
-                  src="https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
-                  alt="Parliamentary Session"
+                  src="/news/education-bill.jpg"
+                  alt="Ghana Parliament Building with traditional architecture"
                   className="aspect-[3/2] w-full object-cover"
                 />
               </div>
@@ -481,8 +483,8 @@ export default function LandingPage() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-shadow duration-300">
               <div className="w-full overflow-hidden rounded-t-xl">
                 <img
-                  src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
-                  alt="Committee Meeting"
+                  src="/news/health-committee.jpg"
+                  alt="Ghana traditional healthcare and community health"
                   className="aspect-[3/2] w-full object-cover"
                 />
               </div>
@@ -518,8 +520,8 @@ export default function LandingPage() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-shadow duration-300">
               <div className="w-full overflow-hidden rounded-t-xl">
                 <img
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
-                  alt="Parliamentary Announcement"
+                  src="/news/digital-parliament.jpg"
+                  alt="Ghana digital innovation and technology advancement"
                   className="aspect-[3/2] w-full object-cover"
                 />
               </div>
@@ -896,6 +898,31 @@ export default function LandingPage() {
 
       {/* AI Assistant Widget */}
       <AIAssistant />
+
+      {/* Video Modal */}
+      {isVideoPlaying && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="relative w-full max-w-4xl mx-4">
+            <button
+              onClick={() => setIsVideoPlaying(false)}
+              className="absolute -top-10 right-0 text-white hover:text-gray-300 transition-colors"
+            >
+              <XMarkIcon className="w-8 h-8" />
+            </button>
+            <div className="bg-white rounded-lg overflow-hidden">
+              <video
+                src="/video/watch Demo.mp4"
+                controls
+                autoPlay
+                className="w-full h-auto"
+                onEnded={() => setIsVideoPlaying(false)}
+              >
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
