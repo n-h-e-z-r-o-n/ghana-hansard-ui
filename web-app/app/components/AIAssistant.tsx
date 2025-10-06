@@ -14,6 +14,9 @@ import {
   CheckCircleIcon
 } from '@heroicons/react/24/outline';
 import webhookService, { WebhookRequest } from '../lib/webhook';
+import WhisperService from '../lib/whisperService';
+import WhisperFallback from '../lib/whisperFallback';
+import AudioProcessor, { AudioLevel } from '../lib/audioProcessor';
 
 interface Message {
   id: string;
@@ -41,16 +44,21 @@ export default function AIAssistant() {
   const [isListening, setIsListening] = useState(false);
   const [voiceError, setVoiceError] = useState('');
   const [recognitionSupported, setRecognitionSupported] = useState(false);
-  const [audioLevel, setAudioLevel] = useState(0);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [sessionId, setSessionId] = useState<string>('');
   const [userId, setUserId] = useState<string>('');
   const [webhookConnected, setWebhookConnected] = useState<boolean | null>(null);
+  const [whisperReady, setWhisperReady] = useState(false);
+  const [whisperInitializing, setWhisperInitializing] = useState(false);
+  const [audioLevel, setAudioLevel] = useState<AudioLevel>({ level: 0, isActive: false });
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recognitionRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const whisperServiceRef = useRef<WhisperService | null>(null);
+  const whisperFallbackRef = useRef<WhisperFallback | null>(null);
+  const audioProcessorRef = useRef<AudioProcessor | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -96,8 +104,56 @@ export default function AIAssistant() {
       }
     };
 
+    const initializeWhisper = async () => {
+      try {
+        setWhisperInitializing(true);
+        whisperServiceRef.current = WhisperService.getInstance();
+        whisperFallbackRef.current = WhisperFallback.getInstance();
+        audioProcessorRef.current = AudioProcessor.getInstance();
+        
+        // Initialize fallback first (always works)
+        await whisperFallbackRef.current.initialize();
+        
+        // Initialize Whisper in the background without blocking the UI
+        whisperServiceRef.current.initialize()
+          .then(() => {
+            setWhisperReady(true);
+            console.log('Whisper service initialized successfully');
+          })
+          .catch((error) => {
+            console.error('Whisper initialization error:', error);
+            setWhisperReady(false);
+            console.log('Falling back to Web Speech API');
+          })
+          .finally(() => {
+            setWhisperInitializing(false);
+          });
+      } catch (error) {
+        console.error('Whisper setup error:', error);
+        setWhisperReady(false);
+        setWhisperInitializing(false);
+      }
+    };
+
     checkBrowserSupport();
     initializeWebhook();
+    initializeWhisper();
+  }, []);
+
+  // Cleanup effect
+  useEffect(() => {
+    return () => {
+      // Cleanup resources when component unmounts
+      if (whisperServiceRef.current) {
+        whisperServiceRef.current.dispose();
+      }
+      if (whisperFallbackRef.current) {
+        whisperFallbackRef.current.dispose();
+      }
+      if (audioProcessorRef.current) {
+        audioProcessorRef.current.dispose();
+      }
+    };
   }, []);
 
   const addMessage = (text: string, isUser: boolean, isVoice = false, shouldSpeak = false) => {
@@ -177,15 +233,83 @@ export default function AIAssistant() {
       setVoiceError('');
       setIsListening(true);
       
-      // Check if Web Speech API is available
-      if (recognitionSupported) {
-        // Use Web Speech API directly for better real-time recognition
+      // Check if Whisper is ready, otherwise use fallback
+      if (whisperReady && whisperServiceRef.current && audioProcessorRef.current) {
+        // Use Whisper for transcription
+        const stream = await audioProcessorRef.current.startAudioMonitoring((level) => {
+          setAudioLevel(level);
+        });
+        
+        const mediaRecorder = new MediaRecorder(stream, {
+          mimeType: 'audio/webm;codecs=opus'
+        });
+        mediaRecorderRef.current = mediaRecorder;
+        audioChunksRef.current = [];
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            audioChunksRef.current.push(event.data);
+          }
+        };
+
+        mediaRecorder.onstop = async () => {
+          try {
+            setIsProcessing(true);
+            const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+            
+            // Try Whisper first, fallback to Web Speech API if it fails
+            let result;
+            try {
+              result = await whisperServiceRef.current!.transcribe(audioBlob);
+            } catch (whisperError) {
+              console.log('Whisper failed, trying fallback:', whisperError);
+              if (whisperFallbackRef.current) {
+                result = await whisperFallbackRef.current.transcribe(audioBlob);
+              } else {
+                throw whisperError;
+              }
+            }
+            
+            if (result.text.trim()) {
+              setTranscript(result.text);
+              addMessage(result.text, true, true);
+              
+              // Generate AI response
+              try {
+                const response = await sendToWebhook(result.text, true);
+                addMessage(response, false, false, true);
+              } catch (error) {
+                console.error('Error getting webhook response for voice:', error);
+                const response = generateAIResponse(result.text);
+                addMessage(response, false, false, true);
+              }
+            } else {
+              addMessage("I didn't catch that. Please try speaking again.", false);
+            }
+          } catch (error) {
+            console.error('Transcription error:', error);
+            addMessage("Sorry, I couldn't understand your voice. Please try again.", false);
+          } finally {
+            setIsProcessing(false);
+            setIsRecording(false);
+            setIsListening(false);
+            audioProcessorRef.current?.stopAudioMonitoring();
+          }
+        };
+
+        mediaRecorder.start();
+        setIsRecording(true);
+        setIsListening(true);
+        setTranscript('Listening... Speak now.');
+        
+      } else if (recognitionSupported) {
+        // Fallback to Web Speech API if Whisper is not ready
         const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
         const recognition = new SpeechRecognition();
         recognitionRef.current = recognition;
         
         recognition.continuous = false;
-        recognition.interimResults = true; // Enable interim results for better UX
+        recognition.interimResults = true;
         recognition.lang = 'en-US';
         recognition.maxAlternatives = 1;
         
@@ -208,7 +332,6 @@ export default function AIAssistant() {
             }
           }
           
-          // Update transcript in real-time
           if (interimTranscript) {
             setTranscript(interimTranscript);
           }
@@ -218,23 +341,21 @@ export default function AIAssistant() {
             setTranscript(finalTranscript);
             addMessage(finalTranscript, true, true);
           
-          // Generate AI response based on actual transcript
             setTimeout(async () => {
               try {
                 setIsProcessing(true);
                 const response = await sendToWebhook(finalTranscript, true);
-                addMessage(response, false, false, true); // Enable text-to-speech for voice responses
+                addMessage(response, false, false, true);
               } catch (error) {
                 console.error('Error getting webhook response for voice:', error);
-                // Fallback to local response
                 const response = generateAIResponse(finalTranscript);
                 addMessage(response, false, false, true);
               } finally {
                 setIsProcessing(false);
-            setIsRecording(false);
+                setIsRecording(false);
                 setIsListening(false);
               }
-          }, 1000);
+            }, 1000);
           }
         };
         
@@ -274,44 +395,9 @@ export default function AIAssistant() {
           setIsListening(false);
         };
         
-        // Start recognition
         recognition.start();
       } else {
-        // Fallback to MediaRecorder for browsers without Web Speech API
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-          const stream = await navigator.mediaDevices.getUserMedia({ 
-            audio: {
-              echoCancellation: true,
-              noiseSuppression: true,
-              autoGainControl: true
-            }
-          });
-          
-        const mediaRecorder = new MediaRecorder(stream);
-        mediaRecorderRef.current = mediaRecorder;
-        audioChunksRef.current = [];
-
-        mediaRecorder.ondataavailable = (event) => {
-          if (event.data.size > 0) {
-            audioChunksRef.current.push(event.data);
-          }
-        };
-
-        mediaRecorder.onstop = async () => {
-          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-          await processAudio(audioBlob);
-          stream.getTracks().forEach(track => track.stop());
-        };
-
-        mediaRecorder.start();
-        setIsRecording(true);
-          setIsListening(true);
-          
-          // Show user that we're recording audio
-          setTranscript('Recording audio... Click stop when finished.');
-        } else {
-          throw new Error('No audio recording support available');
-        }
+        throw new Error('No speech recognition support available');
       }
     } catch (error) {
       console.error('Error accessing microphone:', error);
@@ -326,21 +412,26 @@ export default function AIAssistant() {
   const stopRecording = () => {
     console.log('Stopping recording...', { isRecording, recognitionRef: recognitionRef.current });
     
-      // Stop Web Speech API recognition
-      if (recognitionRef.current) {
+    // Stop Web Speech API recognition
+    if (recognitionRef.current) {
       console.log('Stopping speech recognition');
-        recognitionRef.current.stop();
-        recognitionRef.current = null;
-      }
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
     
-      // Stop MediaRecorder fallback
+    // Stop MediaRecorder (for both Whisper and fallback)
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
       console.log('Stopping media recorder');
-        mediaRecorderRef.current.stop();
-      }
+      mediaRecorderRef.current.stop();
+    }
+    
+    // Stop audio monitoring
+    if (audioProcessorRef.current) {
+      audioProcessorRef.current.stopAudioMonitoring();
+    }
     
     // Force state update
-      setIsRecording(false);
+    setIsRecording(false);
     setIsListening(false);
     setVoiceError(''); // Clear any errors
   };
@@ -705,14 +796,16 @@ export default function AIAssistant() {
                         startRecording();
                       }
                     }}
-                    disabled={!recognitionSupported && !(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)}
+                    disabled={!whisperReady && !recognitionSupported && !(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)}
                     className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl ${
                       isRecording || isListening
                         ? 'bg-green-600 hover:bg-green-700 animate-pulse scale-110'
-                        : recognitionSupported
+                        : whisperReady
                         ? 'bg-green-800 hover:bg-green-900 hover:scale-105'
-                        : (navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+                        : recognitionSupported
                         ? 'bg-green-700 hover:bg-green-800 hover:scale-105'
+                        : (navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+                        ? 'bg-green-600 hover:bg-green-700 hover:scale-105'
                         : 'bg-gray-400 cursor-not-allowed'
                     } text-white`}
                   >
@@ -734,8 +827,12 @@ export default function AIAssistant() {
                         <div className="w-2 h-2 bg-green-600 rounded-full animate-pulse"></div>
                         <span>Listening... Click to stop</span>
                       </span>
+                    ) : whisperReady ? (
+                      '🎤 Whisper Ready - Click to start recording'
+                    ) : whisperInitializing ? (
+                      '🔄 Initializing Whisper...'
                     ) : recognitionSupported ? (
-                      '🎤 Click to start recording'
+                      '🎤 Web Speech API - Click to start recording'
                     ) : navigator.mediaDevices && navigator.mediaDevices.getUserMedia ? (
                       '🎤 Audio recording available (limited)'
                     ) : (
@@ -743,15 +840,43 @@ export default function AIAssistant() {
                     )}
                   </p>
                   
+                  {/* Audio Level Indicator */}
+                  {isRecording && audioLevel.isActive && (
+                    <div className="mt-2 flex justify-center">
+                      <div className="w-32 h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-green-500 transition-all duration-100"
+                          style={{ width: `${Math.min(audioLevel.level * 100, 100)}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
+                  
                   {/* Browser Support Info */}
-                  {!recognitionSupported && (
+                  {!whisperReady && !recognitionSupported && (
                     <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
                       <p className="text-xs text-yellow-800">
-                        <strong>Browser Support:</strong><br/>
-                        • Chrome/Edge: Full voice support<br/>
-                        • Safari: Limited support<br/>
-                        • Firefox: Audio recording only<br/>
-                        • Mobile: Varies by browser
+                        <strong>Voice Support:</strong><br/>
+                        {whisperInitializing ? (
+                          '🔄 Loading Whisper model...'
+                        ) : (
+                          <>
+                            • Chrome/Edge: Full Whisper + Web Speech support<br/>
+                            • Safari: Web Speech API only<br/>
+                            • Firefox: Audio recording only<br/>
+                            • Mobile: Varies by browser
+                          </>
+                        )}
+                      </p>
+                    </div>
+                  )}
+                  
+                  {/* Whisper Status */}
+                  {whisperReady && (
+                    <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-xs text-green-800">
+                        <strong>✅ Whisper AI Ready:</strong><br/>
+                        Client-side transcription with enhanced accuracy
                       </p>
                     </div>
                   )}

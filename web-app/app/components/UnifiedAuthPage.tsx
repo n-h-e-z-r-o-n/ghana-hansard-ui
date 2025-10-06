@@ -255,7 +255,7 @@ export default function UnifiedAuthPage() {
             <div className="space-y-4">
               <button
                 onClick={() => switchMode('login')}
-                className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors"
+                className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 hover:from-red-700 hover:via-yellow-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-300"
               >
                 Back to Sign In
               </button>
@@ -265,7 +265,7 @@ export default function UnifiedAuthPage() {
                   Didn't receive the email?{' '}
                   <button
                     onClick={() => setIsEmailSent(false)}
-                    className="text-red-600 hover:text-red-700 font-medium"
+                    className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-green-600 hover:from-red-700 hover:to-green-700 font-medium transition-all duration-300"
                   >
                     Try again
                   </button>
@@ -311,10 +311,10 @@ export default function UnifiedAuthPage() {
           <div className="flex">
             <button
               onClick={() => switchMode('login')}
-              className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
+              className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all duration-300 ${
                 authMode === 'login'
-                  ? 'bg-red-600 text-white'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 text-white shadow-lg'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
               Sign In
@@ -322,10 +322,10 @@ export default function UnifiedAuthPage() {
 
             <button
               onClick={() => switchMode('signup')}
-              className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
+              className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all duration-300 ${
                 authMode === 'signup'
-                  ? 'bg-red-600 text-white'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 text-white shadow-lg'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
               Sign Up
@@ -333,10 +333,10 @@ export default function UnifiedAuthPage() {
 
             <button
               onClick={() => switchMode('forgot-password')}
-              className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
+              className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all duration-300 ${
                 authMode === 'forgot-password'
-                  ? 'bg-red-600 text-white'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 text-white shadow-lg'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
               Reset
@@ -572,7 +572,7 @@ export default function UnifiedAuthPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 hover:from-red-700 hover:via-yellow-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
             >
               {isLoading ? (
                 <div className="flex items-center">
@@ -595,7 +595,7 @@ export default function UnifiedAuthPage() {
 
         {/* Footer Links */}
         <div className="text-center">
-          <Link href="/" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-700">
+          <Link href="/" className="inline-flex items-center text-sm text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 hover:from-red-700 hover:via-yellow-600 hover:to-green-700 transition-all duration-300">
             <ArrowLeftIcon className="w-4 h-4 mr-1" />
             Back to Home
           </Link>
