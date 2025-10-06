@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { 
   EyeIcon, 
   EyeSlashIcon,
@@ -283,11 +284,13 @@ export default function UnifiedAuthPage() {
         {/* Header */}
         <div className="text-center">
           <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 rounded-xl flex items-center justify-center">
-              <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
-                <div className="w-8 h-8 border border-red-600"></div>
-              </div>
-            </div>
+            <Image
+              src="/logo.png"
+              alt="Ghana Parliamentary Hub Logo"
+              width={64}
+              height={64}
+              className="w-16 h-16"
+            />
           </div>
 
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
