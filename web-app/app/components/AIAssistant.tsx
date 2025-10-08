@@ -620,7 +620,7 @@ export default function AIAssistant() {
 
       {/* Active Popup Widget */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 w-96 h-[500px] bg-white rounded-xl shadow-2xl border-2 border-green-200 z-40 flex flex-col animate-slide-up">
+        <div className="fixed bottom-24 right-6 w-[480px] h-[600px] bg-white rounded-xl shadow-2xl border-2 border-green-200 z-40 flex flex-col animate-slide-up">
           {/* Active Header */}
           <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-red-50 via-yellow-50 to-green-50 rounded-t-xl">
             <div className="flex items-center space-x-3">
@@ -655,14 +655,14 @@ export default function AIAssistant() {
             
             {/* Language Selection */}
             <div className="flex items-center space-x-2">
-              <LanguageIcon className="w-4 h-4 text-gray-600" />
+              <LanguageIcon className="w-4 h-4 text-gray-700" />
               <select
                 value={selectedLanguage}
                 onChange={(e) => setSelectedLanguage(e.target.value)}
-                className="text-xs bg-white border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500"
+                className="text-sm font-medium bg-white border-2 border-gray-400 rounded-md px-3 py-1.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 shadow-sm hover:border-gray-500 transition-colors"
               >
                 {LANGUAGE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
+                  <option key={option.value} value={option.value} className="text-gray-900 font-medium">
                     {option.label}
                   </option>
                 ))}
@@ -678,14 +678,14 @@ export default function AIAssistant() {
           </div>
 
           {/* Enhanced Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50 to-white">
+          <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-gradient-to-b from-gray-50 to-white">
             {messages.map((message) => (
               <div
                 key={message.id}
                 className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-xs px-4 py-3 rounded-xl shadow-sm ${
+                  className={`max-w-sm px-5 py-4 rounded-xl shadow-sm ${
                     message.isUser
                         ? 'bg-green-800 text-white'
                       : 'bg-white border border-gray-200 text-gray-900'
@@ -710,7 +710,7 @@ export default function AIAssistant() {
                       </button>
                     )}
                   </div>
-                  <p className="text-sm leading-relaxed">{message.text}</p>
+                  <p className="text-base leading-relaxed">{message.text}</p>
                 </div>
               </div>
             ))}
@@ -733,7 +733,7 @@ export default function AIAssistant() {
           </div>
 
           {/* Enhanced Input Area */}
-          <div className="p-4 border-t border-gray-200 bg-gradient-to-r from-red-50 via-yellow-50 to-green-50">
+          <div className="p-5 border-t border-gray-200 bg-gradient-to-r from-red-50 via-yellow-50 to-green-50">
             {/* Enhanced Input Mode Toggle */}
             <div className="flex bg-white rounded-xl p-1 mb-4 shadow-sm border border-gray-200">
               <button
@@ -768,14 +768,14 @@ export default function AIAssistant() {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   placeholder="Ask about parliamentary data..."
-                  className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm font-medium shadow-sm text-gray-900 placeholder-gray-500"
+                  className="flex-1 px-5 py-4 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-base font-medium shadow-sm text-gray-900 placeholder-gray-500"
                 />
                 <button
                   type="submit"
                   disabled={!inputValue.trim()}
-                  className="p-3 bg-green-800 text-white rounded-xl hover:bg-green-900 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-all duration-200"
+                  className="p-4 bg-green-800 text-white rounded-xl hover:bg-green-900 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-all duration-200"
                 >
-                  <PaperAirplaneIcon className="w-5 h-5" />
+                  <PaperAirplaneIcon className="w-6 h-6" />
                 </button>
               </form>
             ) : (
@@ -827,7 +827,7 @@ export default function AIAssistant() {
                       }
                     }}
                     disabled={!whisperReady && !recognitionSupported && !(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)}
-                    className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl ${
+                    className={`w-24 h-24 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl ${
                       isRecording || isListening
                         ? 'bg-green-600 hover:bg-green-700 animate-pulse scale-110'
                         : whisperReady
@@ -840,11 +840,11 @@ export default function AIAssistant() {
                     } text-white`}
                   >
                     {isRecording || isListening ? (
-                      <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-                        <div className="w-4 h-4 bg-green-600 rounded"></div>
+                      <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                        <div className="w-5 h-5 bg-green-600 rounded"></div>
                       </div>
                     ) : (
-                    <MicrophoneIcon className="w-8 h-8" />
+                    <MicrophoneIcon className="w-10 h-10" />
                     )}
                   </button>
                 </div>

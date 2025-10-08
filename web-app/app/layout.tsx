@@ -16,6 +16,34 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Ghana Parliamentary Hub",
   description: "Interactive, Voice-Enabled Analytics Platform for Ghana's Parliament",
+  icons: {
+    icon: [
+      {
+        url: '/favicon-16x16.png',
+        sizes: '16x16',
+        type: 'image/png',
+      },
+      {
+        url: '/favicon-32x32.png',
+        sizes: '32x32',
+        type: 'image/png',
+      },
+      {
+        url: '/logo.png',
+        sizes: 'any',
+        type: 'image/png',
+      },
+    ],
+    apple: [
+      {
+        url: '/apple-touch-icon.png',
+        sizes: '180x180',
+        type: 'image/png',
+      },
+    ],
+    shortcut: '/favicon-32x32.png',
+  },
+  manifest: '/site.webmanifest',
 };
 
 export default function RootLayout({
