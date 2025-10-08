@@ -23,6 +23,7 @@ export interface WebhookResponse {
       model?: string;
       confidence?: number;
     };
+    rawData?: any;
   };
   error?: string;
 }
