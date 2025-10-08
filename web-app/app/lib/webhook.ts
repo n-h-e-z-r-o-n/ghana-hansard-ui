@@ -4,6 +4,7 @@ export interface WebhookRequest {
   userId?: string;
   sessionId?: string;
   timestamp?: string;
+  language?: string;
   metadata?: {
     source: 'text' | 'voice';
     browser?: string;
@@ -39,16 +40,43 @@ class WebhookService {
     try {
       console.log('Sending message to webhook:', request);
 
+      const headers: Record<string, string> = {
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache',
+      };
+
+      // Add language headers if provided (matching Python example)
+      if (request.language) {
+        headers['X-Lang'] = request.language;
+        headers['Accept-Language'] = request.language;
+      }
+
+      // Create form data payload (matching Python example)
+      const formData = new FormData();
+      formData.append('message', request.message);
+      
+      if (request.userId) {
+        formData.append('userId', request.userId);
+      }
+      
+      if (request.sessionId) {
+        formData.append('sessionId', request.sessionId);
+      }
+      
+      if (request.language) {
+        formData.append('lang', request.language);
+      }
+      
+      if (request.timestamp) {
+        formData.append('timestamp', request.timestamp);
+      } else {
+        formData.append('timestamp', new Date().toISOString());
+      }
+
       const response = await fetch(this.webhookUrl, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          ...request,
-          timestamp: request.timestamp || new Date().toISOString(),
-        }),
+        headers,
+        body: formData,
         signal: AbortSignal.timeout(this.timeout),
       });
 
@@ -59,13 +87,26 @@ class WebhookService {
       const data = await response.json();
       console.log('Webhook response:', data);
 
+      // Handle the actual webhook response format: {"output": "response text"}
+      const responseText = data.output || data.response || data.message || 'No response received';
+      
       return {
         success: true,
         message: 'Message sent successfully',
-        data: data,
+        data: {
+          response: responseText,
+          rawData: data
+        },
       };
     } catch (error) {
       console.error('Webhook error:', error);
+      console.error('Request details:', {
+        url: this.webhookUrl,
+        message: request.message,
+        language: request.language,
+        userId: request.userId,
+        sessionId: request.sessionId
+      });
       
       let errorMessage = 'Failed to send message to chatbot';
       
@@ -73,7 +114,11 @@ class WebhookService {
         if (error.name === 'AbortError') {
           errorMessage = 'Request timeout - chatbot is taking too long to respond';
         } else if (error.message.includes('Failed to fetch')) {
-          errorMessage = 'Network error - unable to connect to chatbot service';
+          errorMessage = 'Network error - unable to connect to chatbot service. Please check your internet connection.';
+        } else if (error.message.includes('CORS')) {
+          errorMessage = 'CORS error - cross-origin request blocked. Please check server configuration.';
+        } else if (error.message.includes('HTTP error')) {
+          errorMessage = `Server error: ${error.message}`;
         } else {
           errorMessage = `Chatbot error: ${error.message}`;
         }
@@ -92,6 +137,7 @@ class WebhookService {
     try {
       const testRequest: WebhookRequest = {
         message: 'test connection',
+        language: 'en',
         metadata: {
           source: 'text',
           browser: navigator.userAgent,

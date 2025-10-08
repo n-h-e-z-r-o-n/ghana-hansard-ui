@@ -11,7 +11,8 @@ import {
   DocumentTextIcon,
   SpeakerWaveIcon,
   ExclamationTriangleIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
+  LanguageIcon
 } from '@heroicons/react/24/outline';
 import webhookService, { WebhookRequest } from '../lib/webhook';
 import WhisperService from '../lib/whisperService';
@@ -25,6 +26,16 @@ interface Message {
   timestamp: Date;
   isVoice?: boolean;
 }
+
+const LANGUAGE_OPTIONS = [
+  { value: 'en', label: 'English' },
+  { value: 'ak', label: 'Akan' },
+  { value: 'ee', label: 'Ewe' },
+  { value: 'dag', label: 'Dagbani' },
+  { value: 'ada', label: 'Dangme' },
+  { value: 'gaa', label: 'Ga' },
+  { value: 'sw', label: 'Swahili' }
+];
 
 export default function AIAssistant() {
   const [isOpen, setIsOpen] = useState(false);
@@ -51,6 +62,7 @@ export default function AIAssistant() {
   const [whisperReady, setWhisperReady] = useState(false);
   const [whisperInitializing, setWhisperInitializing] = useState(false);
   const [audioLevel, setAudioLevel] = useState<AudioLevel>({ level: 0, isActive: false });
+  const [selectedLanguage, setSelectedLanguage] = useState('en'); // Default to English
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -178,6 +190,7 @@ export default function AIAssistant() {
         message,
         userId,
         sessionId,
+        language: selectedLanguage,
         metadata: {
           source: isVoice ? 'voice' : 'text',
           browser: navigator.userAgent,
@@ -639,6 +652,23 @@ export default function AIAssistant() {
                 </div>
               </div>
             </div>
+            
+            {/* Language Selection */}
+            <div className="flex items-center space-x-2">
+              <LanguageIcon className="w-4 h-4 text-gray-600" />
+              <select
+                value={selectedLanguage}
+                onChange={(e) => setSelectedLanguage(e.target.value)}
+                className="text-xs bg-white border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500"
+              >
+                {LANGUAGE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
             <button
               onClick={() => setIsOpen(false)}
               className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1 transition-colors"
@@ -804,7 +834,7 @@ export default function AIAssistant() {
                         ? 'bg-green-800 hover:bg-green-900 hover:scale-105'
                         : recognitionSupported
                         ? 'bg-green-700 hover:bg-green-800 hover:scale-105'
-                        : (navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+                        : (navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function')
                         ? 'bg-green-600 hover:bg-green-700 hover:scale-105'
                         : 'bg-gray-400 cursor-not-allowed'
                     } text-white`}
@@ -833,7 +863,7 @@ export default function AIAssistant() {
                       '🔄 Initializing Whisper...'
                     ) : recognitionSupported ? (
                       '🎤 Web Speech API - Click to start recording'
-                    ) : navigator.mediaDevices && navigator.mediaDevices.getUserMedia ? (
+                    ) : navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function' ? (
                       '🎤 Audio recording available (limited)'
                     ) : (
                       '❌ Voice not supported in this browser'
