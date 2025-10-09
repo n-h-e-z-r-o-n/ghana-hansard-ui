@@ -18,12 +18,12 @@ export interface WebhookResponse {
   data?: {
     response: string;
     suggestions?: string[];
+    rawData?: any;
     metadata?: {
       processingTime?: number;
       model?: string;
       confidence?: number;
     };
-    rawData?: any;
   };
   error?: string;
 }
@@ -35,6 +35,11 @@ class WebhookService {
   constructor() {
     this.webhookUrl = 'https://n8n.granite-automations.app/webhook/hansard-chatbot';
     this.timeout = 30000; // 30 seconds timeout
+    
+    // Validate webhook URL
+    if (!this.webhookUrl || !this.webhookUrl.startsWith('http')) {
+      throw new Error('Invalid webhook URL configuration');
+    }
   }
 
   async sendMessage(request: WebhookRequest): Promise<WebhookResponse> {
@@ -85,11 +90,19 @@ class WebhookService {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
-      console.log('Webhook response:', data);
+      let data;
+      try {
+        data = await response.json();
+        console.log('Webhook response:', data);
+      } catch (jsonError) {
+        console.error('Failed to parse JSON response:', jsonError);
+        throw new Error('Invalid JSON response from webhook');
+      }
 
       // Handle the actual webhook response format: {"output": "response text"}
-      const responseText = data.output || data.response || data.message || 'No response received';
+      const responseText = (data && typeof data === 'object') 
+        ? (data.output || data.response || data.message || 'No response received')
+        : 'Invalid response format';
       
       return {
         success: true,
@@ -155,12 +168,12 @@ class WebhookService {
 
   // Generate session ID for tracking conversations
   generateSessionId(): string {
-    return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
   }
 
   // Generate user ID for tracking
   generateUserId(): string {
-    return `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `user_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
   }
 }
 
