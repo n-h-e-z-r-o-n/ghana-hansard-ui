@@ -34,7 +34,7 @@ class WebhookService {
 
   constructor() {
     this.webhookUrl = 'https://n8n.granite-automations.app/webhook/hansard-chatbot';
-    this.timeout = 30000; // 30 seconds timeout
+    this.timeout = 120000; // 2 minutes timeout
     
     // Validate webhook URL
     if (!this.webhookUrl || !this.webhookUrl.startsWith('http')) {
