@@ -12,7 +12,13 @@ import {
   SpeakerWaveIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon,
-  LanguageIcon
+  LanguageIcon,
+  UserIcon,
+  BuildingOfficeIcon,
+  AcademicCapIcon,
+  BookOpenIcon,
+  ChartBarIcon,
+  InformationCircleIcon
 } from '@heroicons/react/24/outline';
 import webhookService, { WebhookRequest } from '../lib/webhook';
 import WhisperService from '../lib/whisperService';
@@ -63,6 +69,14 @@ export default function AIAssistant() {
   const [whisperInitializing, setWhisperInitializing] = useState(false);
   const [audioLevel, setAudioLevel] = useState<AudioLevel>({ level: 0, isActive: false });
   const [selectedLanguage, setSelectedLanguage] = useState('en'); // Default to English
+  const [userMode, setUserMode] = useState<'citizen' | 'official' | 'researcher'>('citizen');
+  const [showGlossary, setShowGlossary] = useState(false);
+  const [currentSession, setCurrentSession] = useState({
+    session: '8th Parliament',
+    sitting: '2024-2025',
+    activeBills: 12,
+    recentDebates: 45
+  });
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -483,6 +497,120 @@ export default function AIAssistant() {
     }
   };
 
+  // Parliamentary glossary for tooltips
+  const parliamentaryTerms: Record<string, string> = {
+    'bill': 'A proposed law that is being considered by Parliament',
+    'debate': 'A formal discussion of a bill or motion in Parliament',
+    'motion': 'A formal proposal for action in Parliament',
+    'amendment': 'A change or addition to a bill',
+    'committee': 'A group of MPs that examines bills in detail',
+    'division': 'A formal vote in Parliament',
+    'quorum': 'The minimum number of MPs required for a valid vote',
+    'speaker': 'The presiding officer of Parliament',
+    'clerk': 'The chief administrative officer of Parliament',
+    'Hansard': 'The official record of parliamentary debates'
+  };
+
+  // Enhanced message content with parliamentary context
+  const renderMessageContent = (text: string) => {
+    const hasFence = text.includes('```');
+    if (!hasFence) {
+      // Add tooltips for parliamentary terms
+      let processedText = text;
+      Object.keys(parliamentaryTerms).forEach(term => {
+        const regex = new RegExp(`\\b${term}\\b`, 'gi');
+        processedText = processedText.replace(regex, `<span class="parliamentary-term" title="${parliamentaryTerms[term]}">${term}</span>`);
+      });
+      
+      return (
+        <div 
+          className="text-base leading-relaxed whitespace-pre-wrap break-words"
+          dangerouslySetInnerHTML={{ __html: processedText }}
+        />
+      );
+    }
+
+    const parts = text.split('```');
+    return (
+      <div className="space-y-3">
+        {parts.map((part, idx) => {
+          const isCode = idx % 2 === 1;
+          if (!isCode) {
+            if (!part.trim()) return null;
+            let processedText = part;
+            Object.keys(parliamentaryTerms).forEach(term => {
+              const regex = new RegExp(`\\b${term}\\b`, 'gi');
+              processedText = processedText.replace(regex, `<span class="parliamentary-term" title="${parliamentaryTerms[term]}">${term}</span>`);
+            });
+            return (
+              <div 
+                key={idx} 
+                className="text-base leading-relaxed whitespace-pre-wrap break-words"
+                dangerouslySetInnerHTML={{ __html: processedText }}
+              />
+            );
+          }
+          const code = part.replace(/^\w+\n/, '');
+          const copy = async () => {
+            try {
+              await navigator.clipboard.writeText(code);
+            } catch {}
+          };
+          return (
+            <div key={idx} className="relative">
+              <pre className="overflow-x-auto rounded-lg border border-gray-200 bg-gray-900 text-gray-100 text-sm leading-6 p-4">
+                <code>{code}</code>
+              </pre>
+              <button
+                type="button"
+                onClick={copy}
+                className="absolute top-2 right-2 px-2 py-1 text-xs rounded-md bg-white/90 hover:bg-white shadow-sm border border-gray-200 text-gray-700"
+                aria-label="Copy code"
+              >
+                Copy
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  // Get mode-specific styling and content
+  const getModeConfig = () => {
+    switch (userMode) {
+      case 'citizen':
+        return {
+          bg: 'from-red-50 via-yellow-50 to-green-50',
+          headerBg: 'from-red-100 via-yellow-100 to-green-100',
+          primary: 'red-600',
+          icon: UserIcon,
+          label: 'Citizen Mode',
+          description: 'Simple, clear explanations'
+        };
+      case 'official':
+        return {
+          bg: 'from-blue-50 via-indigo-50 to-purple-50',
+          headerBg: 'from-blue-100 via-indigo-100 to-purple-100',
+          primary: 'blue-600',
+          icon: BuildingOfficeIcon,
+          label: 'Official Mode',
+          description: 'Detailed parliamentary information'
+        };
+      case 'researcher':
+        return {
+          bg: 'from-emerald-50 via-teal-50 to-cyan-50',
+          headerBg: 'from-emerald-100 via-teal-100 to-cyan-100',
+          primary: 'emerald-600',
+          icon: AcademicCapIcon,
+          label: 'Researcher Mode',
+          description: 'Analytics and data insights'
+        };
+    }
+  };
+
+  const modeConfig = getModeConfig();
+
   const processAudio = async (audioBlob: Blob) => {
     setIsProcessing(true);
     
@@ -599,6 +727,20 @@ export default function AIAssistant() {
 
   return (
     <>
+      {/* Parliamentary Terms Tooltip Styles */}
+      <style jsx>{`
+        .parliamentary-term {
+          border-bottom: 1px dotted #3b82f6;
+          cursor: help;
+          position: relative;
+        }
+        .parliamentary-term:hover {
+          background-color: #dbeafe;
+          border-radius: 2px;
+          padding: 1px 2px;
+        }
+      `}</style>
+
       {/* Active Floating Button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -620,17 +762,74 @@ export default function AIAssistant() {
 
       {/* Active Popup Widget */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 w-[480px] h-[600px] bg-white rounded-xl shadow-2xl border-2 border-green-200 z-40 flex flex-col animate-slide-up">
-          {/* Active Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-red-50 via-yellow-50 to-green-50 rounded-t-xl">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-green-800 rounded-full flex items-center justify-center animate-pulse">
-                <CpuChipIcon className="w-6 h-6 text-white" />
+        <div className="fixed bottom-24 right-6 w-[calc(100vw-1rem)] h-[calc(100vh-6rem)] sm:w-[520px] sm:h-[700px] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-8rem)] bg-white rounded-xl shadow-2xl border-2 border-green-200 z-40 flex flex-col animate-slide-up">
+          {/* Enhanced Parliamentary Header */}
+          <div className={`p-4 border-b border-gray-200 bg-gradient-to-r ${modeConfig.headerBg} rounded-t-xl`}>
+            {/* Session Context Bar */}
+            <div className="mb-3 p-2 bg-white/80 rounded-lg border border-gray-200">
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <span className="font-semibold text-gray-700">{currentSession.session}</span>
+                    <span className="text-gray-600">{currentSession.sitting}</span>
+                  </div>
+                  <button
+                    onClick={() => setShowGlossary(!showGlossary)}
+                    className="flex items-center space-x-1 text-gray-600 hover:text-gray-800 text-xs"
+                  >
+                    <BookOpenIcon className="w-3 h-3" />
+                    <span>Glossary</span>
+                  </button>
+                </div>
+                <div className="flex items-center space-x-4 text-xs">
+                  <div className="flex items-center space-x-1">
+                    <ChartBarIcon className="w-3 h-3 text-blue-600" />
+                    <span className="text-blue-600">{currentSession.activeBills} Active Bills</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <DocumentTextIcon className="w-3 h-3 text-green-600" />
+                    <span className="text-green-600">{currentSession.recentDebates} Recent Debates</span>
+                  </div>
+                </div>
               </div>
-              <div>
-                <h3 className="font-bold text-gray-900 text-lg">AI Assistant</h3>
+            </div>
+
+            <div className="flex flex-col space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className={`w-10 h-10 bg-${modeConfig.primary} rounded-full flex items-center justify-center`}>
+                    <modeConfig.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900 text-lg">Parliamentary AI Assistant</h3>
+                    <div className="flex items-center space-x-2">
+                      <span className={`text-sm text-${modeConfig.primary} font-medium`}>{modeConfig.label}</span>
+                      <span className="text-xs text-gray-600">•</span>
+                      <span className="text-xs text-gray-600">{modeConfig.description}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Language Selection */}
                 <div className="flex items-center space-x-2">
-                  <p className="text-sm text-green-800 font-medium">Parliamentary Analytics</p>
+                  <LanguageIcon className="w-4 h-4 text-gray-700" />
+                  <select
+                    value={selectedLanguage}
+                    onChange={(e) => setSelectedLanguage(e.target.value)}
+                    className="text-sm font-medium bg-white border-2 border-gray-400 rounded-md px-3 py-1.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 shadow-sm hover:border-gray-500 transition-colors"
+                  >
+                    {LANGUAGE_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value} className="text-gray-900 font-medium">
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Status and Controls Row */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
                   {webhookConnected === true && (
                     <div className="flex items-center space-x-1">
                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
@@ -650,44 +849,84 @@ export default function AIAssistant() {
                     </div>
                   )}
                 </div>
+
+                <div className="flex items-center space-x-2">
+                  {/* User Mode Selector */}
+                  <div className="flex bg-white rounded-lg p-1 shadow-sm border border-gray-200">
+                    <button
+                      onClick={() => setUserMode('citizen')}
+                      className={`px-2 py-1 rounded-md text-xs font-medium transition-colors ${
+                        userMode === 'citizen' ? 'bg-red-600 text-white' : 'text-gray-600 hover:text-gray-800'
+                      }`}
+                    >
+                      <UserIcon className="w-3 h-3 inline mr-1" />
+                      Citizen
+                    </button>
+                    <button
+                      onClick={() => setUserMode('official')}
+                      className={`px-2 py-1 rounded-md text-xs font-medium transition-colors ${
+                        userMode === 'official' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-gray-800'
+                      }`}
+                    >
+                      <BuildingOfficeIcon className="w-3 h-3 inline mr-1" />
+                      Official
+                    </button>
+                    <button
+                      onClick={() => setUserMode('researcher')}
+                      className={`px-2 py-1 rounded-md text-xs font-medium transition-colors ${
+                        userMode === 'researcher' ? 'bg-emerald-600 text-white' : 'text-gray-600 hover:text-gray-800'
+                      }`}
+                    >
+                      <AcademicCapIcon className="w-3 h-3 inline mr-1" />
+                      Researcher
+                    </button>
+                  </div>
+                  
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1 transition-colors"
+                  >
+                    <XMarkIcon className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
             </div>
-            
-            {/* Language Selection */}
-            <div className="flex items-center space-x-2">
-              <LanguageIcon className="w-4 h-4 text-gray-700" />
-              <select
-                value={selectedLanguage}
-                onChange={(e) => setSelectedLanguage(e.target.value)}
-                className="text-sm font-medium bg-white border-2 border-gray-400 rounded-md px-3 py-1.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 shadow-sm hover:border-gray-500 transition-colors"
-              >
-                {LANGUAGE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value} className="text-gray-900 font-medium">
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            
-            <button
-              onClick={() => setIsOpen(false)}
-              className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1 transition-colors"
-            >
-              <XMarkIcon className="w-6 h-6" />
-            </button>
           </div>
 
+          {/* Parliamentary Glossary Panel */}
+          {showGlossary && (
+            <div className="p-3 bg-blue-50 border-b border-blue-200 max-h-48 overflow-y-auto">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-semibold text-blue-900 text-sm">Parliamentary Terms</h4>
+                <button
+                  onClick={() => setShowGlossary(false)}
+                  className="text-blue-600 hover:text-blue-800"
+                >
+                  <XMarkIcon className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="grid grid-cols-1 gap-1 text-xs">
+                {Object.entries(parliamentaryTerms).map(([term, definition]) => (
+                  <div key={term} className="bg-white p-2 rounded border border-blue-200">
+                    <span className="font-medium text-blue-900">{term}</span>
+                    <p className="text-gray-700 mt-1">{definition}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Enhanced Messages */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-gradient-to-b from-gray-50 to-white">
+          <div className={`flex-1 overflow-y-auto p-5 space-y-4 bg-gradient-to-b ${modeConfig.bg} to-white`}>
             {messages.map((message) => (
               <div
                 key={message.id}
                 className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-sm px-5 py-4 rounded-xl shadow-sm ${
+                  className={`max-w-md px-5 py-4 rounded-xl shadow-sm ${
                     message.isUser
-                        ? 'bg-green-800 text-white'
+                        ? `bg-${modeConfig.primary} text-white`
                       : 'bg-white border border-gray-200 text-gray-900'
                   }`}
                 >
@@ -710,7 +949,7 @@ export default function AIAssistant() {
                       </button>
                     )}
                   </div>
-                  <p className="text-base leading-relaxed">{message.text}</p>
+                  {renderMessageContent(message.text)}
                 </div>
               </div>
             ))}
@@ -733,14 +972,14 @@ export default function AIAssistant() {
           </div>
 
           {/* Enhanced Input Area */}
-          <div className="p-5 border-t border-gray-200 bg-gradient-to-r from-red-50 via-yellow-50 to-green-50">
+          <div className={`p-4 border-t border-gray-200 bg-gradient-to-r ${modeConfig.bg}`}>
             {/* Enhanced Input Mode Toggle */}
-            <div className="flex bg-white rounded-xl p-1 mb-4 shadow-sm border border-gray-200">
+            <div className="flex bg-white rounded-xl p-1 mb-3 shadow-sm border border-gray-200">
               <button
                 onClick={() => setInputMode('text')}
-                className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                className={`flex-1 flex items-center justify-center space-x-2 py-2 px-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
                   inputMode === 'text'
-                    ? 'bg-green-800 text-white shadow-lg'
+                    ? `bg-${modeConfig.primary} text-white shadow-lg`
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
@@ -749,9 +988,9 @@ export default function AIAssistant() {
               </button>
               <button
                 onClick={() => setInputMode('voice')}
-                className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                className={`flex-1 flex items-center justify-center space-x-2 py-2 px-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
                   inputMode === 'voice'
-                    ? 'bg-green-800 text-white shadow-lg'
+                    ? `bg-${modeConfig.primary} text-white shadow-lg`
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
@@ -768,12 +1007,12 @@ export default function AIAssistant() {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   placeholder="Ask about parliamentary data..."
-                  className="flex-1 px-5 py-4 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-base font-medium shadow-sm text-gray-900 placeholder-gray-500"
+                  className={`flex-1 px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-${modeConfig.primary} focus:border-${modeConfig.primary} text-base font-medium shadow-sm text-gray-900 placeholder-gray-500`}
                 />
                 <button
                   type="submit"
                   disabled={!inputValue.trim()}
-                  className="p-4 bg-green-800 text-white rounded-xl hover:bg-green-900 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-all duration-200"
+                  className={`p-3 bg-${modeConfig.primary} text-white rounded-xl hover:bg-${modeConfig.primary}/90 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-all duration-200`}
                 >
                   <PaperAirplaneIcon className="w-6 h-6" />
                 </button>
@@ -827,7 +1066,7 @@ export default function AIAssistant() {
                       }
                     }}
                     disabled={!whisperReady && !recognitionSupported && !(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)}
-                    className={`w-24 h-24 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl ${
+                    className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl ${
                       isRecording || isListening
                         ? 'bg-green-600 hover:bg-green-700 animate-pulse scale-110'
                         : whisperReady
@@ -840,11 +1079,11 @@ export default function AIAssistant() {
                     } text-white`}
                   >
                     {isRecording || isListening ? (
-                      <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                        <div className="w-5 h-5 bg-green-600 rounded"></div>
+                      <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+                        <div className="w-4 h-4 bg-green-600 rounded"></div>
                       </div>
                     ) : (
-                    <MicrophoneIcon className="w-10 h-10" />
+                    <MicrophoneIcon className="w-8 h-8" />
                     )}
                   </button>
                 </div>

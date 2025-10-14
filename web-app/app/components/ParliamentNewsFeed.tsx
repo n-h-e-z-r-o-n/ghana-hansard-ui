@@ -128,26 +128,30 @@ export default function ParliamentNewsFeed() {
   return (
     <div className="bg-white rounded-xl shadow-lg p-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-red-600 to-green-600 rounded-lg flex items-center justify-center">
-            <NewspaperIcon className="w-6 h-6 text-white" />
+      <div className="mb-6 grid grid-cols-1 md:grid-cols-3 items-center">
+        <div className="hidden md:block" />
+        <div className="flex flex-col items-center text-center">
+          <div className="w-12 h-12 bg-gradient-to-r from-red-600 to-green-600 rounded-xl flex items-center justify-center shadow-sm mb-2">
+            <NewspaperIcon className="w-7 h-7 text-white" />
           </div>
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Latest Parliamentary News</h2>
-            <p className="text-sm text-gray-600">Live updates from Parliament of Ghana</p>
-          </div>
+          <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900">
+            Latest Parliamentary News
+          </h2>
+          <p className="text-sm text-gray-600 mt-1">Live updates from Parliament of Ghana</p>
+          <div className="mt-3 h-1 w-24 rounded-full bg-gradient-to-r from-red-600 via-yellow-500 to-green-600" />
         </div>
-        
-        {/* Filter Toggle */}
-        <button
-          onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-        >
-          <FunnelIcon className="w-4 h-4" />
-          <span className="text-sm font-medium">Filter</span>
-          {showFilters ? <ChevronUpIcon className="w-4 h-4" /> : <ChevronDownIcon className="w-4 h-4" />}
-        </button>
+        <div className="mt-4 md:mt-0 flex justify-center md:justify-end">
+          {/* Filter Toggle */}
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center space-x-2 px-4 py-2.5 rounded-lg bg-red-600 text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-600/30 focus:ring-offset-1 transition"
+            aria-pressed={showFilters}
+          >
+            <FunnelIcon className="w-5 h-5" />
+            <span className="text-sm font-semibold">Filter</span>
+            {showFilters ? <ChevronUpIcon className="w-5 h-5" /> : <ChevronDownIcon className="w-5 h-5" />}
+          </button>
+        </div>
       </div>
 
       {/* Category Filters */}
