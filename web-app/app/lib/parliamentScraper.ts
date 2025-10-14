@@ -30,8 +30,17 @@ const PARLIAMENT_BASE_URL = 'https://www.parliament.gh';
 
 function absolutizeUrl(href: string | undefined): string {
   if (!href) return '';
+  const trimmed = href.trim();
+  // Ignore data URLs
+  if (trimmed.startsWith('data:')) return '';
+  // Protocol-relative URLs
+  if (trimmed.startsWith('//')) return `https:${trimmed}`;
   try {
-    const url = new URL(href, PARLIAMENT_BASE_URL);
+    // Ensure relative paths like "epanel/news/..." resolve to site root
+    const normalized = (/^[a-zA-Z]+:\/\//.test(trimmed) || trimmed.startsWith('/'))
+      ? trimmed
+      : `/${trimmed}`;
+    const url = new URL(normalized, PARLIAMENT_BASE_URL);
     return url.toString();
   } catch {
     return '';
@@ -87,12 +96,59 @@ function extractTagsFromTitle(title: string): string[] {
 
 function parseDate(dateStr: string): string {
   try {
-    // Handle various date formats from the Parliament site
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) {
-      return new Date().toISOString().split('T')[0]; // Fallback to today
+    // Clean the date string
+    let cleanDateStr = dateStr.trim();
+    
+    // Handle specific Parliament date formats
+    // Format: "Tuesday, 29th July, 2025" or "Tuesday, 29 July, 2025"
+    const parliamentFormat = cleanDateStr.match(/(\w+day),?\s+(\d{1,2})(?:st|nd|rd|th)?\s+(\w+),?\s+(\d{4})/i);
+    if (parliamentFormat) {
+      const [, day, dayNum, month, year] = parliamentFormat;
+      const monthMap: Record<string, string> = {
+        'january': '01', 'february': '02', 'march': '03', 'april': '04',
+        'may': '05', 'june': '06', 'july': '07', 'august': '08',
+        'september': '09', 'october': '10', 'november': '11', 'december': '12'
+      };
+      const monthNum = monthMap[month.toLowerCase()];
+      if (monthNum) {
+        const paddedDay = dayNum.padStart(2, '0');
+        return `${year}-${monthNum}-${paddedDay}`;
+      }
     }
-    return date.toISOString().split('T')[0];
+    
+    // Try standard date parsing
+    const date = new Date(cleanDateStr);
+    if (!isNaN(date.getTime())) {
+      return date.toISOString().split('T')[0];
+    }
+    
+    // Fallback: try to extract year, month, day from various formats
+    const yearMatch = cleanDateStr.match(/(\d{4})/);
+    const monthMatch = cleanDateStr.match(/(\w+)/);
+    const dayMatch = cleanDateStr.match(/(\d{1,2})/);
+    
+    if (yearMatch && monthMatch && dayMatch) {
+      const year = yearMatch[1];
+      const month = monthMatch[1].toLowerCase();
+      const day = dayMatch[1].padStart(2, '0');
+      
+      const monthMap: Record<string, string> = {
+        'january': '01', 'february': '02', 'march': '03', 'april': '04',
+        'may': '05', 'june': '06', 'july': '07', 'august': '08',
+        'september': '09', 'october': '10', 'november': '11', 'december': '12',
+        'jan': '01', 'feb': '02', 'mar': '03', 'apr': '04',
+        // omit duplicate 'may'
+        'jun': '06', 'jul': '07', 'aug': '08',
+        'sep': '09', 'oct': '10', 'nov': '11', 'dec': '12'
+      };
+      
+      const monthNum = monthMap[month];
+      if (monthNum) {
+        return `${year}-${monthNum}-${day}`;
+      }
+    }
+    
+    return new Date().toISOString().split('T')[0]; // Fallback to today
   } catch {
     return new Date().toISOString().split('T')[0];
   }
@@ -108,11 +164,11 @@ export async function fetchParliamentHome(): Promise<ParliamentHomeData> {
 
   const textIncludes = (s: string) => (i: number, el: cheerio.Element) => $(el).text().trim().toLowerCase().includes(s.toLowerCase());
 
-  function extractFollowingLinks($heading: cheerio.Cheerio, max = 8): ParliamentLinkItem[] {
+  function extractFollowingLinks($heading: cheerio.Cheerio<cheerio.Element>, max = 8): ParliamentLinkItem[] {
     const section = $heading.parent();
     const links: ParliamentLinkItem[] = [];
 
-    section.find('a').each((i, a) => {
+    section.find('a').each((i: number, a: cheerio.Element) => {
       const title = $(a).text().trim();
       const href = $(a).attr('href');
       if (title && href && links.length < max) {
@@ -121,7 +177,7 @@ export async function fetchParliamentHome(): Promise<ParliamentHomeData> {
     });
 
     if (links.length === 0) {
-      $('a').each((i, a) => {
+      $('a').each((i: number, a: cheerio.Element) => {
         const title = $(a).text().trim();
         const href = $(a).attr('href');
         if (title && href && links.length < max) {
@@ -184,83 +240,54 @@ export async function fetchParliamentNews(): Promise<ParliamentNewsData> {
   const categories = new Set<string>();
 
   // Extract news items from the main content area
-  // Look for news entries in the page structure
-  $('body').find('*').each((i, element) => {
-    const $element = $(element);
-    const text = $element.text().trim();
-    
-    // Look for date patterns followed by bold text (news titles)
-    const dateMatch = text.match(/(\w+day,?\s+\d{1,2}(?:st|nd|rd|th)?\s+\w+,?\s+\d{4})\s+\*\*(.*?)\*\*/);
-    
-    if (dateMatch) {
-      const dateStr = dateMatch[1];
-      const title = dateMatch[2].trim();
-      
-      if (title && title.length > 10) {
-        // Find the parent container to look for images and additional content
-        const $container = $element.closest('div, section, article, p');
-        
-        // Look for images in the container
-        let imageUrl = '';
-        let imageAlt = '';
-        const $img = $container.find('img').first();
-        if ($img.length) {
-          const src = $img.attr('src') || $img.attr('data-src');
-          if (src) {
-            imageUrl = absolutizeUrl(src);
-            imageAlt = $img.attr('alt') || title;
-          }
-        }
-        
-        // If no image found in container, look for images in the same section
-        if (!imageUrl) {
-          const $section = $container.parent();
-          const $sectionImg = $section.find('img').first();
-          if ($sectionImg.length) {
-            const src = $sectionImg.attr('src') || $sectionImg.attr('data-src');
-            if (src) {
-              imageUrl = absolutizeUrl(src);
-              imageAlt = $sectionImg.attr('alt') || title;
-            }
-          }
-        }
-        
-        // Generate description from the text following the title
-        let description = title;
-        const fullText = $container.text().trim();
-        const titleIndex = fullText.indexOf(title);
-        if (titleIndex !== -1) {
-          const afterTitle = fullText.substring(titleIndex + title.length).trim();
-          if (afterTitle.length > 20 && afterTitle.length < 300) {
-            description = afterTitle;
-          }
-        }
-        
-        // If description is still the title and it's long, truncate it
-        if (description === title && title.length > 100) {
-          description = title.substring(0, 150) + '...';
-        }
-        
-        const category = extractCategoryFromTitle(title);
-        const tags = extractTagsFromTitle(title);
-        
-        newsItems.push({
-          title,
-          url: `${PARLIAMENT_BASE_URL}/news`, // Default URL since individual article URLs aren't always available
-          date: parseDate(dateStr),
-          description,
-          category,
-          tags,
-          imageUrl: imageUrl || undefined,
-          imageAlt: imageAlt || undefined
-        });
-        
-        categories.add(category);
-      }
+  // Target the actual Parliament site structure: .row containers with img and span siblings
+  $('.row').each((i, el) => {
+    const $row = $(el);
+
+    // ✅ Extract image first
+    const $img = $row.find('img').first();
+    const src = $img.attr('src') || $img.attr('data-src') || $img.attr('data-lazy-src') || '';
+    const imageUrl = src ? absolutizeUrl(src) : '';
+    const imageAlt = $img.attr('alt') || '';
+
+    // ✅ Extract text info from span
+    const $span = $row.find('span').first();
+    const rawText = $span.text().trim();
+
+    // Parse date
+    const dateMatch = rawText.match(/(\w+day,?\s+\d{1,2}(?:st|nd|rd|th)?\s+\w+,?\s+\d{4})/);
+    const dateStr = dateMatch ? dateMatch[1] : '';
+    const parsedDate = dateStr ? parseDate(dateStr) : new Date().toISOString().split('T')[0];
+
+    // Extract title (inside <b>)
+    const title = $span.find('b').first().text().trim();
+
+    // Description is text after the title
+    let description = rawText.replace(dateStr, '').replace(title, '').trim();
+    if (description.length > 300) {
+      description = description.slice(0, 300) + '...';
+    }
+
+    if (title && title.length > 10) {
+      const category = extractCategoryFromTitle(title);
+      const tags = extractTagsFromTitle(title);
+
+      newsItems.push({
+        title,
+        url: `${PARLIAMENT_BASE_URL}/news`,
+        date: parsedDate,
+        description,
+        category,
+        tags,
+        imageUrl: imageUrl || undefined,
+        imageAlt: imageAlt || undefined
+      });
+
+      categories.add(category);
     }
   });
 
-  // If no structured news found with the above method, try alternative extraction
+  // If no .row structure found, fallback to alternative extraction methods
   if (newsItems.length === 0) {
     // Look for bold text that might be news titles
     $('strong, b').each((i, element) => {
@@ -278,7 +305,7 @@ export async function fetchParliamentNews(): Promise<ParliamentNewsData> {
         let imageAlt = '';
         const $img = $parent.find('img').first();
         if ($img.length) {
-          const src = $img.attr('src') || $img.attr('data-src');
+          const src = $img.attr('src') || $img.attr('data-src') || $img.attr('data-lazy-src');
           if (src) {
             imageUrl = absolutizeUrl(src);
             imageAlt = $img.attr('alt') || title;
@@ -307,56 +334,6 @@ export async function fetchParliamentNews(): Promise<ParliamentNewsData> {
         });
         
         categories.add(category);
-      }
-    });
-  }
-
-  // If still no news found, try to extract from any text that looks like news
-  if (newsItems.length === 0) {
-    $('p, div').each((i, element) => {
-      const $element = $(element);
-      const text = $element.text().trim();
-      
-      // Look for patterns that might be news entries
-      const newsMatch = text.match(/(\w+day,?\s+\d{1,2}(?:st|nd|rd|th)?\s+\w+,?\s+\d{4})\s+(.+)/);
-      
-      if (newsMatch) {
-        const dateStr = newsMatch[1];
-        const content = newsMatch[2].trim();
-        
-        // Extract title (first part before period or long text)
-        const titleMatch = content.match(/^(.+?)(?:\s+\*\*|$)/);
-        const title = titleMatch ? titleMatch[1].trim() : content.substring(0, 100);
-        
-        if (title && title.length > 10) {
-          // Look for images
-          let imageUrl = '';
-          let imageAlt = '';
-          const $img = $element.find('img').first();
-          if ($img.length) {
-            const src = $img.attr('src') || $img.attr('data-src');
-            if (src) {
-              imageUrl = absolutizeUrl(src);
-              imageAlt = $img.attr('alt') || title;
-            }
-          }
-          
-          const category = extractCategoryFromTitle(title);
-          const tags = extractTagsFromTitle(title);
-          
-          newsItems.push({
-            title,
-            url: `${PARLIAMENT_BASE_URL}/news`,
-            date: parseDate(dateStr),
-            description: content.length > 200 ? content.substring(0, 200) + '...' : content,
-            category,
-            tags,
-            imageUrl: imageUrl || undefined,
-            imageAlt: imageAlt || undefined
-          });
-          
-          categories.add(category);
-        }
       }
     });
   }

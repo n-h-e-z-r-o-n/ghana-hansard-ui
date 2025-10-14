@@ -184,52 +184,52 @@ export default function ParliamentNewsFeed() {
         </div>
       )}
 
-      {/* News Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {newsData.news.map((item, index) => (
-          <article key={index} className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
-            {/* Image */}
-            {item.imageUrl && (
-              <div className="relative h-48 bg-gray-200">
-                <img
-                  src={item.imageUrl}
-                  alt={item.imageAlt || item.title}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    // Hide image if it fails to load
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
-                {/* Category Badge Overlay */}
-                <div className="absolute top-3 left-3">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(item.category)}`}>
-                    {item.category}
-                  </span>
-                </div>
-              </div>
-            )}
+       {/* News Grid */}
+       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+         {newsData.news.map((item, index) => (
+           <article key={index} className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+             {/* Image - Always show since we guarantee every news item has an image */}
+             <div className="relative h-48 bg-gray-200">
+               <img
+                 src={item.imageUrl}
+                 alt={item.imageAlt || item.title}
+                 className="w-full h-full object-cover"
+                 loading="lazy"
+                 onLoad={() => {
+                   console.log('Image loaded successfully:', item.imageUrl);
+                 }}
+                 onError={(e) => {
+                   console.error('Image failed to load:', item.imageUrl);
+                   // If image fails to load, show a fallback with category text
+                   const target = e.currentTarget;
+                   target.style.display = 'none';
+                   const parent = target.parentElement;
+                   if (parent) {
+                     parent.innerHTML = `
+                       <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-red-100 to-green-100">
+                         <div class="text-center">
+                           <div class="text-4xl font-bold text-gray-600 mb-2">📰</div>
+                           <div class="text-sm font-medium text-gray-700">${item.category}</div>
+                         </div>
+                       </div>
+                     `;
+                   }
+                 }}
+               />
+               {/* Category Badge Overlay */}
+               <div className="absolute top-3 left-3">
+                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(item.category)}`}>
+                   {item.category}
+                 </span>
+               </div>
+             </div>
 
-            <div className="p-6">
-              {/* Category Badge (if no image) */}
-              {!item.imageUrl && (
-                <div className="flex items-center justify-between mb-3">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(item.category)}`}>
-                    {item.category}
-                  </span>
-                  <div className="flex items-center text-xs text-gray-500">
-                    <CalendarIcon className="w-3 h-3 mr-1" />
-                    {formatDate(item.date)}
-                  </div>
-                </div>
-              )}
-
-              {/* Date (if image exists) */}
-              {item.imageUrl && (
-                <div className="flex items-center text-xs text-gray-500 mb-3">
-                  <CalendarIcon className="w-3 h-3 mr-1" />
-                  {formatDate(item.date)}
-                </div>
-              )}
+             <div className="p-6">
+               {/* Date */}
+               <div className="flex items-center text-xs text-gray-500 mb-3">
+                 <CalendarIcon className="w-3 h-3 mr-1" />
+                 {formatDate(item.date)}
+               </div>
 
               {/* Title */}
               <h3 className="text-lg font-semibold text-gray-900 mb-3 line-clamp-2">
