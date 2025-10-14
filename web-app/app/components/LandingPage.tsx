@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   MicrophoneIcon, 
@@ -20,11 +20,33 @@ import {
   InformationCircleIcon
 } from '@heroicons/react/24/outline';
 import AIAssistant from './AIAssistant';
+import ParliamentNewsFeed from './ParliamentNewsFeed';
 
 export default function LandingPage() {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [activeNavItem, setActiveNavItem] = useState('');
+
+  // Scroll effect for navigation
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      setIsScrolled(scrollTop > 50);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Smooth scroll to sections
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   const features = [
     {
@@ -79,145 +101,195 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Enhanced Navigation */}
-      <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+      {/* Enhanced Navigation with Dynamic Effects */}
+      <nav className={`sticky top-0 z-50 transition-all duration-300 ${
+        isScrolled 
+          ? 'bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200/50' 
+          : 'bg-white shadow-sm border-b border-gray-200'
+      }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 rounded flex items-center justify-center">
+            {/* Logo with Animation */}
+            <div className="flex items-center space-x-3 group cursor-pointer" onClick={() => scrollToSection('hero')}>
+              <div className="w-8 h-8 rounded flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
                 <img 
                   src="/logo.png" 
                   alt="Ghana Parliamentary Hub Logo" 
-                  className="w-8 h-8 rounded object-contain"
+                  className="w-8 h-8 rounded object-contain transition-all duration-300"
                 />
               </div>
-              <span className="text-xl font-bold text-gray-900">Ghana Parliamentary Hub</span>
+              <span className="text-xl font-bold text-gray-900 transition-colors duration-300 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-red-600 group-hover:to-green-600">
+                Ghana Parliamentary Hub
+              </span>
             </div>
 
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-8">
-              <Link href="/" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                Home
-              </Link>
-              <Link href="/debates" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                Debates
-              </Link>
-              <Link href="/bills" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                Bills & Legislation
-              </Link>
-              <Link href="/members" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                Members
+            {/* Desktop Navigation with Hover Effects */}
+            <div className="hidden lg:flex items-center space-x-2">
+              <Link 
+                href="/" 
+                className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                  activeNavItem === 'home' 
+                    ? 'text-white bg-gradient-to-r from-red-600 to-green-600 shadow-lg' 
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
+                onMouseEnter={() => setActiveNavItem('home')}
+                onMouseLeave={() => setActiveNavItem('')}
+              >
+                <span className="relative z-10">Home</span>
+                {activeNavItem === 'home' && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-green-600 rounded-lg animate-pulse"></div>
+                )}
               </Link>
               
-              {/* Dropdown Menu */}
+              <Link 
+                href="/debates" 
+                className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                  activeNavItem === 'debates' 
+                    ? 'text-white bg-gradient-to-r from-red-600 to-green-600 shadow-lg' 
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
+                onMouseEnter={() => setActiveNavItem('debates')}
+                onMouseLeave={() => setActiveNavItem('')}
+              >
+                <span className="relative z-10">Debates</span>
+                {activeNavItem === 'debates' && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-green-600 rounded-lg animate-pulse"></div>
+                )}
+              </Link>
+              
+              <Link 
+                href="/bills" 
+                className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                  activeNavItem === 'bills' 
+                    ? 'text-white bg-gradient-to-r from-red-600 to-green-600 shadow-lg' 
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
+                onMouseEnter={() => setActiveNavItem('bills')}
+                onMouseLeave={() => setActiveNavItem('')}
+              >
+                <span className="relative z-10">Bills & Legislation</span>
+                {activeNavItem === 'bills' && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-green-600 rounded-lg animate-pulse"></div>
+                )}
+              </Link>
+              
+              <Link 
+                href="/members" 
+                className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                  activeNavItem === 'members' 
+                    ? 'text-white bg-gradient-to-r from-red-600 to-green-600 shadow-lg' 
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
+                onMouseEnter={() => setActiveNavItem('members')}
+                onMouseLeave={() => setActiveNavItem('')}
+              >
+                <span className="relative z-10">Members</span>
+                {activeNavItem === 'members' && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-green-600 rounded-lg animate-pulse"></div>
+                )}
+              </Link>
+              
+              {/* Enhanced Dropdown Menu */}
               <div className="relative" onMouseEnter={() => setIsDropdownOpen(true)} onMouseLeave={() => setIsDropdownOpen(false)}>
-                <button className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                <button className={`flex items-center space-x-1 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                  isDropdownOpen 
+                    ? 'text-white bg-gradient-to-r from-red-600 to-green-600 shadow-lg' 
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}>
                   <span>More</span>
-                  <ChevronDownIcon className={`w-4 h-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDownIcon className={`w-4 h-4 transition-all duration-300 ${isDropdownOpen ? 'rotate-180 scale-110' : ''}`} />
                 </button>
                 {isDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
-                    <Link href="/schedule" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      <CalendarIcon className="w-4 h-4 inline mr-2" />
-                      Schedule
+                  <div className="absolute top-full left-0 mt-2 w-56 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-gray-200/50 py-2 z-50 animate-in slide-in-from-top-2 duration-300">
+                    <Link href="/schedule" className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-red-50 hover:to-green-50 hover:text-gray-900 transition-all duration-200 group">
+                      <CalendarIcon className="w-4 h-4 mr-3 text-gray-400 group-hover:text-red-600 transition-colors duration-200" />
+                      <span>Schedule</span>
                     </Link>
-                    <Link href="/archives" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      <DocumentIcon className="w-4 h-4 inline mr-2" />
-                      Archives
+                    <Link href="/archives" className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-red-50 hover:to-green-50 hover:text-gray-900 transition-all duration-200 group">
+                      <DocumentIcon className="w-4 h-4 mr-3 text-gray-400 group-hover:text-red-600 transition-colors duration-200" />
+                      <span>Archives</span>
                     </Link>
-                    <Link href="/analytics" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      <ChartBarIcon className="w-4 h-4 inline mr-2" />
-                      Analytics
+                    <Link href="/analytics" className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-red-50 hover:to-green-50 hover:text-gray-900 transition-all duration-200 group">
+                      <ChartBarIcon className="w-4 h-4 mr-3 text-gray-400 group-hover:text-red-600 transition-colors duration-200" />
+                      <span>Analytics</span>
                     </Link>
-                    <Link href="/news" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      <NewspaperIcon className="w-4 h-4 inline mr-2" />
-                      News & Updates
+                    <Link href="/news" className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-red-50 hover:to-green-50 hover:text-gray-900 transition-all duration-200 group">
+                      <NewspaperIcon className="w-4 h-4 mr-3 text-gray-400 group-hover:text-red-600 transition-colors duration-200" />
+                      <span>News & Updates</span>
                     </Link>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Desktop Auth Buttons */}
-            <div className="hidden lg:flex items-center space-x-4">
+            {/* Enhanced Desktop Auth Button */}
+            <div className="hidden lg:flex items-center">
               <Link
                 href="/auth"
-                className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                className="relative bg-gradient-to-r from-red-600 to-green-600 hover:from-red-700 hover:to-green-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg group overflow-hidden"
               >
-                Sign In
-              </Link>
-              <Link
-                href="/auth"
-                className="bg-gradient-to-r from-red-600 to-green-600 hover:from-red-700 hover:to-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-all duration-300"
-              >
-                Get Started
+                <span className="relative z-10">Get Started</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-red-700 to-green-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
               </Link>
             </div>
 
-            {/* Mobile Menu Button */}
+            {/* Enhanced Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              className="lg:hidden p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-300 hover:scale-110"
             >
-              {isMobileMenuOpen ? (
-                <XMarkIcon className="w-6 h-6" />
-              ) : (
-                <Bars3Icon className="w-6 h-6" />
-              )}
+              <div className="relative w-6 h-6">
+                <Bars3Icon className={`w-6 h-6 absolute transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0 rotate-180' : 'opacity-100 rotate-0'}`} />
+                <XMarkIcon className={`w-6 h-6 absolute transition-all duration-300 ${isMobileMenuOpen ? 'opacity-100 rotate-0' : 'opacity-0 rotate-180'}`} />
+              </div>
             </button>
           </div>
 
-          {/* Mobile Menu */}
+          {/* Enhanced Mobile Menu */}
           {isMobileMenuOpen && (
-            <div className="lg:hidden border-t border-gray-200 py-4">
-              <div className="space-y-2">
-                <Link href="/" className="block px-3 py-2 text-gray-600 hover:text-gray-900 rounded-md">
+            <div className="lg:hidden border-t border-gray-200 py-4 animate-in slide-in-from-top-2 duration-300">
+              <div className="space-y-1">
+                <Link href="/" className="block px-4 py-3 text-gray-600 hover:text-gray-900 hover:bg-gradient-to-r hover:from-red-50 hover:to-green-50 rounded-lg transition-all duration-200">
                   Home
                 </Link>
-                <Link href="/debates" className="block px-3 py-2 text-gray-600 hover:text-gray-900 rounded-md">
+                <Link href="/debates" className="block px-4 py-3 text-gray-600 hover:text-gray-900 hover:bg-gradient-to-r hover:from-red-50 hover:to-green-50 rounded-lg transition-all duration-200">
                   Debates
                 </Link>
-                <Link href="/bills" className="block px-3 py-2 text-gray-600 hover:text-gray-900 rounded-md">
+                <Link href="/bills" className="block px-4 py-3 text-gray-600 hover:text-gray-900 hover:bg-gradient-to-r hover:from-red-50 hover:to-green-50 rounded-lg transition-all duration-200">
                   Bills & Legislation
                 </Link>
-                <Link href="/members" className="block px-3 py-2 text-gray-600 hover:text-gray-900 rounded-md">
+                <Link href="/members" className="block px-4 py-3 text-gray-600 hover:text-gray-900 hover:bg-gradient-to-r hover:from-red-50 hover:to-green-50 rounded-lg transition-all duration-200">
                   Members
                 </Link>
-                <Link href="/schedule" className="block px-3 py-2 text-gray-600 hover:text-gray-900 rounded-md">
+                <Link href="/schedule" className="block px-4 py-3 text-gray-600 hover:text-gray-900 hover:bg-gradient-to-r hover:from-red-50 hover:to-green-50 rounded-lg transition-all duration-200">
                   Schedule
                 </Link>
-                <Link href="/archives" className="block px-3 py-2 text-gray-600 hover:text-gray-900 rounded-md">
+                <Link href="/archives" className="block px-4 py-3 text-gray-600 hover:text-gray-900 hover:bg-gradient-to-r hover:from-red-50 hover:to-green-50 rounded-lg transition-all duration-200">
                   Archives
                 </Link>
-                <Link href="/analytics" className="block px-3 py-2 text-gray-600 hover:text-gray-900 rounded-md">
+                <Link href="/analytics" className="block px-4 py-3 text-gray-600 hover:text-gray-900 hover:bg-gradient-to-r hover:from-red-50 hover:to-green-50 rounded-lg transition-all duration-200">
                   Analytics
                 </Link>
-                <Link href="/news" className="block px-3 py-2 text-gray-600 hover:text-gray-900 rounded-md">
+                <Link href="/news" className="block px-4 py-3 text-gray-600 hover:text-gray-900 hover:bg-gradient-to-r hover:from-red-50 hover:to-green-50 rounded-lg transition-all duration-200">
                   News & Updates
                 </Link>
-                <div className="pt-4 border-t border-gray-200 space-y-2">
+                <div className="pt-4 border-t border-gray-200">
                   <Link
                     href="/auth"
-                    className="block w-full text-center px-4 py-2 text-gray-600 hover:text-gray-900 rounded-md border border-gray-300"
+                    className="block w-full text-center px-4 py-3 bg-gradient-to-r from-red-600 to-green-600 hover:from-red-700 hover:to-green-700 text-white rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg"
                   >
-                    Sign In
+                    Get Started
                   </Link>
-                  <Link
-                    href="/auth"
-                    className="block w-full text-center px-4 py-2 bg-gradient-to-r from-red-600 to-green-600 hover:from-red-700 hover:to-green-700 text-white rounded-md"
-              >
-                Get Started
-              </Link>
-            </div>
-          </div>
+                </div>
+              </div>
             </div>
           )}
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-red-50 via-yellow-50 to-green-50 py-20">
+      <section id="hero" className="relative bg-gradient-to-br from-red-50 via-yellow-50 to-green-50 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
@@ -230,22 +302,22 @@ export default function LandingPage() {
               Experience AI-powered insights, voice-enabled analysis, and real-time tracking of parliamentary proceedings. 
               Making democracy more transparent and accessible for all Ghanaians.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/auth"
-                className="bg-gradient-to-r from-red-600 to-green-600 hover:from-red-700 hover:to-green-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl"
-              >
-                Start Exploring
-                <ArrowRightIcon className="ml-2 w-5 h-5" />
-              </Link>
-              <button
-                onClick={() => setIsVideoPlaying(true)}
-                className="border border-gray-300 hover:border-gray-400 text-gray-700 px-8 py-4 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center"
-              >
-                <PlayIcon className="mr-2 w-5 h-5" />
-                Watch Demo
-              </button>
-            </div>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link
+                  href="/auth"
+                  className="bg-gradient-to-r from-red-600 to-green-600 hover:from-red-700 hover:to-green-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl"
+                >
+                  Get Started
+                  <ArrowRightIcon className="ml-2 w-5 h-5" />
+                </Link>
+                <button
+                  onClick={() => setIsVideoPlaying(true)}
+                  className="border border-gray-300 hover:border-gray-400 text-gray-700 px-8 py-4 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center hover:bg-gray-50"
+                >
+                  <PlayIcon className="mr-2 w-5 h-5" />
+                  Watch Demo
+                </button>
+              </div>
           </div>
         </div>
       </section>
@@ -396,6 +468,13 @@ export default function LandingPage() {
               <p className="text-gray-600">Use AI insights to understand parliamentary trends</p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Parliamentary News Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <ParliamentNewsFeed />
         </div>
       </section>
 

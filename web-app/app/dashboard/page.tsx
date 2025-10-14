@@ -12,6 +12,9 @@ import {
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import Navigation from '../components/Navigation';
 import ProtectedRoute from '../components/ProtectedRoute';
+import { useEffect, useState } from 'react';
+
+interface ParliamentLinkItem { title: string; url: string }
 
 const debateData = [
   { month: 'Jan', debates: 120, bills: 45 },
@@ -62,12 +65,44 @@ const recentDebates = [
   }
 ];
 
+function useParliamentHome() {
+  const [news, setNews] = useState<ParliamentLinkItem[]>([]);
+  const [press, setPress] = useState<ParliamentLinkItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        setLoading(true);
+        const res = await fetch('/api/parliament/home', { cache: 'no-store' });
+        const json = await res.json();
+        if (!res.ok || !json?.success) throw new Error(json?.error || 'Failed');
+        if (!cancelled) {
+          setNews(json.data.news || []);
+          setPress(json.data.pressReleases || []);
+        }
+      } catch (e: any) {
+        if (!cancelled) setError(e?.message || 'Failed to load');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, []);
+
+  return { news, press, loading, error };
+}
+
 const hotTopics = [
   'Healthcare Reform', 'Education Funding', 'Economic Policy', 'Climate Change',
   'Infrastructure', 'Taxation', 'Agriculture', 'National Security', 'Digital Economy'
 ];
 
 export default function Dashboard() {
+  const { news, press, loading, error } = useParliamentHome();
   return (
     <ProtectedRoute>
       <Navigation>
@@ -185,49 +220,48 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Hot Topics */}
+            {/* Latest from Parliament.gh */}
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Hot Topics</h3>
+                <h3 className="text-lg font-semibold text-gray-900">Latest from Parliament.gh</h3>
                 <ArrowPathIcon className="w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600" />
               </div>
-              <div className="flex flex-wrap gap-2 mb-6">
-                {hotTopics.map((topic, index) => (
-                  <button
-                    key={index}
-                    className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors"
-                  >
-                    {topic}
-                  </button>
-                ))}
-              </div>
-              <div className="h-32">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={sentimentData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={30}
-                      outerRadius={50}
-                      dataKey="value"
-                    >
-                      {sentimentData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+              {loading && <p className="text-sm text-gray-500">Loading live updates…</p>}
+              {error && <p className="text-sm text-red-600">{error}</p>}
+              {!loading && !error && (
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 mb-2">Latest News</h4>
+                    <ul className="space-y-2">
+                      {(news.length ? news : []).map((item, i) => (
+                        <li key={i} className="text-sm">
+                          <a className="text-blue-600 hover:underline" href={item.url} target="_blank" rel="noopener noreferrer">
+                            {item.title}
+                          </a>
+                        </li>
                       ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="flex justify-center space-x-4 mt-2">
-                {sentimentData.map((item, index) => (
-                  <div key={index} className="flex items-center space-x-1">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
-                    <span className="text-xs text-gray-600">{item.name}</span>
+                      {news.length === 0 && (
+                        <li className="text-sm text-gray-500">No news found on Parliament site.</li>
+                      )}
+                    </ul>
                   </div>
-                ))}
-              </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 mb-2">Press Releases</h4>
+                    <ul className="space-y-2">
+                      {(press.length ? press : []).map((item, i) => (
+                        <li key={i} className="text-sm">
+                          <a className="text-blue-600 hover:underline" href={item.url} target="_blank" rel="noopener noreferrer">
+                            {item.title}
+                          </a>
+                        </li>
+                      ))}
+                      {press.length === 0 && (
+                        <li className="text-sm text-gray-500">No press releases found on Parliament site.</li>
+                      )}
+                    </ul>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
