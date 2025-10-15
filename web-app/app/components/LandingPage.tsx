@@ -413,6 +413,33 @@ export default function LandingPage() {
                     <p className="text-gray-600">Access comprehensive summaries, key points, and detailed explanations of complex legislative documents and proceedings.</p>
                   </div>
                 </div>
+                <div className="flex items-start space-x-4">
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <UserGroupIcon className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Multi-Language Support</h3>
+                    <p className="text-gray-600">Interact in English, Akan, Ewe, Dagbani, Dangme, Ga, or Swahili. Get parliamentary insights in your preferred language.</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-4">
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <InformationCircleIcon className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Role-Based Interface</h3>
+                    <p className="text-gray-600">Switch between Citizen, Official, and Researcher modes for tailored experiences and appropriate complexity levels.</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-4">
+                  <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <NewspaperIcon className="w-6 h-6 text-indigo-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Parliamentary Glossary</h3>
+                    <p className="text-gray-600">Built-in dictionary of parliamentary terms with tooltips and explanations to help you understand legislative jargon.</p>
+                  </div>
+                </div>
               </div>
             </div>
             <div className="relative">
@@ -421,19 +448,23 @@ export default function LandingPage() {
                   <div className="w-16 h-16 bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
                     <MicrophoneIcon className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">AI Assistant Active</h3>
-                  <p className="text-gray-600">Click the floating assistant button to start chatting!</p>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">See AI Assistant in Action</h3>
+                  <p className="text-gray-600">Watch how to interact with your parliamentary AI assistant</p>
                 </div>
-                <div className="space-y-4">
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-sm text-gray-600 mb-2">Try asking:</p>
-                    <ul className="text-sm text-gray-700 space-y-1">
-                      <li>• "What are the latest debates on education?"</li>
-                      <li>• "Show me voting patterns for the NPP party"</li>
-                      <li>• "Explain the current bill on healthcare reform"</li>
-                    </ul>
+                
+                {/* AI Recording GIF */}
+                <div className="mb-6">
+                  <div className="relative rounded-lg overflow-hidden shadow-lg">
+                    <img 
+                      src="/AI Recording .gif" 
+                      alt="AI Assistant Demo - Voice interaction and parliamentary data analysis"
+                      className="w-full h-auto rounded-lg"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-lg"></div>
                   </div>
                 </div>
+
               </div>
             </div>
           </div>
