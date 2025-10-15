@@ -30,6 +30,8 @@ import {
 } from '@heroicons/react/24/outline';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 import Navigation from '../components/Navigation';
+import VotesProceedingsFeed from '../components/VotesProceedingsFeed';
+import ParliamentAgendaFeed from '../components/ParliamentAgendaFeed';
 
 // Mock data for bills
 const mockBills = [
@@ -739,6 +741,35 @@ export default function BillsPage() {
           </div>
         </div>
         )}
+
+        {/* Parliamentary Documents Section */}
+        <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Votes & Proceedings Section */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900">Votes & Proceedings</h2>
+              <p className="text-sm text-gray-600 mt-1">Official records of parliamentary sessions and voting</p>
+            </div>
+            <div className="h-96 overflow-y-auto">
+              <div className="p-6">
+                <VotesProceedingsFeed />
+              </div>
+            </div>
+          </div>
+
+          {/* Parliamentary Agenda Section */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900">Parliamentary Agenda</h2>
+              <p className="text-sm text-gray-600 mt-1">Scheduled meetings and parliamentary business</p>
+            </div>
+            <div className="h-96 overflow-y-auto">
+              <div className="p-6">
+                <ParliamentAgendaFeed />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </Navigation>
   );

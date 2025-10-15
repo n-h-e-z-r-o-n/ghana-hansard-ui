@@ -6,12 +6,14 @@ import {
   FaceSmileIcon,
   FaceFrownIcon,
   ArrowPathIcon,
-  MicrophoneIcon
+  MicrophoneIcon,
+  UserGroupIcon
 } from '@heroicons/react/24/outline';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import Navigation from '../components/Navigation';
 import ProtectedRoute from '../components/ProtectedRoute';
 import DashboardNewsFeed from '../components/DashboardNewsFeed';
+import ParliamentLeadership from '../components/ParliamentLeadership';
 
 
 const debateData = [
@@ -189,6 +191,37 @@ export default function Dashboard() {
               <div className="h-96 overflow-y-auto">
                 <div className="p-6">
                   <DashboardNewsFeed />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Parliament Leadership Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            {/* Parliament Leadership */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900">Parliament Leadership</h3>
+                  <ArrowPathIcon className="w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600" />
+                </div>
+              </div>
+              <div className="h-96 overflow-y-auto">
+                <div className="p-6">
+                  <ParliamentLeadership />
+                </div>
+              </div>
+            </div>
+
+            {/* Placeholder for future content */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <UserGroupIcon className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Additional Content</h3>
+                  <p className="text-sm text-gray-600">More parliamentary information coming soon</p>
                 </div>
               </div>
             </div>
