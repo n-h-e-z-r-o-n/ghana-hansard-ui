@@ -21,8 +21,8 @@ import {
   BriefcaseIcon,
   StarIcon,
   HeartIcon,
-  ThumbUpIcon,
-  ThumbDownIcon,
+  HandThumbUpIcon,
+  HandThumbDownIcon,
   ClockIcon,
   DocumentTextIcon,
   MicrophoneIcon,
@@ -34,270 +34,45 @@ import {
 } from '@heroicons/react/24/outline';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, ScatterChart, Scatter, XAxis as ScatterXAxis, YAxis as ScatterYAxis } from 'recharts';
 import Navigation from '../components/Navigation';
+import { ParliamentMember } from '../lib/parliamentMembersScraper';
 
-// Mock data for members
-const mockMembers = [
-  {
-    id: '1',
-    name: 'Rt Hon. Jane Smith',
-    title: 'Speaker of Parliament',
-    party: 'NPP',
-    constituency: 'Accra Central',
-    region: 'Greater Accra',
-    email: 'jane.smith@parliament.gh',
-    phone: '+233 24 123 4567',
-    image: '/api/placeholder/150/150',
-    bio: 'Experienced parliamentarian with 15 years of service. Former Minister of Education and advocate for youth development.',
-    education: 'PhD in Political Science, University of Ghana',
-    profession: 'Academic and Politician',
-    committees: ['Education Committee', 'Constitutional Committee'],
-    roles: ['Speaker', 'Committee Chair'],
-    tenure: '2016 - Present',
-    age: 52,
-    gender: 'Female',
-    votingRecord: {
-      totalVotes: 245,
-      attendance: 98.5,
-      partyLoyalty: 95.2,
-      crossPartyVotes: 12
-    },
-    performance: {
-      billsSponsored: 18,
-      billsPassed: 14,
-      debatesParticipated: 156,
-      speakingTime: '45h 30m',
-      questionsAsked: 89,
-      answersGiven: 234
-    },
-    socialMedia: {
-      twitter: '@janesmith_mp',
-      facebook: 'JaneSmithMP',
-      linkedin: 'jane-smith-speaker'
-    },
-    achievements: [
-      'Speaker of the Year 2023',
-      'Education Reform Champion',
-      'Youth Development Advocate'
-    ],
-    recentActivity: [
-      { date: '2024-03-20', activity: 'Chaired Education Committee Meeting', type: 'committee' },
-      { date: '2024-03-18', activity: 'Spoke on Healthcare Bill', type: 'debate' },
-      { date: '2024-03-15', activity: 'Attended Constituency Meeting', type: 'constituency' }
-    ],
-    sentiment: 'positive',
-    popularity: 87,
-    influence: 92
-  },
-  {
-    id: '2',
-    name: 'Hon. David Johnson',
-    title: 'Majority Leader',
-    party: 'NPP',
-    constituency: 'Kumasi Central',
-    region: 'Ashanti',
-    email: 'david.johnson@parliament.gh',
-    phone: '+233 24 234 5678',
-    image: '/api/placeholder/150/150',
-    bio: 'Dynamic leader with strong economic background. Former banker and finance expert with focus on economic development.',
-    education: 'MBA Finance, University of Cape Coast',
-    profession: 'Banker and Politician',
-    committees: ['Finance Committee', 'Economic Affairs Committee'],
-    roles: ['Majority Leader', 'Committee Member'],
-    tenure: '2012 - Present',
-    age: 48,
-    gender: 'Male',
-    votingRecord: {
-      totalVotes: 298,
-      attendance: 96.8,
-      partyLoyalty: 98.1,
-      crossPartyVotes: 6
-    },
-    performance: {
-      billsSponsored: 24,
-      billsPassed: 19,
-      debatesParticipated: 189,
-      speakingTime: '52h 15m',
-      questionsAsked: 67,
-      answersGiven: 198
-    },
-    socialMedia: {
-      twitter: '@davidjohnson_mp',
-      facebook: 'DavidJohnsonMP',
-      linkedin: 'david-johnson-leader'
-    },
-    achievements: [
-      'Economic Policy Leader',
-      'Finance Committee Chair',
-      'Budget Reform Champion'
-    ],
-    recentActivity: [
-      { date: '2024-03-19', activity: 'Led Budget Debate', type: 'debate' },
-      { date: '2024-03-17', activity: 'Finance Committee Meeting', type: 'committee' },
-      { date: '2024-03-14', activity: 'Constituency Town Hall', type: 'constituency' }
-    ],
-    sentiment: 'positive',
-    popularity: 82,
-    influence: 89
-  },
-  {
-    id: '3',
-    name: 'Dr. Sarah Williams',
-    title: 'Minority Whip',
-    party: 'NDC',
-    constituency: 'Tamale North',
-    region: 'Northern',
-    email: 'sarah.williams@parliament.gh',
-    phone: '+233 24 345 6789',
-    image: '/api/placeholder/150/150',
-    bio: 'Medical doctor and healthcare advocate. Strong voice for healthcare reform and rural development.',
-    education: 'MD Medicine, University of Ghana Medical School',
-    profession: 'Medical Doctor and Politician',
-    committees: ['Health Committee', 'Rural Development Committee'],
-    roles: ['Minority Whip', 'Committee Vice-Chair'],
-    tenure: '2016 - Present',
-    age: 45,
-    gender: 'Female',
-    votingRecord: {
-      totalVotes: 267,
-      attendance: 94.2,
-      partyLoyalty: 92.3,
-      crossPartyVotes: 18
-    },
-    performance: {
-      billsSponsored: 16,
-      billsPassed: 11,
-      debatesParticipated: 178,
-      speakingTime: '48h 20m',
-      questionsAsked: 95,
-      answersGiven: 156
-    },
-    socialMedia: {
-      twitter: '@sarahwilliams_mp',
-      facebook: 'SarahWilliamsMP',
-      linkedin: 'sarah-williams-doctor'
-    },
-    achievements: [
-      'Healthcare Reform Advocate',
-      'Rural Health Champion',
-      'Women in Politics Award'
-    ],
-    recentActivity: [
-      { date: '2024-03-21', activity: 'Health Committee Hearing', type: 'committee' },
-      { date: '2024-03-19', activity: 'Healthcare Bill Debate', type: 'debate' },
-      { date: '2024-03-16', activity: 'Rural Health Outreach', type: 'constituency' }
-    ],
-    sentiment: 'positive',
-    popularity: 85,
-    influence: 78
-  },
-  {
-    id: '4',
-    name: 'Hon. Michael Brown',
-    title: 'Minister of Education',
-    party: 'NPP',
-    constituency: 'Cape Coast South',
-    region: 'Central',
-    email: 'michael.brown@parliament.gh',
-    phone: '+233 24 456 7890',
-    image: '/api/placeholder/150/150',
-    bio: 'Former university professor and education expert. Passionate about educational reform and teacher development.',
-    education: 'PhD Education, University of Cambridge',
-    profession: 'Professor and Politician',
-    committees: ['Education Committee', 'Science and Technology Committee'],
-    roles: ['Minister', 'Committee Member'],
-    tenure: '2020 - Present',
-    age: 55,
-    gender: 'Male',
-    votingRecord: {
-      totalVotes: 189,
-      attendance: 91.5,
-      partyLoyalty: 97.8,
-      crossPartyVotes: 4
-    },
-    performance: {
-      billsSponsored: 12,
-      billsPassed: 9,
-      debatesParticipated: 134,
-      speakingTime: '38h 45m',
-      questionsAsked: 45,
-      answersGiven: 167
-    },
-    socialMedia: {
-      twitter: '@michaelbrown_mp',
-      facebook: 'MichaelBrownMP',
-      linkedin: 'michael-brown-education'
-    },
-    achievements: [
-      'Education Reform Leader',
-      'Teacher Development Champion',
-      'Academic Excellence Award'
-    ],
-    recentActivity: [
-      { date: '2024-03-22', activity: 'Education Policy Announcement', type: 'ministerial' },
-      { date: '2024-03-20', activity: 'Education Committee Meeting', type: 'committee' },
-      { date: '2024-03-18', activity: 'School Visit Program', type: 'constituency' }
-    ],
-    sentiment: 'positive',
-    popularity: 79,
-    influence: 85
-  },
-  {
-    id: '5',
-    name: 'Hon. Grace Mensah',
-    title: 'MP',
-    party: 'NDC',
-    constituency: 'Ho Central',
-    region: 'Volta',
-    email: 'grace.mensah@parliament.gh',
-    phone: '+233 24 567 8901',
-    image: '/api/placeholder/150/150',
-    bio: 'Young parliamentarian and women\'s rights advocate. Focus on gender equality and youth empowerment.',
-    education: 'MSc Development Studies, University of Ghana',
-    profession: 'Development Specialist and Politician',
-    committees: ['Gender and Children Committee', 'Youth and Sports Committee'],
-    roles: ['Committee Member', 'Women\'s Caucus Leader'],
-    tenure: '2020 - Present',
-    age: 38,
-    gender: 'Female',
-    votingRecord: {
-      totalVotes: 201,
-      attendance: 89.3,
-      partyLoyalty: 88.7,
-      crossPartyVotes: 23
-    },
-    performance: {
-      billsSponsored: 8,
-      billsPassed: 5,
-      debatesParticipated: 112,
-      speakingTime: '28h 15m',
-      questionsAsked: 78,
-      answersGiven: 89
-    },
-    socialMedia: {
-      twitter: '@gracemensah_mp',
-      facebook: 'GraceMensahMP',
-      linkedin: 'grace-mensah-development'
-    },
-    achievements: [
-      'Women\'s Rights Champion',
-      'Youth Empowerment Leader',
-      'Gender Equality Advocate'
-    ],
-    recentActivity: [
-      { date: '2024-03-21', activity: 'Gender Committee Meeting', type: 'committee' },
-      { date: '2024-03-18', activity: 'Women\'s Rights Debate', type: 'debate' },
-      { date: '2024-03-15', activity: 'Youth Empowerment Workshop', type: 'constituency' }
-    ],
-    sentiment: 'positive',
-    popularity: 76,
-    influence: 72
-  }
-];
+// Custom hook for fetching parliament members
+function useParliamentMembers() {
+  const [members, setMembers] = useState<ParliamentMember[]>([]);
+  const [parties, setParties] = useState<string[]>([]);
+  const [regions, setRegions] = useState<string[]>([]);
+  const [committees, setCommittees] = useState<string[]>([]);
+  const [roles, setRoles] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-const parties = ['All', 'NPP', 'NDC', 'Independent'];
-const regions = ['All', 'Greater Accra', 'Ashanti', 'Northern', 'Central', 'Volta', 'Western', 'Eastern', 'Upper East', 'Upper West', 'Brong-Ahafo'];
-const committees = ['All', 'Education Committee', 'Health Committee', 'Finance Committee', 'Gender and Children Committee', 'Constitutional Committee', 'Economic Affairs Committee'];
-const roles = ['All', 'Speaker', 'Majority Leader', 'Minority Whip', 'Minister', 'Committee Chair', 'Committee Member', 'MP'];
+  useEffect(() => {
+    let cancelled = false;
+    async function loadMembers() {
+      try {
+        setLoading(true);
+        const res = await fetch('/api/parliament/members', { cache: 'no-store' });
+        const json = await res.json();
+        if (!res.ok || !json?.success) throw new Error(json?.error || 'Failed to load members');
+        if (!cancelled) {
+          setMembers(json.data.members || []);
+          setParties(['All', ...(json.data.parties || [])]);
+          setRegions(['All', ...(json.data.regions || [])]);
+          setCommittees(['All', ...(json.data.committees || [])]);
+          setRoles(['All', ...(json.data.roles || [])]);
+        }
+      } catch (e: any) {
+        if (!cancelled) setError(e?.message || 'Failed to load members');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    loadMembers();
+    return () => { cancelled = true; };
+  }, []);
+
+  return { members, parties, regions, committees, roles, loading, error };
+}
 
 const partyData = [
   { name: 'NPP', value: 45, color: '#3B82F6' },
@@ -321,8 +96,8 @@ const performanceData = [
 ];
 
 export default function MembersPage() {
-  const [members, setMembers] = useState(mockMembers);
-  const [filteredMembers, setFilteredMembers] = useState(mockMembers);
+  const { members, parties, regions, committees, roles, loading, error } = useParliamentMembers();
+  const [filteredMembers, setFilteredMembers] = useState<ParliamentMember[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedParty, setSelectedParty] = useState('All');
   const [selectedRegion, setSelectedRegion] = useState('All');
@@ -331,7 +106,7 @@ export default function MembersPage() {
   const [sortBy, setSortBy] = useState('name');
   const [viewMode, setViewMode] = useState('grid');
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedMember, setSelectedMember] = useState(null);
+  const [selectedMember, setSelectedMember] = useState<ParliamentMember | null>(null);
 
   // Filter and search logic
   useEffect(() => {
@@ -339,12 +114,12 @@ export default function MembersPage() {
       const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            member.constituency.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            member.party.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           member.committees.some(committee => committee.toLowerCase().includes(searchTerm.toLowerCase()));
+                           (member.committees && member.committees.some(committee => committee.toLowerCase().includes(searchTerm.toLowerCase())));
       
       const matchesParty = selectedParty === 'All' || member.party === selectedParty;
       const matchesRegion = selectedRegion === 'All' || member.region === selectedRegion;
-      const matchesCommittee = selectedCommittee === 'All' || member.committees.includes(selectedCommittee);
-      const matchesRole = selectedRole === 'All' || member.roles.includes(selectedRole);
+      const matchesCommittee = selectedCommittee === 'All' || (member.committees && member.committees.includes(selectedCommittee));
+      const matchesRole = selectedRole === 'All' || (member.roles && member.roles.includes(selectedRole));
       
       return matchesSearch && matchesParty && matchesRegion && matchesCommittee && matchesRole;
     });
@@ -355,13 +130,13 @@ export default function MembersPage() {
         case 'name':
           return a.name.localeCompare(b.name);
         case 'attendance':
-          return b.votingRecord.attendance - a.votingRecord.attendance;
+          return (b.votingRecord?.attendance || 0) - (a.votingRecord?.attendance || 0);
         case 'popularity':
-          return b.popularity - a.popularity;
+          return (b.popularity || 0) - (a.popularity || 0);
         case 'influence':
-          return b.influence - a.influence;
+          return (b.influence || 0) - (a.influence || 0);
         case 'bills':
-          return b.performance.billsSponsored - a.performance.billsSponsored;
+          return (b.performance?.billsSponsored || 0) - (a.performance?.billsSponsored || 0);
         default:
           return 0;
       }
@@ -388,6 +163,36 @@ export default function MembersPage() {
     }
   };
 
+  // Show loading state
+  if (loading) {
+    return (
+      <Navigation>
+        <div className="p-6">
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+        </div>
+      </Navigation>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <Navigation>
+        <div className="p-6">
+          <div className="text-center">
+            <div className="text-red-600 mb-4">
+              <UserGroupIcon className="w-12 h-12 mx-auto" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Unable to Load Members</h3>
+            <p className="text-gray-600">{error}</p>
+          </div>
+        </div>
+      </Navigation>
+    );
+  }
+
   return (
     <Navigation>
       <div className="p-6">
@@ -396,7 +201,7 @@ export default function MembersPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Parliamentary Members</h1>
-              <p className="text-gray-600">Explore, analyze, and connect with parliamentary representatives</p>
+              <p className="text-gray-600">Explore, analyze, and connect with parliamentary representatives from Parliament of Ghana</p>
             </div>
             <div className="flex items-center space-x-4">
               <button className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center space-x-2">
@@ -525,7 +330,7 @@ export default function MembersPage() {
               <div>
                 <p className="text-sm font-medium text-gray-600">Average Attendance</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {Math.round(filteredMembers.reduce((sum, member) => sum + member.votingRecord.attendance, 0) / filteredMembers.length) || 0}%
+                  {filteredMembers.length > 0 ? Math.round(filteredMembers.reduce((sum, member) => sum + (member.votingRecord?.attendance || 0), 0) / filteredMembers.length) : 0}%
                 </p>
               </div>
               <ChartBarIcon className="w-8 h-8 text-green-600" />
@@ -547,7 +352,7 @@ export default function MembersPage() {
               <div>
                 <p className="text-sm font-medium text-gray-600">Avg. Popularity</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {Math.round(filteredMembers.reduce((sum, member) => sum + member.popularity, 0) / filteredMembers.length) || 0}%
+                  {filteredMembers.length > 0 ? Math.round(filteredMembers.reduce((sum, member) => sum + (member.popularity || 0), 0) / filteredMembers.length) : 0}%
                 </p>
               </div>
               <StarIcon className="w-8 h-8 text-yellow-600" />
@@ -564,50 +369,65 @@ export default function MembersPage() {
                 <p className="text-sm text-gray-600">Showing {filteredMembers.length} members</p>
               </div>
               <div className="divide-y divide-gray-200">
-                {filteredMembers.map((member) => (
-                  <div key={member.id} className="p-6 hover:bg-gray-50 cursor-pointer" onClick={() => setSelectedMember(member)}>
+                {filteredMembers.map((member, index) => (
+                  <div key={`${member.name}-${member.constituency}-${index}`} className="p-6 hover:bg-gray-50 cursor-pointer" onClick={() => setSelectedMember(member)}>
                     <div className="flex items-start space-x-4">
-                      <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-                        <UserIcon className="w-8 h-8 text-gray-400" />
+                      <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0">
+                        {member.imageUrl ? (
+                          <img
+                            src={member.imageUrl}
+                            alt={member.name}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                            onError={(e) => {
+                              // If image fails to load, show a fallback
+                              e.currentTarget.style.display = 'none';
+                              e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                            }}
+                          />
+                        ) : null}
+                        <div className={`w-full h-full bg-gray-200 flex items-center justify-center ${member.imageUrl ? 'hidden' : ''}`}>
+                          <UserIcon className="w-8 h-8 text-gray-400" />
+                        </div>
                       </div>
                       <div className="flex-1">
                         <div className="flex items-start justify-between mb-2">
                           <div>
                             <h3 className="text-lg font-medium text-gray-900">{member.name}</h3>
-                            <p className="text-sm text-gray-600">{member.title}</p>
-                            <p className="text-sm text-gray-500">{member.constituency}, {member.region}</p>
+                            <p className="text-sm text-gray-600">{member.title || 'Member of Parliament'}</p>
+                            <p className="text-sm text-gray-500">{member.constituency}, {member.region || 'Unknown'}</p>
                           </div>
                           <div className="flex flex-col items-end space-y-2">
                             <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPartyColor(member.party)}`}>
                               {member.party}
                             </span>
-                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getSentimentColor(member.sentiment)}`}>
-                              {member.popularity}% popular
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getSentimentColor(member.sentiment || 'neutral')}`}>
+                              {member.popularity || 0}% popular
                             </span>
                           </div>
                         </div>
-                        <p className="text-sm text-gray-600 mb-3">{member.bio}</p>
+                        <p className="text-sm text-gray-600 mb-3">{member.bio || 'Parliamentarian representing their constituency.'}</p>
                         <div className="flex items-center space-x-6 text-sm text-gray-500">
                           <span className="flex items-center">
                             <ClockIcon className="w-4 h-4 mr-1" />
-                            {member.votingRecord.attendance}% attendance
+                            {member.votingRecord?.attendance || 0}% attendance
                           </span>
                           <span className="flex items-center">
                             <DocumentTextIcon className="w-4 h-4 mr-1" />
-                            {member.performance.billsSponsored} bills
+                            {member.performance?.billsSponsored || 0} bills
                           </span>
                           <span className="flex items-center">
                             <MicrophoneIcon className="w-4 h-4 mr-1" />
-                            {member.performance.debatesParticipated} debates
+                            {member.performance?.debatesParticipated || 0} debates
                           </span>
                         </div>
                         <div className="flex flex-wrap gap-2 mt-3">
-                          {member.committees.slice(0, 2).map((committee, index) => (
-                            <span key={index} className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full">
+                          {member.committees && member.committees.slice(0, 2).map((committee, committeeIndex) => (
+                            <span key={committeeIndex} className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full">
                               {committee}
                             </span>
                           ))}
-                          {member.committees.length > 2 && (
+                          {member.committees && member.committees.length > 2 && (
                             <span className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full">
                               +{member.committees.length - 2} more
                             </span>
@@ -704,8 +524,23 @@ export default function MembersPage() {
               <div className="p-6 border-b border-gray-200">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
-                    <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
-                      <UserIcon className="w-10 h-10 text-gray-400" />
+                    <div className="w-20 h-20 rounded-full overflow-hidden flex-shrink-0">
+                      {selectedMember.imageUrl ? (
+                        <img
+                          src={selectedMember.imageUrl}
+                          alt={selectedMember.name}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                          onError={(e) => {
+                            // If image fails to load, show a fallback
+                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                          }}
+                        />
+                      ) : null}
+                      <div className={`w-full h-full bg-gray-200 flex items-center justify-center ${selectedMember.imageUrl ? 'hidden' : ''}`}>
+                        <UserIcon className="w-10 h-10 text-gray-400" />
+                      </div>
                     </div>
                     <div>
                       <h2 className="text-xl font-bold text-gray-900">{selectedMember.name}</h2>
@@ -734,23 +569,23 @@ export default function MembersPage() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Age:</span>
-                        <span className="font-medium">{selectedMember.age}</span>
+                        <span className="font-medium">{selectedMember.age || 'N/A'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Gender:</span>
-                        <span className="font-medium">{selectedMember.gender}</span>
+                        <span className="font-medium">{selectedMember.gender || 'N/A'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Tenure:</span>
-                        <span className="font-medium">{selectedMember.tenure}</span>
+                        <span className="font-medium">{selectedMember.tenure || 'N/A'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Education:</span>
-                        <span className="font-medium text-right">{selectedMember.education}</span>
+                        <span className="font-medium text-right">{selectedMember.education || 'N/A'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Profession:</span>
-                        <span className="font-medium">{selectedMember.profession}</span>
+                        <span className="font-medium">{selectedMember.profession || 'N/A'}</span>
                       </div>
                     </div>
                   </div>
@@ -759,27 +594,27 @@ export default function MembersPage() {
                     <div className="space-y-3">
                       <div className="flex justify-between">
                         <span className="text-gray-600">Attendance:</span>
-                        <span className="font-medium">{selectedMember.votingRecord.attendance}%</span>
+                        <span className="font-medium">{selectedMember.votingRecord?.attendance || 0}%</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Bills Sponsored:</span>
-                        <span className="font-medium">{selectedMember.performance.billsSponsored}</span>
+                        <span className="font-medium">{selectedMember.performance?.billsSponsored || 0}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Bills Passed:</span>
-                        <span className="font-medium">{selectedMember.performance.billsPassed}</span>
+                        <span className="font-medium">{selectedMember.performance?.billsPassed || 0}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Debates Participated:</span>
-                        <span className="font-medium">{selectedMember.performance.debatesParticipated}</span>
+                        <span className="font-medium">{selectedMember.performance?.debatesParticipated || 0}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Speaking Time:</span>
-                        <span className="font-medium">{selectedMember.performance.speakingTime}</span>
+                        <span className="font-medium">{selectedMember.performance?.speakingTime || 'N/A'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Popularity:</span>
-                        <span className="font-medium">{selectedMember.popularity}%</span>
+                        <span className="font-medium">{selectedMember.popularity || 0}%</span>
                       </div>
                     </div>
                   </div>
@@ -791,17 +626,25 @@ export default function MembersPage() {
                     <div>
                       <h4 className="font-medium text-gray-900 mb-2">Committees</h4>
                       <ul className="space-y-1">
-                        {selectedMember.committees.map((committee, index) => (
-                          <li key={index} className="text-sm text-gray-600">• {committee}</li>
-                        ))}
+                        {selectedMember.committees && selectedMember.committees.length > 0 ? (
+                          selectedMember.committees.map((committee, index) => (
+                            <li key={index} className="text-sm text-gray-600">• {committee}</li>
+                          ))
+                        ) : (
+                          <li className="text-sm text-gray-500">No committee information available</li>
+                        )}
                       </ul>
                     </div>
                     <div>
                       <h4 className="font-medium text-gray-900 mb-2">Roles</h4>
                       <ul className="space-y-1">
-                        {selectedMember.roles.map((role, index) => (
-                          <li key={index} className="text-sm text-gray-600">• {role}</li>
-                        ))}
+                        {selectedMember.roles && selectedMember.roles.length > 0 ? (
+                          selectedMember.roles.map((role, index) => (
+                            <li key={index} className="text-sm text-gray-600">• {role}</li>
+                          ))
+                        ) : (
+                          <li className="text-sm text-gray-500">No role information available</li>
+                        )}
                       </ul>
                     </div>
                   </div>
@@ -812,15 +655,15 @@ export default function MembersPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex items-center space-x-2">
                       <EnvelopeIcon className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">{selectedMember.email}</span>
+                      <span className="text-sm text-gray-600">{selectedMember.email || 'N/A'}</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <PhoneIcon className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">{selectedMember.phone}</span>
+                      <span className="text-sm text-gray-600">{selectedMember.phone || 'N/A'}</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <MapPinIcon className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">{selectedMember.constituency}, {selectedMember.region}</span>
+                      <span className="text-sm text-gray-600">{selectedMember.constituency}, {selectedMember.region || 'Unknown'}</span>
                     </div>
                   </div>
                 </div>
@@ -828,16 +671,20 @@ export default function MembersPage() {
                 <div className="mt-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
                   <div className="space-y-3">
-                    {selectedMember.recentActivity.map((activity, index) => (
-                      <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                        <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">{activity.activity}</p>
-                          <p className="text-xs text-gray-500">{new Date(activity.date).toLocaleDateString()}</p>
+                    {selectedMember.recentActivity && selectedMember.recentActivity.length > 0 ? (
+                      selectedMember.recentActivity.map((activity, index) => (
+                        <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                          <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-gray-900">{activity.activity}</p>
+                            <p className="text-xs text-gray-500">{new Date(activity.date).toLocaleDateString()}</p>
+                          </div>
+                          <span className="text-xs text-gray-500 capitalize">{activity.type}</span>
                         </div>
-                        <span className="text-xs text-gray-500 capitalize">{activity.type}</span>
-                      </div>
-                    ))}
+                      ))
+                    ) : (
+                      <p className="text-sm text-gray-500">No recent activity information available</p>
+                    )}
                   </div>
                 </div>
 
