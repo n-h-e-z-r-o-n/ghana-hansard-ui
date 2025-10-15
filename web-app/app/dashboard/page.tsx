@@ -8,12 +8,11 @@ import {
   ArrowPathIcon,
   MicrophoneIcon
 } from '@heroicons/react/24/outline';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import Navigation from '../components/Navigation';
 import ProtectedRoute from '../components/ProtectedRoute';
-import { useEffect, useState } from 'react';
+import DashboardNewsFeed from '../components/DashboardNewsFeed';
 
-interface ParliamentLinkItem { title: string; url: string }
 
 const debateData = [
   { month: 'Jan', debates: 120, bills: 45 },
@@ -24,11 +23,6 @@ const debateData = [
   { month: 'Jun', debates: 130, bills: 35 },
 ];
 
-const sentimentData = [
-  { name: 'Positive', value: 45, color: '#10B981' },
-  { name: 'Neutral', value: 35, color: '#6B7280' },
-  { name: 'Negative', value: 20, color: '#EF4444' },
-];
 
 const topSpeakers = [
   { initials: 'JS', name: 'Rt Hon. Jane Smith', title: 'Speaker of Parliament', count: 24, color: 'bg-red-500' },
@@ -64,44 +58,9 @@ const recentDebates = [
   }
 ];
 
-function useParliamentHome() {
-  const [news, setNews] = useState<ParliamentLinkItem[]>([]);
-  const [press, setPress] = useState<ParliamentLinkItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      try {
-        setLoading(true);
-        const res = await fetch('/api/parliament/home', { cache: 'no-store' });
-        const json = await res.json();
-        if (!res.ok || !json?.success) throw new Error(json?.error || 'Failed');
-        if (!cancelled) {
-          setNews(json.data.news || []);
-          setPress(json.data.pressReleases || []);
-        }
-      } catch (e: any) {
-        if (!cancelled) setError(e?.message || 'Failed to load');
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-    load();
-    return () => { cancelled = true; };
-  }, []);
-
-  return { news, press, loading, error };
-}
-
-const hotTopics = [
-  'Healthcare Reform', 'Education Funding', 'Economic Policy', 'Climate Change',
-  'Infrastructure', 'Taxation', 'Agriculture', 'National Security', 'Digital Economy'
-];
 
 export default function Dashboard() {
-  const { news, press, loading, error } = useParliamentHome();
   return (
     <ProtectedRoute>
       <Navigation>
@@ -220,47 +179,18 @@ export default function Dashboard() {
             </div>
 
             {/* Latest from Parliament.gh */}
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Latest from Parliament.gh</h3>
-                <ArrowPathIcon className="w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600" />
-              </div>
-              {loading && <p className="text-sm text-gray-500">Loading live updates…</p>}
-              {error && <p className="text-sm text-red-600">{error}</p>}
-              {!loading && !error && (
-                <div className="grid grid-cols-1 gap-4">
-                  <div>
-                    <h4 className="text-sm font-semibold text-gray-900 mb-2">Latest News</h4>
-                    <ul className="space-y-2">
-                      {(news.length ? news : []).map((item, i) => (
-                        <li key={i} className="text-sm">
-                          <a className="text-blue-600 hover:underline" href={item.url} target="_blank" rel="noopener noreferrer">
-                            {item.title}
-                          </a>
-                        </li>
-                      ))}
-                      {news.length === 0 && (
-                        <li className="text-sm text-gray-500">No news found on Parliament site.</li>
-                      )}
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-gray-900 mb-2">Press Releases</h4>
-                    <ul className="space-y-2">
-                      {(press.length ? press : []).map((item, i) => (
-                        <li key={i} className="text-sm">
-                          <a className="text-blue-600 hover:underline" href={item.url} target="_blank" rel="noopener noreferrer">
-                            {item.title}
-                          </a>
-                        </li>
-                      ))}
-                      {press.length === 0 && (
-                        <li className="text-sm text-gray-500">No press releases found on Parliament site.</li>
-                      )}
-                    </ul>
-                  </div>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900">News</h3>
+                  <ArrowPathIcon className="w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600" />
                 </div>
-              )}
+              </div>
+              <div className="h-96 overflow-y-auto">
+                <div className="p-6">
+                  <DashboardNewsFeed />
+                </div>
+              </div>
             </div>
           </div>
 
