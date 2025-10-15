@@ -222,7 +222,7 @@ export default function MembersPage() {
             {/* Search */}
             <div className="flex-1">
               <div className="relative">
-                <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-3 text-gray-400" />
+                <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-3 text-gray-500" />
                 <input
                   type="text"
                   placeholder="Search members, constituencies, or parties..."
@@ -387,7 +387,7 @@ export default function MembersPage() {
                           />
                         ) : null}
                         <div className={`w-full h-full bg-gray-200 flex items-center justify-center ${member.imageUrl ? 'hidden' : ''}`}>
-                          <UserIcon className="w-8 h-8 text-gray-400" />
+                          <UserIcon className="w-8 h-8 text-gray-500" />
                         </div>
                       </div>
                       <div className="flex-1">
@@ -395,7 +395,7 @@ export default function MembersPage() {
                           <div>
                             <h3 className="text-lg font-medium text-gray-900">{member.name}</h3>
                             <p className="text-sm text-gray-600">{member.title || 'Member of Parliament'}</p>
-                            <p className="text-sm text-gray-500">{member.constituency}, {member.region || 'Unknown'}</p>
+                            <p className="text-sm text-gray-600">{member.constituency}, {member.region || 'Unknown'}</p>
                           </div>
                           <div className="flex flex-col items-end space-y-2">
                             <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPartyColor(member.party)}`}>
@@ -407,7 +407,7 @@ export default function MembersPage() {
                           </div>
                         </div>
                         <p className="text-sm text-gray-600 mb-3">{member.bio || 'Parliamentarian representing their constituency.'}</p>
-                        <div className="flex items-center space-x-6 text-sm text-gray-500">
+                        <div className="flex items-center space-x-6 text-sm text-gray-600">
                           <span className="flex items-center">
                             <ClockIcon className="w-4 h-4 mr-1" />
                             {member.votingRecord?.attendance || 0}% attendance
@@ -539,13 +539,13 @@ export default function MembersPage() {
                         />
                       ) : null}
                       <div className={`w-full h-full bg-gray-200 flex items-center justify-center ${selectedMember.imageUrl ? 'hidden' : ''}`}>
-                        <UserIcon className="w-10 h-10 text-gray-400" />
+                        <UserIcon className="w-10 h-10 text-gray-500" />
                       </div>
                     </div>
                     <div>
                       <h2 className="text-xl font-bold text-gray-900">{selectedMember.name}</h2>
                       <p className="text-sm text-gray-600">{selectedMember.title}</p>
-                      <p className="text-sm text-gray-500">{selectedMember.constituency}, {selectedMember.region}</p>
+                      <p className="text-sm text-gray-600">{selectedMember.constituency}, {selectedMember.region}</p>
                     </div>
                   </div>
                   <button
@@ -628,7 +628,7 @@ export default function MembersPage() {
                       <ul className="space-y-1">
                         {selectedMember.committees && selectedMember.committees.length > 0 ? (
                           selectedMember.committees.map((committee, index) => (
-                            <li key={index} className="text-sm text-gray-600">• {committee}</li>
+                          <li key={index} className="text-sm text-gray-600">• {committee}</li>
                           ))
                         ) : (
                           <li className="text-sm text-gray-500">No committee information available</li>
@@ -640,7 +640,7 @@ export default function MembersPage() {
                       <ul className="space-y-1">
                         {selectedMember.roles && selectedMember.roles.length > 0 ? (
                           selectedMember.roles.map((role, index) => (
-                            <li key={index} className="text-sm text-gray-600">• {role}</li>
+                          <li key={index} className="text-sm text-gray-600">• {role}</li>
                           ))
                         ) : (
                           <li className="text-sm text-gray-500">No role information available</li>
@@ -673,14 +673,14 @@ export default function MembersPage() {
                   <div className="space-y-3">
                     {selectedMember.recentActivity && selectedMember.recentActivity.length > 0 ? (
                       selectedMember.recentActivity.map((activity, index) => (
-                        <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                          <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-gray-900">{activity.activity}</p>
-                            <p className="text-xs text-gray-500">{new Date(activity.date).toLocaleDateString()}</p>
-                          </div>
-                          <span className="text-xs text-gray-500 capitalize">{activity.type}</span>
+                      <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                        <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900">{activity.activity}</p>
+                          <p className="text-xs text-gray-500">{new Date(activity.date).toLocaleDateString()}</p>
                         </div>
+                        <span className="text-xs text-gray-500 capitalize">{activity.type}</span>
+                      </div>
                       ))
                     ) : (
                       <p className="text-sm text-gray-500">No recent activity information available</p>

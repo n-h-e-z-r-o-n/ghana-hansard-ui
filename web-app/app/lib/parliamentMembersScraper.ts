@@ -107,8 +107,86 @@ const constituencyToRegion: Record<string, string> = {
   'Mpohor': 'Western',
   'Akatsi South': 'Volta',
   'Ho Central': 'Volta',
-  'Fomena': 'Ashanti'
-};
+  'Fomena': 'Ashanti',
+  // Additional constituencies from page 3
+  'Pru West': 'Bono East',
+  'Pru-East': 'Bono East',
+  'Anyaa-Sowutuom': 'Greater Accra',
+  'Amenfi West': 'Western',
+  'Asunafo South': 'Ahafo',
+  'Ketu North': 'Volta',
+  'Ahafo Ano North': 'Ahafo',
+  'Ashaiman': 'Greater Accra',
+  'Akwatia': 'Eastern',
+  'Okaikwei South': 'Greater Accra',
+  'Agona West': 'Central',
+  'Ablekuma North': 'Greater Accra',
+  'Dome-Kwabenya': 'Greater Accra',
+  'Abura-Asebu-Kwamankese': 'Central',
+  'Bortianor-Ngleshe Amanfro': 'Greater Accra',
+  'Bantama': 'Ashanti',
+  'Juaben': 'Ashanti',
+  'Madina': 'Greater Accra',
+  'Nsawam/Adoagyiri': 'Eastern',
+  'Atwima Nwabiagya North': 'Ashanti',
+  'Suhum': 'Eastern',
+  'Afadjato South': 'Volta',
+  'Offinso North': 'Ashanti',
+  'Guan': 'Oti',
+  'Jaman North': 'Bono',
+  'Suaman': 'Western North',
+  'Nkwanta South': 'Oti',
+  'Cape Coast South': 'Central',
+  'Asene/Manso/Akroso': 'Eastern',
+  'Tano North': 'Ahafo',
+  'Awutu Senya West': 'Central',
+  'Trobu': 'Greater Accra',
+  'Wa East': 'Upper West',
+  'Adansi Asokwa': 'Ashanti',
+  'Essikadu-Ketan': 'Western',
+   'Tolon': 'Northern',
+   'Kumbungu': 'Northern',
+   // Additional constituencies from page 2
+   'Sekondi': 'Western',
+   'Bibiani-Anhwiaso-Bekwai': 'Western North',
+   'Abetifi': 'Eastern',
+   'Ajumako Enyan Esiam': 'Central',
+   'Agotime-Ziope': 'Volta',
+   'Abirem': 'Eastern',
+   'Bongo': 'Upper East',
+   'Tano South': 'Ahafo',
+   'Tema Central': 'Greater Accra',
+   'Builsa South': 'Upper East',
+   'Jirapa': 'Upper West',
+   'Asutifi South': 'Ahafo',
+   'Afigya Kwabre North': 'Ashanti',
+   'Ada': 'Greater Accra',
+   'Afigya Kwabre South': 'Ashanti',
+   'Ablekuma Central': 'Greater Accra',
+   'Kenneth Okere': 'Eastern',
+   'Talensi': 'Upper East',
+   'Sege': 'Greater Accra',
+   'Twifo Atti Morkwa': 'Central',
+   'Mpraeso': 'Eastern',
+   'Gomoa East': 'Central',
+   'Berekum West': 'Bono',
+   'Sene East': 'Bono East',
+   'Bolgatanga East': 'Upper East',
+   'Bimbilla': 'North East',
+   'Jomoro': 'Western',
+   'Fanteakwa South': 'Eastern',
+   'Lower Manya Krobo': 'Eastern',
+   'Zebilla': 'Upper East',
+   'Mfantseman': 'Central',
+   'Asutifi North': 'Ahafo',
+   'Techiman North': 'Bono East',
+   'Ahafo Ano South West': 'Ahafo',
+   'Shama': 'Western',
+   'Upper Denkyira East': 'Central',
+   'Ellembele': 'Western',
+   'Ho West': 'Volta',
+   'Nkoranza South': 'Bono East'
+ };
 
 // Map parties to colors and full names
 const partyInfo: Record<string, { fullName: string; color: string }> = {
@@ -181,18 +259,47 @@ export async function fetchParliamentMembers(): Promise<ParliamentMembersData> {
 
     // Extract pagination info to determine total pages
     let totalPages = 1;
-    $firstPage('.pagination .page-item .page-link').each((i, element) => {
-      const href = $firstPage(element).attr('href');
-      if (href && href.includes('page=')) {
-        const pageMatch = href.match(/page=(\d+)/);
-        if (pageMatch) {
-          const pageNum = parseInt(pageMatch[1]);
-          if (pageNum > totalPages) {
-            totalPages = pageNum;
+    
+    // Try multiple pagination selectors since the structure may vary
+    const paginationSelectors = [
+      '.pagination .page-item .page-link',
+      '.pagination a',
+      '.pagination .page-link',
+      'a[href*="page="]',
+      '.pagination li a',
+      'nav a[href*="page="]'
+    ];
+    
+    for (const selector of paginationSelectors) {
+      $firstPage(selector).each((i, element) => {
+        const href = $firstPage(element).attr('href');
+        if (href && href.includes('page=')) {
+          const pageMatch = href.match(/page=(\d+)/);
+          if (pageMatch) {
+            const pageNum = parseInt(pageMatch[1]);
+            if (pageNum > totalPages) {
+              totalPages = pageNum;
+            }
           }
         }
+      });
+    }
+    
+    // Also look for pagination numbers in the text content
+    const bodyText = $firstPage('body').text();
+    const pageNumbers = bodyText.match(/\b(\d+)\b/g);
+    if (pageNumbers) {
+      const maxPageFromText = Math.max(...pageNumbers.map(n => parseInt(n)).filter(n => n > 0 && n <= 20));
+      if (maxPageFromText > totalPages) {
+        totalPages = maxPageFromText;
       }
-    });
+    }
+    
+    // Fallback: if we can't detect pagination, try a reasonable number of pages
+    if (totalPages === 1) {
+      totalPages = 7; // Based on the search results showing 7 pages
+      console.log('Could not detect pagination, using fallback of 7 pages');
+    }
 
     console.log(`Found ${totalPages} pages of members to scrape`);
 
@@ -221,13 +328,10 @@ export async function fetchParliamentMembers(): Promise<ParliamentMembersData> {
       }
 
     // Extract members from the HTML structure
-    // Based on the HTML file, the structure is:
-    // <a href="https://www.parliament.gh/members?mp=94278">
-    //   <img src="Parliament%20of%20Ghana_files/94278.jpg" alt="">
-    //   <h5 class="text-white text-center">Abdul Rauf Tongym Tubazu</h5>
-    //   <p class="text-white text-center">Ayawaso Central<br>National Democratic Congress</p>
-    // </a>
+    // The live website shows members in text format like:
+    // "Emmanuel Kofi Ntekuni Pru West National Democratic Congress"
     
+    // First try to find the HTML structure (for the saved HTML file)
     $('a[href*="members?mp="]').each((i, element) => {
       const $link = $(element);
       const href = $link.attr('href');
@@ -331,20 +435,102 @@ export async function fetchParliamentMembers(): Promise<ParliamentMembersData> {
       mockCommittees.forEach(committee => committees.add(committee));
     });
 
-      // If we didn't find members with the HTML structure on this page, try text-based parsing
+      // If we didn't find members with the HTML structure, try text-based parsing
+      // This handles the live website format where members are listed as plain text
       if (members.length === 0) {
-      // Look for text that contains member information
-      const bodyText = $('body').text();
-      const lines = bodyText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-      
-      for (const line of lines) {
-        // Look for patterns like "Name Constituency Party"
-        // Updated pattern to match the actual format from the search results
+       // Look for text that contains member information
+       const bodyText = $('body').text();
+       const lines = bodyText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+       
+       console.log(`Page ${page}: Processing ${lines.length} text lines for member data`);
+       
+       for (const line of lines) {
+        // Look for patterns like "Emmanuel Kofi Ntekuni Pru West National Democratic Congress"
+        // Updated pattern to match the actual format from the live website
         const memberPattern = /^([A-Za-z\s\.\-]+?)\s+([A-Za-z\s\/\-]+?)\s+(New Patriotic Party|National Democratic Congress|Independent)$/;
         const match = line.match(memberPattern);
         
-        if (match && line.length < 200) { // Avoid matching large text blocks
-          const [, namePart, constituencyPart, partyPart] = match;
+        // Also try a more flexible pattern for names with multiple parts
+        if (!match) {
+          const flexiblePattern = /^([A-Za-z\s\.\-]{10,})\s+([A-Za-z\s\/\-]{5,})\s+(New Patriotic Party|National Democratic Congress|Independent)$/;
+          const flexibleMatch = line.match(flexiblePattern);
+          if (flexibleMatch) {
+            const [, namePart, constituencyPart, partyPart] = flexibleMatch;
+            
+            // Clean up the name - remove extra spaces and common prefixes
+            const fullName = namePart.trim().replace(/\s+/g, ' ');
+            const constituency = constituencyPart.trim();
+            const party = partyPart.trim();
+            
+            // Skip if we've already processed this member
+            if (members.some(m => m.name === fullName && m.constituency === constituency)) {
+              continue;
+            }
+            
+            // Extract party abbreviation
+            let partyAbbr = 'Independent';
+            if (party.includes('New Patriotic Party')) partyAbbr = 'NPP';
+            else if (party.includes('National Democratic Congress')) partyAbbr = 'NDC';
+            
+            if (fullName.length > 5 && constituency.length > 3) {
+              const region = extractRegionFromConstituency(constituency);
+              const title = extractTitleFromName(fullName);
+              const cleanMemberName = cleanName(fullName);
+              
+              const performance = generateMockPerformanceData();
+              const votingRecord = generateMockVotingRecord();
+              const { popularity, influence, sentiment } = generateMockMetrics();
+              
+              const mockCommittees = [
+                'Education Committee',
+                'Health Committee', 
+                'Finance Committee',
+                'Gender and Children Committee'
+              ].slice(0, Math.floor(Math.random() * 2) + 1);
+              
+              const member: ParliamentMember = {
+                name: cleanMemberName,
+                constituency,
+                party: partyAbbr,
+                region,
+                title,
+                email: `${cleanMemberName.toLowerCase().replace(/\s+/g, '.')}@parliament.gh`,
+                phone: `+233 24 ${Math.floor(Math.random() * 9000000) + 1000000}`,
+                bio: `Parliamentarian representing ${constituency} in the ${region} region.`,
+                education: 'Various educational backgrounds',
+                profession: 'Politician and Public Servant',
+                committees: mockCommittees,
+                roles: [title, 'Committee Member'],
+                tenure: '2020 - Present',
+                age: Math.floor(Math.random() * 30) + 35,
+                gender: Math.random() > 0.7 ? 'Female' : 'Male',
+                votingRecord,
+                performance,
+                sentiment,
+                popularity,
+                influence,
+                socialMedia: {
+                  twitter: `@${cleanMemberName.toLowerCase().replace(/\s+/g, '')}_mp`,
+                  facebook: `${cleanMemberName.replace(/\s+/g, '')}MP`
+                },
+                achievements: ['Constituency Development Champion'],
+                recentActivity: [
+                  { date: '2024-03-20', activity: 'Committee Meeting', type: 'committee' },
+                  { date: '2024-03-18', activity: 'Constituency Visit', type: 'constituency' }
+                ]
+              };
+              
+              members.push(member);
+              parties.add(partyAbbr);
+              regions.add(region);
+              mockCommittees.forEach(committee => committees.add(committee));
+            }
+          }
+        }
+        
+         if (match && line.length < 200) { // Avoid matching large text blocks
+           console.log(`Found member with original pattern: ${line}`);
+           const [, namePart, constituencyPart, partyPart] = match;
           
           // Clean up the name
           const fullName = namePart.trim();
@@ -415,11 +601,13 @@ export async function fetchParliamentMembers(): Promise<ParliamentMembersData> {
                 mockCommittees.forEach(committee => committees.add(committee));
               }
         }
-      }
-      }
-    } // End of pagination loop
+       }
+       }
+       
+       console.log(`Page ${page}: Found ${members.length} total members so far`);
+     } // End of pagination loop
 
-    console.log(`Successfully scraped ${members.length} members from ${totalPages} pages`);
+     console.log(`Successfully scraped ${members.length} members from ${totalPages} pages`);
 
     // If still no members found after processing all pages, create some sample data based on the search results
     if (members.length === 0) {
@@ -489,13 +677,13 @@ export async function fetchParliamentMembers(): Promise<ParliamentMembersData> {
       }
     }
 
-    return {
-      members: members.slice(0, 50), // Limit to 50 members for performance
-      totalCount: members.length,
-      parties: Array.from(parties).sort(),
-      regions: Array.from(regions).sort(),
-      committees: Array.from(committees).sort()
-    };
+     return {
+       members: members, // Return all members found
+       totalCount: members.length,
+       parties: Array.from(parties).sort(),
+       regions: Array.from(regions).sort(),
+       committees: Array.from(committees).sort()
+     };
   } catch (error) {
     console.error('Error fetching parliament members:', error);
     throw error;

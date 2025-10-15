@@ -202,19 +202,19 @@ export default function LandingPage() {
                 {isDropdownOpen && (
                   <div className="absolute top-full left-0 mt-2 w-56 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-gray-200/50 py-2 z-50 animate-in slide-in-from-top-2 duration-300">
                     <Link href="/schedule" className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-red-50 hover:to-green-50 hover:text-gray-900 transition-all duration-200 group">
-                      <CalendarIcon className="w-4 h-4 mr-3 text-gray-400 group-hover:text-red-600 transition-colors duration-200" />
+                      <CalendarIcon className="w-4 h-4 mr-3 text-gray-500 group-hover:text-red-600 transition-colors duration-200" />
                       <span>Schedule</span>
                     </Link>
                     <Link href="/archives" className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-red-50 hover:to-green-50 hover:text-gray-900 transition-all duration-200 group">
-                      <DocumentIcon className="w-4 h-4 mr-3 text-gray-400 group-hover:text-red-600 transition-colors duration-200" />
+                      <DocumentIcon className="w-4 h-4 mr-3 text-gray-500 group-hover:text-red-600 transition-colors duration-200" />
                       <span>Archives</span>
                     </Link>
                     <Link href="/analytics" className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-red-50 hover:to-green-50 hover:text-gray-900 transition-all duration-200 group">
-                      <ChartBarIcon className="w-4 h-4 mr-3 text-gray-400 group-hover:text-red-600 transition-colors duration-200" />
+                      <ChartBarIcon className="w-4 h-4 mr-3 text-gray-500 group-hover:text-red-600 transition-colors duration-200" />
                       <span>Analytics</span>
                     </Link>
                     <Link href="/news" className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-red-50 hover:to-green-50 hover:text-gray-900 transition-all duration-200 group">
-                      <NewspaperIcon className="w-4 h-4 mr-3 text-gray-400 group-hover:text-red-600 transition-colors duration-200" />
+                      <NewspaperIcon className="w-4 h-4 mr-3 text-gray-500 group-hover:text-red-600 transition-colors duration-200" />
                       <span>News & Updates</span>
                     </Link>
                   </div>
@@ -278,11 +278,11 @@ export default function LandingPage() {
                   <Link
                     href="/auth"
                     className="block w-full text-center px-4 py-3 bg-gradient-to-r from-red-600 to-green-600 hover:from-red-700 hover:to-green-700 text-white rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg"
-                  >
-                    Get Started
-                  </Link>
-                </div>
-              </div>
+              >
+                Get Started
+              </Link>
+            </div>
+          </div>
             </div>
           )}
         </div>
@@ -302,22 +302,22 @@ export default function LandingPage() {
               Experience AI-powered insights, voice-enabled analysis, and real-time tracking of parliamentary proceedings. 
               Making democracy more transparent and accessible for all Ghanaians.
             </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link
-                  href="/auth"
-                  className="bg-gradient-to-r from-red-600 to-green-600 hover:from-red-700 hover:to-green-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl"
-                >
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                href="/auth"
+                className="bg-gradient-to-r from-red-600 to-green-600 hover:from-red-700 hover:to-green-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl"
+              >
                   Get Started
-                  <ArrowRightIcon className="ml-2 w-5 h-5" />
-                </Link>
-                <button
-                  onClick={() => setIsVideoPlaying(true)}
+                <ArrowRightIcon className="ml-2 w-5 h-5" />
+              </Link>
+              <button
+                onClick={() => setIsVideoPlaying(true)}
                   className="border border-gray-300 hover:border-gray-400 text-gray-700 px-8 py-4 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center hover:bg-gray-50"
-                >
-                  <PlayIcon className="mr-2 w-5 h-5" />
-                  Watch Demo
-                </button>
-              </div>
+              >
+                <PlayIcon className="mr-2 w-5 h-5" />
+                Watch Demo
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -560,7 +560,7 @@ export default function LandingPage() {
                   <input
                     type="text"
                     id="name"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-gray-900 placeholder-gray-600"
                     placeholder="Enter your full name"
                   />
                 </div>
@@ -571,7 +571,7 @@ export default function LandingPage() {
                   <input
                     type="email"
                     id="email"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-gray-900 placeholder-gray-600"
                     placeholder="Enter your email address"
                   />
                 </div>
@@ -598,7 +598,7 @@ export default function LandingPage() {
                   <textarea
                     id="message"
                     rows={6}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-gray-900 placeholder-gray-600"
                     placeholder="Type your message here..."
                   ></textarea>
                 </div>
@@ -716,7 +716,7 @@ export default function LandingPage() {
                 </div>
                 <span className="text-2xl font-bold">Ghana Parliamentary Hub</span>
               </div>
-              <p className="text-gray-400 mb-8 text-lg leading-relaxed">
+              <p className="text-gray-300 mb-8 text-lg leading-relaxed">
                 Empowering transparency and accountability in Ghana's parliamentary democracy through AI-powered insights and real-time analytics.
               </p>
               
@@ -773,12 +773,12 @@ export default function LandingPage() {
             <div className="lg:col-span-2">
               <h3 className="text-lg font-semibold mb-6 text-white">Platform</h3>
               <ul className="space-y-4">
-                <li><Link href="/debates" className="text-gray-400 hover:text-white transition-colors text-sm">Debates</Link></li>
-                <li><Link href="/bills" className="text-gray-400 hover:text-white transition-colors text-sm">Bills & Legislation</Link></li>
-                <li><Link href="/members" className="text-gray-400 hover:text-white transition-colors text-sm">Members</Link></li>
-                <li><Link href="/schedule" className="text-gray-400 hover:text-white transition-colors text-sm">Schedule</Link></li>
-                <li><Link href="/archives" className="text-gray-400 hover:text-white transition-colors text-sm">Archives</Link></li>
-                <li><Link href="/analytics" className="text-gray-400 hover:text-white transition-colors text-sm">Analytics</Link></li>
+                <li><Link href="/debates" className="text-gray-300 hover:text-white transition-colors text-sm">Debates</Link></li>
+                <li><Link href="/bills" className="text-gray-300 hover:text-white transition-colors text-sm">Bills & Legislation</Link></li>
+                <li><Link href="/members" className="text-gray-300 hover:text-white transition-colors text-sm">Members</Link></li>
+                <li><Link href="/schedule" className="text-gray-300 hover:text-white transition-colors text-sm">Schedule</Link></li>
+                <li><Link href="/archives" className="text-gray-300 hover:text-white transition-colors text-sm">Archives</Link></li>
+                <li><Link href="/analytics" className="text-gray-300 hover:text-white transition-colors text-sm">Analytics</Link></li>
               </ul>
             </div>
 
@@ -786,12 +786,12 @@ export default function LandingPage() {
             <div className="lg:col-span-2">
               <h3 className="text-lg font-semibold mb-6 text-white">Resources</h3>
               <ul className="space-y-4">
-                <li><Link href="/help" className="text-gray-400 hover:text-white transition-colors text-sm">Help Center</Link></li>
-                <li><Link href="/docs" className="text-gray-400 hover:text-white transition-colors text-sm">Documentation</Link></li>
-                <li><Link href="/api" className="text-gray-400 hover:text-white transition-colors text-sm">API</Link></li>
-                <li><Link href="/news" className="text-gray-400 hover:text-white transition-colors text-sm">News & Updates</Link></li>
-                <li><Link href="/contact" className="text-gray-400 hover:text-white transition-colors text-sm">Contact Us</Link></li>
-                <li><Link href="/status" className="text-gray-400 hover:text-white transition-colors text-sm">Status</Link></li>
+                <li><Link href="/help" className="text-gray-300 hover:text-white transition-colors text-sm">Help Center</Link></li>
+                <li><Link href="/docs" className="text-gray-300 hover:text-white transition-colors text-sm">Documentation</Link></li>
+                <li><Link href="/api" className="text-gray-300 hover:text-white transition-colors text-sm">API</Link></li>
+                <li><Link href="/news" className="text-gray-300 hover:text-white transition-colors text-sm">News & Updates</Link></li>
+                <li><Link href="/contact" className="text-gray-300 hover:text-white transition-colors text-sm">Contact Us</Link></li>
+                <li><Link href="/status" className="text-gray-300 hover:text-white transition-colors text-sm">Status</Link></li>
               </ul>
             </div>
 
@@ -808,7 +808,7 @@ export default function LandingPage() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-white mb-1">Address</h4>
-                    <p className="text-gray-400 text-sm">Parliament House<br />Accra, Ghana</p>
+                    <p className="text-gray-300 text-sm">Parliament House<br />Accra, Ghana</p>
                   </div>
                 </div>
                 
@@ -820,7 +820,7 @@ export default function LandingPage() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-white mb-1">Phone</h4>
-                    <p className="text-gray-400 text-sm">+233 30 123 4567</p>
+                    <p className="text-gray-300 text-sm">+233 30 123 4567</p>
                   </div>
                 </div>
                 
@@ -832,7 +832,7 @@ export default function LandingPage() {
             </div>
             <div>
                     <h4 className="font-semibold text-white mb-1">Email</h4>
-                    <p className="text-gray-400 text-sm">info@ghanaparliament.gov.gh</p>
+                    <p className="text-gray-300 text-sm">info@ghanaparliament.gov.gh</p>
                   </div>
                 </div>
               </div>
@@ -845,7 +845,7 @@ export default function LandingPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
               <div className="text-center md:text-left">
-                <p className="text-gray-400 text-sm">
+                <p className="text-gray-300 text-sm">
                   &copy; 2024 Ghana Parliamentary Hub. All rights reserved.
                 </p>
                 <p className="text-gray-500 text-xs mt-1">

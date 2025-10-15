@@ -769,7 +769,7 @@ export default function AIAssistant() {
             <div className="mb-3 p-2 bg-white/80 rounded-lg border border-gray-200">
               <div className="flex flex-col space-y-2">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3">
                     <span className="font-semibold text-gray-700">{currentSession.session}</span>
                     <span className="text-gray-600">{currentSession.sitting}</span>
                   </div>
@@ -799,10 +799,10 @@ export default function AIAssistant() {
                 <div className="flex items-center space-x-3">
                   <div className={`w-10 h-10 bg-${modeConfig.primary} rounded-full flex items-center justify-center`}>
                     <modeConfig.icon className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
+              </div>
+              <div>
                     <h3 className="font-bold text-gray-900 text-lg">Parliamentary AI Assistant</h3>
-                    <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2">
                       <span className={`text-sm text-${modeConfig.primary} font-medium`}>{modeConfig.label}</span>
                       <span className="text-xs text-gray-600">•</span>
                       <span className="text-xs text-gray-600">{modeConfig.description}</span>
@@ -848,9 +848,9 @@ export default function AIAssistant() {
                       <span className="text-xs text-gray-600 font-medium">Connecting...</span>
                     </div>
                   )}
-                </div>
-
-                <div className="flex items-center space-x-2">
+            </div>
+            
+            <div className="flex items-center space-x-2">
                   {/* User Mode Selector */}
                   <div className="flex bg-white rounded-lg p-1 shadow-sm border border-gray-200">
                     <button
@@ -880,14 +880,14 @@ export default function AIAssistant() {
                       <AcademicCapIcon className="w-3 h-3 inline mr-1" />
                       Researcher
                     </button>
-                  </div>
-                  
-                  <button
-                    onClick={() => setIsOpen(false)}
-                    className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1 transition-colors"
-                  >
+            </div>
+            
+            <button
+              onClick={() => setIsOpen(false)}
+                    className="text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full p-1 transition-colors"
+            >
                     <XMarkIcon className="w-5 h-5" />
-                  </button>
+            </button>
                 </div>
               </div>
             </div>
@@ -942,7 +942,7 @@ export default function AIAssistant() {
                     {!message.isUser && 'speechSynthesis' in window && (
                       <button
                         onClick={() => speakText(message.text)}
-                        className="text-gray-400 hover:text-green-600 transition-colors"
+                                className="text-gray-500 hover:text-green-600 transition-colors"
                         title="Speak this message"
                       >
                         <SpeakerWaveIcon className="w-4 h-4" />
@@ -1007,7 +1007,7 @@ export default function AIAssistant() {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   placeholder="Ask about parliamentary data..."
-                  className={`flex-1 px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-${modeConfig.primary} focus:border-${modeConfig.primary} text-base font-medium shadow-sm text-gray-900 placeholder-gray-500`}
+                  className={`flex-1 px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-${modeConfig.primary} focus:border-${modeConfig.primary} text-base font-medium shadow-sm text-gray-900 placeholder-gray-600`}
                 />
                 <button
                   type="submit"
@@ -1043,7 +1043,7 @@ export default function AIAssistant() {
                         )}
                         <button
                           onClick={() => setTranscript('')}
-                          className="text-gray-400 hover:text-red-600 transition-colors"
+                                  className="text-gray-500 hover:text-red-600 transition-colors"
                           title="Clear transcript"
                         >
                           <XMarkIcon className="w-4 h-4" />
