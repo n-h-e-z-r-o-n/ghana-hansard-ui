@@ -32,6 +32,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import Navigation from '../components/Navigation';
 import VotesProceedingsFeed from '../components/VotesProceedingsFeed';
 import ParliamentAgendaFeed from '../components/ParliamentAgendaFeed';
+import ParliamentBillsFeed from '../components/ParliamentBillsFeed';
 
 // Mock data for bills
 const mockBills = [
@@ -741,6 +742,21 @@ export default function BillsPage() {
           </div>
         </div>
         )}
+
+        {/* Real Parliament Bills Section */}
+        <div className="mt-8">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900">Live Parliamentary Bills</h2>
+              <p className="text-sm text-gray-600 mt-1">Real-time bills from Parliament of Ghana</p>
+            </div>
+            <div className="h-96 overflow-y-auto">
+              <div className="p-6">
+                <ParliamentBillsFeed />
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Parliamentary Documents Section */}
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
