@@ -74,49 +74,49 @@ export async function fetchParliamentLeadership(): Promise<ParliamentLeadershipD
         {
           name: "Rt. Hon. Alban Sumana Kingsford Bagbin",
           position: "Speaker of Parliament",
-          imageUrl: `${PARLIAMENT_BASE_URL}/epanel/leadership/speaker.jpg`,
+          imageUrl: "https://www.parliament.gh/epanel/leadership/speaker.jpg",
           bio: "Speaker of the 8th Parliament of Ghana"
         },
         {
           name: "Hon. Osei Kyei-Mensah-Bonsu",
           position: "Majority Leader",
-          imageUrl: `${PARLIAMENT_BASE_URL}/epanel/leadership/majority-leader.jpg`,
+          imageUrl: "https://www.parliament.gh/epanel/leadership/majority-leader.jpg",
           bio: "Majority Leader and Minister for Parliamentary Affairs"
         },
         {
           name: "Hon. Haruna Iddrisu",
           position: "Minority Leader",
-          imageUrl: `${PARLIAMENT_BASE_URL}/epanel/leadership/minority-leader.jpg`,
+          imageUrl: "https://www.parliament.gh/epanel/leadership/minority-leader.jpg",
           bio: "Minority Leader and Member of Parliament for Tamale South"
         },
         {
           name: "Hon. Alexander Kwamena Afenyo-Markin",
           position: "Deputy Majority Leader",
-          imageUrl: `${PARLIAMENT_BASE_URL}/epanel/leadership/deputy-majority.jpg`,
+          imageUrl: "https://www.parliament.gh/epanel/leadership/deputy-majority.jpg",
           bio: "Deputy Majority Leader and Member of Parliament for Effutu"
         },
         {
           name: "Hon. James Klutse Avedzi",
           position: "Deputy Minority Leader",
-          imageUrl: `${PARLIAMENT_BASE_URL}/epanel/leadership/deputy-minority.jpg`,
+          imageUrl: "https://www.parliament.gh/epanel/leadership/deputy-minority.jpg",
           bio: "Deputy Minority Leader and Member of Parliament for Ketu North"
         },
         {
           name: "Hon. Frank Annoh-Dompreh",
           position: "Majority Chief Whip",
-          imageUrl: `${PARLIAMENT_BASE_URL}/epanel/leadership/majority-whip.jpg`,
+          imageUrl: "https://www.parliament.gh/epanel/leadership/majority-whip.jpg",
           bio: "Majority Chief Whip and Member of Parliament for Nsawam-Adoagyiri"
         },
         {
           name: "Hon. Muntaka Mubarak",
           position: "Minority Chief Whip",
-          imageUrl: `${PARLIAMENT_BASE_URL}/epanel/leadership/minority-whip.jpg`,
+          imageUrl: "https://www.parliament.gh/epanel/leadership/minority-whip.jpg",
           bio: "Minority Chief Whip and Member of Parliament for Asawase"
         },
         {
           name: "Hon. Joseph Osei-Owusu",
           position: "First Deputy Speaker",
-          imageUrl: `${PARLIAMENT_BASE_URL}/epanel/leadership/first-deputy-speaker.jpg`,
+          imageUrl: "https://www.parliament.gh/epanel/leadership/first-deputy-speaker.jpg",
           bio: "First Deputy Speaker and Member of Parliament for Bekwai"
         }
       );
@@ -136,19 +136,19 @@ export async function fetchParliamentLeadership(): Promise<ParliamentLeadershipD
         {
           name: "Rt. Hon. Alban Sumana Kingsford Bagbin",
           position: "Speaker of Parliament",
-          imageUrl: `${PARLIAMENT_BASE_URL}/epanel/leadership/speaker.jpg`,
+          imageUrl: "https://www.parliament.gh/epanel/leadership/speaker.jpg",
           bio: "Speaker of the 8th Parliament of Ghana"
         },
         {
           name: "Hon. Osei Kyei-Mensah-Bonsu",
           position: "Majority Leader",
-          imageUrl: `${PARLIAMENT_BASE_URL}/epanel/leadership/majority-leader.jpg`,
+          imageUrl: "https://www.parliament.gh/epanel/leadership/majority-leader.jpg",
           bio: "Majority Leader and Minister for Parliamentary Affairs"
         },
         {
           name: "Hon. Haruna Iddrisu",
           position: "Minority Leader",
-          imageUrl: `${PARLIAMENT_BASE_URL}/epanel/leadership/minority-leader.jpg`,
+          imageUrl: "https://www.parliament.gh/epanel/leadership/minority-leader.jpg",
           bio: "Minority Leader and Member of Parliament for Tamale South"
         }
       ],

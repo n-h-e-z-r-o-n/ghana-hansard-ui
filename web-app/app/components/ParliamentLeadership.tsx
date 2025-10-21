@@ -94,66 +94,71 @@ export default function ParliamentLeadership() {
   }
 
   return (
-    <div>
+    <div className="space-y-3">
       {/* Leadership List */}
-      <div className="space-y-3">
-        {leadershipData.leaders.map((leader, index) => (
-          <div key={index} className="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-            {/* Avatar */}
-            <div className="w-16 h-16 bg-gradient-to-br from-red-100 to-green-100 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
-              {leader.imageUrl ? (
+      {leadershipData.leaders.map((leader, index) => (
+        <div key={index} className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+          {/* Avatar */}
+          <div className="w-12 h-12 bg-gradient-to-br from-red-100 to-green-100 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden relative border-2 border-white shadow-sm">
+            {leader.imageUrl ? (
+              <>
                 <img
                   src={leader.imageUrl}
                   alt={leader.name}
-                  className="w-16 h-16 rounded-full object-cover"
+                  className="w-12 h-12 rounded-full object-cover"
                   loading="lazy"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
-                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                    const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                    if (fallback) fallback.style.display = 'flex';
                   }}
                 />
-              ) : null}
-              <div className={`w-16 h-16 rounded-full flex items-center justify-center text-white font-semibold text-lg ${leader.imageUrl ? 'hidden' : ''}`}>
+                <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold text-sm bg-gradient-to-br from-red-500 to-green-500" style={{ display: 'none' }}>
+                  {getInitials(leader.name)}
+                </div>
+              </>
+            ) : (
+              <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold text-sm bg-gradient-to-br from-red-500 to-green-500">
                 {getInitials(leader.name)}
               </div>
-            </div>
-
-            {/* Content */}
-            <div className="flex-1 min-w-0">
-              <h4 className="text-base font-semibold text-gray-900 truncate">
-                {leader.name}
-              </h4>
-              <div className="flex items-center space-x-2 mt-2">
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${getPositionColor(leader.position)}`}>
-                  {leader.position}
-                </span>
-              </div>
-              {leader.bio && (
-                <p className="text-sm text-gray-600 mt-2 line-clamp-2">
-                  {leader.bio}
-                </p>
-              )}
-            </div>
-
-            {/* Icon */}
-            <div className="flex-shrink-0">
-              <BuildingOfficeIcon className="w-4 h-4 text-gray-400" />
-            </div>
+            )}
           </div>
-        ))}
-      </div>
+
+          {/* Content */}
+          <div className="flex-1 min-w-0">
+            <h4 className="text-sm font-semibold text-gray-900 truncate">
+              {leader.name}
+            </h4>
+            <div className="flex items-center space-x-2 mt-1">
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPositionColor(leader.position)}`}>
+                {leader.position}
+              </span>
+            </div>
+            {leader.bio && (
+              <p className="text-xs text-gray-600 mt-1 line-clamp-1">
+                {leader.bio}
+              </p>
+            )}
+          </div>
+
+          {/* Icon */}
+          <div className="flex-shrink-0">
+            <BuildingOfficeIcon className="w-4 h-4 text-gray-400" />
+          </div>
+        </div>
+      ))}
 
       {/* Footer */}
-      <div className="mt-4 pt-3 border-t border-gray-200 text-center">
+      <div className="mt-3 pt-3 border-t border-gray-200 text-center">
         <p className="text-xs text-gray-500">
-          Data sourced from{' '}
+          Data from{' '}
           <a
             href="https://www.parliament.gh/gen?LD"
             target="_blank"
             rel="noopener noreferrer"
             className="text-red-600 hover:text-red-700 font-medium"
           >
-            Parliament of Ghana Leadership
+            Parliament.gh
           </a>
         </p>
       </div>

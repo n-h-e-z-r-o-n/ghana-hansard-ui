@@ -1,37 +1,25 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  ArrowUpIcon,
-  ArrowDownIcon,
   FaceSmileIcon,
   FaceFrownIcon,
   ArrowPathIcon,
   MicrophoneIcon,
-  UserGroupIcon
+  UserGroupIcon,
+  ChartBarIcon
 } from '@heroicons/react/24/outline';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import Navigation from '../components/Navigation';
 import ProtectedRoute from '../components/ProtectedRoute';
 import DashboardNewsFeed from '../components/DashboardNewsFeed';
 import ParliamentLeadership from '../components/ParliamentLeadership';
+import LoadingSpinner, { CardSkeleton } from '../components/LoadingSpinner';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 
-const debateData = [
-  { month: 'Jan', debates: 120, bills: 45 },
-  { month: 'Feb', debates: 160, bills: 65 },
-  { month: 'Mar', debates: 140, bills: 50 },
-  { month: 'Apr', debates: 170, bills: 55 },
-  { month: 'May', debates: 150, bills: 40 },
-  { month: 'Jun', debates: 130, bills: 35 },
-];
 
 
-const topSpeakers = [
-  { initials: 'JS', name: 'Rt Hon. Jane Smith', title: 'Speaker of Parliament', count: 24, color: 'bg-red-500' },
-  { initials: 'DJ', name: 'David Johnson MP', title: 'Majority Leader', count: 19, color: 'bg-gray-500' },
-  { initials: 'SW', name: 'Dr. Sarah Williams', title: 'Minority Whip', count: 17, color: 'bg-green-500' },
-  { initials: 'MB', name: 'Michael Brown MP', title: 'Minister of Health', count: 15, color: 'bg-gray-500' },
-];
 
 const recentDebates = [
   {
@@ -63,171 +51,331 @@ const recentDebates = [
 
 
 export default function Dashboard() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    // Simulate loading time
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [refreshKey]);
+
+  const handleRefresh = () => {
+    setIsLoading(true);
+    setRefreshKey(prev => prev + 1);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut"
+      }
+    }
+  };
+
   return (
     <ProtectedRoute>
       <Navigation>
-      <div className="p-6">
-          {/* Welcome Banner */}
-          <div className="bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 text-white p-6 rounded-lg mb-6">
-            <h2 className="text-2xl font-bold mb-2">Welcome to Your Parliamentary Dashboard</h2>
-            <p className="text-yellow-100">Get AI-powered insights, voice-enabled analysis, and real-time tracking of parliamentary proceedings.</p>
-          </div>
+        <ErrorBoundary>
+          <div className="p-6">
+            {/* Welcome Banner */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 text-white p-6 rounded-lg mb-6 relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-black opacity-10"></div>
+              <div className="relative z-10">
+                <h2 className="text-2xl font-bold mb-2">Welcome to Your Parliamentary Dashboard</h2>
+                <p className="text-yellow-100">Get AI-powered insights, voice-enabled analysis, and real-time tracking of parliamentary proceedings.</p>
+              </div>
+            </motion.div>
 
-          {/* Key Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-            {[
-              { title: 'Total Debates', value: '178', change: '+12%', trend: 'up' },
-              { title: 'Active Members', value: '15', change: '+5%', trend: 'up' },
-              { title: 'New Bills', value: '59', change: '-3%', trend: 'down' },
-              { title: 'Avg. Duration', value: '29m', change: '+8%', trend: 'up' },
-            ].map((metric, index) => (
-              <div key={index} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <h3 className="text-sm font-medium text-gray-500 mb-1">{metric.title}</h3>
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold text-gray-900">{metric.value}</span>
-                  <div className={`flex items-center space-x-1 ${
-                    metric.trend === 'up' ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    {metric.trend === 'up' ? (
-                      <ArrowUpIcon className="w-4 h-4" />
-                    ) : (
-                      <ArrowDownIcon className="w-4 h-4" />
-                    )}
-                    <span className="text-sm font-medium">{metric.change}</span>
-                  </div>
-                </div>
-                <p className="text-xs text-gray-500 mt-1">from last month</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-            {/* Debate Activity Trend */}
-            <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Debate Activity Trend</h3>
-                <div className="flex items-center space-x-2">
-                  <button className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded-md">Monthly</button>
-                  <button className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-md">Export</button>
-                </div>
-              </div>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={debateData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="month" stroke="#666" />
-                    <YAxis stroke="#666" />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="debates" stroke="#8B5CF6" strokeWidth={2} />
-                    <Line type="monotone" dataKey="bills" stroke="#10B981" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Top Speakers */}
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Top Speakers</h3>
-                <button className="text-sm text-red-600 hover:text-red-700">View All</button>
-              </div>
-              <div className="space-y-4">
-                {topSpeakers.map((speaker, index) => (
-                  <div key={index} className="flex items-center space-x-3">
-                    <div className={`w-10 h-10 ${speaker.color} rounded-full flex items-center justify-center text-white font-semibold text-sm`}>
-                      {speaker.initials}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{speaker.name}</p>
-                      <p className="text-xs text-gray-500 truncate">{speaker.title}</p>
-                    </div>
-                    <div className="flex items-center space-x-1 text-gray-500">
-                      <MicrophoneIcon className="w-4 h-4" />
-                      <span className="text-sm font-medium">{speaker.count}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            {/* Recent Debates */}
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Recent Debates</h3>
-                <button className="text-sm text-red-600 hover:text-red-700">View All</button>
-              </div>
-              <div className="space-y-4">
-                {recentDebates.map((debate, index) => (
-                  <div key={index} className="border-b border-gray-100 pb-4 last:border-b-0 last:pb-0">
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-medium text-gray-900">{debate.title}</h4>
-                      <div className="flex items-center space-x-2">
-                        <span className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full">{debate.category}</span>
-                        {debate.sentiment === 'positive' && <FaceSmileIcon className="w-4 h-4 text-green-500" />}
-                        {debate.sentiment === 'negative' && <FaceFrownIcon className="w-4 h-4 text-red-500" />}
-                        {debate.sentiment === 'neutral' && <div className="w-4 h-4 bg-gray-500 rounded-full"></div>}
+            {/* Key Metrics */}
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6"
+            >
+              <AnimatePresence mode="wait">
+                {isLoading ? (
+                  Array.from({ length: 4 }).map((_, index) => (
+                    <motion.div key={`skeleton-${index}`} variants={itemVariants}>
+                      <CardSkeleton />
+                    </motion.div>
+                  ))
+                ) : (
+                  [
+                    { title: 'Total Debates', value: '178', change: '+12%', trend: 'up', icon: MicrophoneIcon },
+                    { title: 'Active Members', value: '15', change: '+5%', trend: 'up', icon: UserGroupIcon },
+                    { title: 'New Bills', value: '59', change: '-3%', trend: 'down', icon: ChartBarIcon },
+                    { title: 'Avg. Duration', value: '29m', change: '+8%', trend: 'up', icon: ChartBarIcon },
+                  ].map((metric, index) => (
+                    <motion.div
+                      key={index}
+                      variants={itemVariants}
+                      whileHover={{ scale: 1.02 }}
+                      className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 card-hover"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-sm font-medium text-gray-500">{metric.title}</h3>
+                        <metric.icon className="w-5 h-5 text-gray-400" />
                       </div>
-                    </div>
-                    <div className="flex items-center space-x-4 text-xs text-gray-500 mb-2">
-                      <span>{debate.date}</span>
-                      <span>{debate.duration}</span>
-                    </div>
-                    <p className="text-sm text-gray-600 leading-relaxed">{debate.description}</p>
+                      <div className="flex items-center justify-between">
+                        <motion.span
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ delay: 0.2 + index * 0.1 }}
+                          className="text-2xl font-bold text-gray-900"
+                        >
+                          {metric.value}
+                        </motion.span>
+                        <motion.div
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.3 + index * 0.1 }}
+                          className={`flex items-center space-x-1 ${
+                            metric.trend === 'up' ? 'text-green-600' : 'text-red-600'
+                          }`}
+                        >
+                          {metric.trend === 'up' ? (
+                            <ArrowPathIcon className="w-4 h-4" />
+                          ) : (
+                            <ArrowPathIcon className="w-4 h-4" />
+                          )}
+                          <span className="text-sm font-medium">{metric.change}</span>
+                        </motion.div>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">from last month</p>
+                    </motion.div>
+                  ))
+                )}
+              </AnimatePresence>
+            </motion.div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+              {/* Recent Debates */}
+              <motion.div
+                variants={itemVariants}
+                className="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm border border-gray-200"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">Recent Debates</h3>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="text-sm text-red-600 hover:text-red-700 transition-colors duration-200"
+                  >
+                    View All
+                  </motion.button>
+                </div>
+                <div className="space-y-4">
+                  {recentDebates.map((debate, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 * index }}
+                      whileHover={{ scale: 1.01 }}
+                      className="border-b border-gray-100 pb-4 last:border-b-0 last:pb-0 hover:bg-gray-50 p-3 rounded-lg transition-colors duration-200"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <h4 className="font-medium text-gray-900">{debate.title}</h4>
+                        <div className="flex items-center space-x-2">
+                          <span className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full">{debate.category}</span>
+                          {debate.sentiment === 'positive' && <FaceSmileIcon className="w-4 h-4 text-green-500" />}
+                          {debate.sentiment === 'negative' && <FaceFrownIcon className="w-4 h-4 text-red-500" />}
+                          {debate.sentiment === 'neutral' && <div className="w-4 h-4 bg-gray-500 rounded-full"></div>}
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-4 text-xs text-gray-500 mb-2">
+                        <span>{debate.date}</span>
+                        <span>{debate.duration}</span>
+                      </div>
+                      <p className="text-sm text-gray-600 leading-relaxed">{debate.description}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+
+              {/* Parliament Leadership */}
+              <motion.div
+                variants={itemVariants}
+                className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
+              >
+                <div className="p-6 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-gray-900">Parliament Leadership</h3>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={handleRefresh}
+                      className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                    >
+                      <ArrowPathIcon className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+                    </motion.button>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Latest from Parliament.gh */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">News</h3>
-                  <ArrowPathIcon className="w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600" />
                 </div>
-              </div>
-              <div className="h-96 overflow-y-auto">
-                <div className="p-6">
-                  <DashboardNewsFeed />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Parliament Leadership Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            {/* Parliament Leadership */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">Parliament Leadership</h3>
-                  <ArrowPathIcon className="w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600" />
-                </div>
-              </div>
-              <div className="h-96 overflow-y-auto">
-                <div className="p-6">
-                  <ParliamentLeadership />
-                </div>
-              </div>
-            </div>
-
-            {/* Placeholder for future content */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-center h-full">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <UserGroupIcon className="w-8 h-8 text-gray-400" />
+                <div className="h-80 overflow-y-auto">
+                  <div className="p-4">
+                    <AnimatePresence mode="wait">
+                      {isLoading ? (
+                        <div className="flex items-center justify-center h-32">
+                          <LoadingSpinner text="Loading leadership..." />
+                        </div>
+                      ) : (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.5 }}
+                        >
+                          <ParliamentLeadership />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Additional Content</h3>
-                  <p className="text-sm text-gray-600">More parliamentary information coming soon</p>
                 </div>
-              </div>
+              </motion.div>
             </div>
-          </div>
 
-      </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              {/* Latest from Parliament.gh */}
+              <motion.div
+                variants={itemVariants}
+                className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
+              >
+                <div className="p-6 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-gray-900">News</h3>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={handleRefresh}
+                      className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                    >
+                      <ArrowPathIcon className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+                    </motion.button>
+                  </div>
+                </div>
+                <div className="h-96 overflow-y-auto">
+                  <div className="p-6">
+                    <AnimatePresence mode="wait">
+                      {isLoading ? (
+                        <LoadingSpinner text="Loading news..." />
+                      ) : (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.5 }}
+                        >
+                          <DashboardNewsFeed />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Placeholder for future content */}
+              <motion.div
+                variants={itemVariants}
+                className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+              >
+                <div className="flex items-center justify-center h-full">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                    className="text-center"
+                  >
+                    <motion.div
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                    >
+                      <ChartBarIcon className="w-8 h-8 text-gray-600" />
+                    </motion.div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Analytics</h3>
+                    <p className="text-sm text-gray-600">Advanced parliamentary analytics coming soon</p>
+                  </motion.div>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Additional Content Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              {/* Placeholder for future content */}
+              <motion.div
+                variants={itemVariants}
+                className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+              >
+                <div className="flex items-center justify-center h-full">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+                    className="text-center"
+                  >
+                    <motion.div
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      className="w-16 h-16 bg-gradient-to-br from-red-100 to-green-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                    >
+                      <UserGroupIcon className="w-8 h-8 text-gray-600" />
+                    </motion.div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Additional Content</h3>
+                    <p className="text-sm text-gray-600">More parliamentary information coming soon</p>
+                  </motion.div>
+                </div>
+              </motion.div>
+
+              {/* Placeholder for future content */}
+              <motion.div
+                variants={itemVariants}
+                className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+              >
+                <div className="flex items-center justify-center h-full">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.7, type: "spring", stiffness: 200 }}
+                    className="text-center"
+                  >
+                    <motion.div
+                      whileHover={{ scale: 1.1, rotate: -5 }}
+                      className="w-16 h-16 bg-gradient-to-br from-yellow-100 to-red-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                    >
+                      <ChartBarIcon className="w-8 h-8 text-gray-600" />
+                    </motion.div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Analytics</h3>
+                    <p className="text-sm text-gray-600">Advanced parliamentary analytics coming soon</p>
+                  </motion.div>
+                </div>
+              </motion.div>
+            </div>
+
+          </div>
+        </ErrorBoundary>
       </Navigation>
     </ProtectedRoute>
   );

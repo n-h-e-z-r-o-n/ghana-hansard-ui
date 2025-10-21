@@ -20,6 +20,7 @@ import {
   XMarkIcon
 } from '@heroicons/react/24/outline';
 import AIAssistant from './AIAssistant';
+import AdvancedSearch from './AdvancedSearch';
 import { useAuth } from '../contexts/AuthContext';
 
 interface NavigationProps {
@@ -85,10 +86,10 @@ export default function Navigation({ children }: NavigationProps) {
     return pathname.startsWith(href);
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearch = (query: string, filters: any) => {
+    console.log('Searching for:', query, 'with filters:', filters);
     // Implement search functionality
-    console.log('Searching for:', searchQuery);
+    // This would typically navigate to a search results page or update the current view
   };
 
   return (
@@ -160,16 +161,11 @@ export default function Navigation({ children }: NavigationProps) {
 
             {/* Search bar */}
             <div className="flex-1 max-w-lg mx-4 hidden md:block">
-              <form onSubmit={handleSearch} className="relative">
-                <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600" />
-                <input
-                  type="text"
-                  placeholder="Search debates, bills, or members..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-white bg-opacity-30 text-gray-800 placeholder-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:bg-white focus:bg-opacity-40"
-                />
-              </form>
+              <AdvancedSearch
+                onSearch={handleSearch}
+                placeholder="Search debates, bills, or members..."
+                className="w-full"
+              />
             </div>
 
             {/* Right side actions */}
