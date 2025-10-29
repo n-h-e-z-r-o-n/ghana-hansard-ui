@@ -742,23 +742,45 @@ export default function AIAssistant() {
       `}</style>
 
       {/* Active Floating Button */}
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-               className="fixed bottom-6 right-6 w-16 h-16 bg-green-800 hover:bg-green-900 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 flex items-center justify-center z-50 animate-pulse"
-            >
-        {isOpen ? (
-          <XMarkIcon className="w-7 h-7" />
-        ) : (
-          <CpuChipIcon className="w-7 h-7" />
+      <div className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-50 flex flex-col items-end gap-2">
+        {/* Compact helper badge (only when closed) */}
+        {!isOpen && (
+          <div className="select-none rounded-full bg-white/90 dark:bg-gray-900/90 text-gray-800 dark:text-gray-100 text-[11px] md:text-xs px-2.5 py-1 shadow-lg border border-gray-200 dark:border-gray-700 backdrop-blur-sm">
+            Ask AI
+          </div>
         )}
-      </button>
 
-      {/* Active Indicator */}
-      {!isOpen && (
-        <div className="fixed bottom-20 right-6 bg-green-800 text-white text-xs px-2 py-1 rounded-full shadow-lg z-50 animate-bounce">
-          AI Active
-        </div>
-      )}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          aria-label={isOpen ? 'Close AI assistant' : 'Open AI assistant'}
+          aria-expanded={isOpen}
+          className="group relative w-14 h-14 sm:w-16 sm:h-16 rounded-full text-white shadow-2xl transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-emerald-300/40 hover:scale-[1.03] active:scale-95"
+          style={{ background: 'linear-gradient(135deg, #059669 0%, #047857 60%, #065f46 100%)' }}
+        >
+          {/* soft glow */}
+          <span className="absolute inset-0 -z-10 rounded-full blur-xl opacity-40 group-hover:opacity-60 transition-opacity"
+                style={{ background: 'radial-gradient(60% 60% at 50% 50%, rgba(16,185,129,0.8) 0%, rgba(16,185,129,0.0) 100%)' }} />
+
+          {/* subtle ring */}
+          <span className="absolute inset-0 rounded-full ring-1 ring-white/20" />
+
+          <span className="flex h-full w-full items-center justify-center">
+            {isOpen ? (
+              <XMarkIcon className="w-7 h-7 sm:w-8 sm:h-8" />
+            ) : (
+              <CpuChipIcon className="w-7 h-7 sm:w-8 sm:h-8" />
+            )}
+          </span>
+
+          {/* hover label (desktop) */}
+          {!isOpen && (
+            <span className="hidden md:flex absolute right-full mr-3 top-1/2 -translate-y-1/2 items-center gap-2 rounded-full bg-white/90 dark:bg-gray-900/90 text-gray-800 dark:text-gray-100 text-xs font-medium px-3 py-1 shadow-lg border border-gray-200 dark:border-gray-700 backdrop-blur-sm opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              AI Assistant
+            </span>
+          )}
+        </button>
+      </div>
 
       {/* Active Popup Widget */}
       {isOpen && (
