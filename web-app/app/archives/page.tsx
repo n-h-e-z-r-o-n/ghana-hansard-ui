@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   ArchiveBoxIcon,
   MagnifyingGlassIcon,
@@ -41,188 +41,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import Navigation from '../components/Navigation';
 
 // Mock data for archives
-const mockArchives = [
-  {
-    id: '1',
-    title: 'Constitution of Ghana 1992',
-    type: 'constitution',
-    category: 'Legal Documents',
-    date: '1992-04-28',
-    year: 1992,
-    description: 'The Constitution of the Fourth Republic of Ghana, establishing the framework for democratic governance.',
-    author: 'Constitutional Assembly',
-    language: 'English',
-    pages: 156,
-    fileSize: '2.3 MB',
-    format: 'PDF',
-    status: 'public',
-    tags: ['Constitution', 'Legal', 'Democracy', 'Governance', '1992'],
-    keywords: ['constitution', 'democracy', 'governance', 'legal framework'],
-    collection: 'Foundational Documents',
-    accessLevel: 'Public',
-    downloadCount: 15420,
-    viewCount: 89230,
-    rating: 4.8,
-    thumbnail: '/api/placeholder/200/280',
-    preview: 'We, the People of Ghana, in exercise of our natural and inalienable right to establish a framework of government...',
-    relatedDocuments: ['2', '3', '4'],
-    media: {
-      audio: null,
-      video: null,
-      images: ['/api/placeholder/400/300']
-    },
-    metadata: {
-      parliament: '1st Parliament',
-      session: 'Constitutional Assembly',
-      committee: 'Constitutional Review Committee',
-      reference: 'CONST-1992-001'
-    }
-  },
-  {
-    id: '2',
-    title: 'Hansard - First Parliament Session 1993',
-    type: 'hansard',
-    category: 'Parliamentary Records',
-    date: '1993-01-07',
-    year: 1993,
-    description: 'Official record of the first session of the First Parliament of the Fourth Republic.',
-    author: 'Parliament of Ghana',
-    language: 'English',
-    pages: 89,
-    fileSize: '1.8 MB',
-    format: 'PDF',
-    status: 'public',
-    tags: ['Hansard', 'Parliament', 'First Session', '1993', 'Historical'],
-    keywords: ['hansard', 'parliament', 'session', 'debate', 'first republic'],
-    collection: 'Parliamentary Records',
-    accessLevel: 'Public',
-    downloadCount: 8930,
-    viewCount: 45670,
-    rating: 4.6,
-    thumbnail: '/api/placeholder/200/280',
-    preview: 'The Speaker took the Chair and read prayers. The House then proceeded to the transaction of business...',
-    relatedDocuments: ['1', '5', '6'],
-    media: {
-      audio: '/api/placeholder/audio/session-1.mp3',
-      video: null,
-      images: ['/api/placeholder/400/300', '/api/placeholder/400/300']
-    },
-    metadata: {
-      parliament: '1st Parliament',
-      session: 'First Session',
-      committee: 'Plenary',
-      reference: 'HANS-1993-001'
-    }
-  },
-  {
-    id: '3',
-    title: 'Budget Statement 2000',
-    type: 'budget',
-    category: 'Financial Documents',
-    date: '2000-02-15',
-    year: 2000,
-    description: 'Annual Budget Statement and Economic Policy of the Government of Ghana for the year 2000.',
-    author: 'Ministry of Finance',
-    language: 'English',
-    pages: 234,
-    fileSize: '4.1 MB',
-    format: 'PDF',
-    status: 'public',
-    tags: ['Budget', 'Finance', 'Economic Policy', '2000', 'Government'],
-    keywords: ['budget', 'finance', 'economic policy', 'government', 'fiscal'],
-    collection: 'Budget Documents',
-    accessLevel: 'Public',
-    downloadCount: 12340,
-    viewCount: 67890,
-    rating: 4.4,
-    thumbnail: '/api/placeholder/200/280',
-    preview: 'Mr. Speaker, I beg to move, that this Honourable House approves the Financial Policy of the Government...',
-    relatedDocuments: ['1', '7', '8'],
-    media: {
-      audio: '/api/placeholder/audio/budget-2000.mp3',
-      video: '/api/placeholder/video/budget-2000.mp4',
-      images: ['/api/placeholder/400/300']
-    },
-    metadata: {
-      parliament: '2nd Parliament',
-      session: 'Budget Session',
-      committee: 'Finance Committee',
-      reference: 'BUDG-2000-001'
-    }
-  },
-  {
-    id: '4',
-    title: 'Committee Report on Education Reform 2005',
-    type: 'report',
-    category: 'Committee Reports',
-    date: '2005-06-20',
-    year: 2005,
-    description: 'Comprehensive report on education sector reforms and recommendations for improvement.',
-    author: 'Education Committee',
-    language: 'English',
-    pages: 178,
-    fileSize: '3.2 MB',
-    format: 'PDF',
-    status: 'public',
-    tags: ['Education', 'Reform', 'Committee Report', '2005', 'Policy'],
-    keywords: ['education', 'reform', 'committee', 'policy', 'recommendations'],
-    collection: 'Committee Reports',
-    accessLevel: 'Public',
-    downloadCount: 5670,
-    viewCount: 23450,
-    rating: 4.2,
-    thumbnail: '/api/placeholder/200/280',
-    preview: 'The Education Committee presents its findings and recommendations on the state of education in Ghana...',
-    relatedDocuments: ['2', '9', '10'],
-    media: {
-      audio: null,
-      video: null,
-      images: ['/api/placeholder/400/300', '/api/placeholder/400/300']
-    },
-    metadata: {
-      parliament: '3rd Parliament',
-      session: 'Committee Session',
-      committee: 'Education Committee',
-      reference: 'REPT-2005-EDU-001'
-    }
-  },
-  {
-    id: '5',
-    title: 'Parliamentary Debates - Healthcare Bill 2010',
-    type: 'debate',
-    category: 'Parliamentary Records',
-    date: '2010-03-15',
-    year: 2010,
-    description: 'Full transcript of parliamentary debates on the National Health Insurance Bill.',
-    author: 'Parliament of Ghana',
-    language: 'English',
-    pages: 145,
-    fileSize: '2.7 MB',
-    format: 'PDF',
-    status: 'public',
-    tags: ['Healthcare', 'Debate', 'Health Insurance', '2010', 'Bill'],
-    keywords: ['healthcare', 'debate', 'health insurance', 'bill', 'parliament'],
-    collection: 'Parliamentary Debates',
-    accessLevel: 'Public',
-    downloadCount: 7890,
-    viewCount: 34560,
-    rating: 4.5,
-    thumbnail: '/api/placeholder/200/280',
-    preview: 'The House resumed consideration of the National Health Insurance Bill. The Minister of Health...',
-    relatedDocuments: ['2', '11', '12'],
-    media: {
-      audio: '/api/placeholder/audio/healthcare-debate.mp3',
-      video: '/api/placeholder/video/healthcare-debate.mp4',
-      images: ['/api/placeholder/400/300']
-    },
-    metadata: {
-      parliament: '4th Parliament',
-      session: 'Plenary Session',
-      committee: 'Health Committee',
-      reference: 'DEBT-2010-HEA-001'
-    }
-  }
-];
+const mockArchives = []
 
 const documentTypes = ['All', 'constitution', 'hansard', 'budget', 'report', 'debate', 'bill', 'motion', 'resolution'];
 const categories = ['All', 'Legal Documents', 'Parliamentary Records', 'Financial Documents', 'Committee Reports', 'Government Papers', 'Historical Records'];
@@ -260,15 +79,141 @@ export default function ArchivesPage() {
   const [archives, setArchives] = useState(mockArchives);
   const [filteredArchives, setFilteredArchives] = useState(mockArchives);
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [loadedPages, setLoadedPages] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const cancelRef = useRef(false);
   const [selectedType, setSelectedType] = useState('All');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedCollection, setSelectedCollection] = useState('All');
   const [selectedYear, setSelectedYear] = useState('All');
   const [selectedAccess, setSelectedAccess] = useState('All');
   const [sortBy, setSortBy] = useState('date');
-  const [viewMode, setViewMode] = useState('grid');
+  const [viewMode, setViewMode] = useState('table');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState(null);
+
+  useEffect(() => {
+    cancelRef.current = false;
+    const run = async () => {
+      try {
+        setLoading(true);
+        setError('');
+        setArchives([] as any);
+        setLoadedPages(0);
+        setHasMore(true);
+        let page = 0;
+        while (!cancelRef.current) {
+          const res = await fetch(`/api/parliament/archives?page=${page}`, { cache: 'no-store' });
+          if (!res.ok) {
+            setError('Failed to load some pages');
+            break;
+          }
+          const data: { items: { link: string; title: string; year: string }[]; hasMore: boolean } = await res.json();
+          const items = data.items || [];
+          if (items.length) {
+            const normalized = items.map((d, idx) => ({
+              id: `gh-${page * 50 + idx + 1}`,
+              title: d.title,
+              type: 'hansard',
+              category: 'Parliamentary Records',
+              date: d.year ? `${d.year}-01-01` : '1970-01-01',
+              year: d.year ? parseInt(d.year) : 0,
+              description: d.title,
+              author: 'Parliament of Ghana',
+              language: 'English',
+              pages: 0,
+              fileSize: '',
+              format: 'PDF',
+              status: 'public',
+              tags: [],
+              keywords: [],
+              collection: 'Parliamentary Records',
+              accessLevel: 'Public',
+              downloadCount: 0,
+              viewCount: 0,
+              rating: 0,
+              thumbnail: '',
+              preview: '',
+              relatedDocuments: [],
+              media: { audio: null, video: null, images: [] },
+              metadata: { parliament: '', session: '', committee: '', reference: '', link: d.link },
+            }));
+            setArchives(prev => ([...(prev as any[]), ...normalized] as any));
+            setLoadedPages(page + 1);
+          }
+          if (!data.hasMore) {
+            setHasMore(false);
+            break;
+          }
+          page += 1;
+        }
+      } catch {
+        setError('Failed to load archives');
+      } finally {
+        setLoading(false);
+      }
+    };
+    run();
+    return () => { cancelRef.current = true; };
+  }, []);
+
+  const loadNextPage = async () => {
+    if (loading || !hasMore) return;
+    try {
+      setLoading(true);
+      setError('');
+      const page = loadedPages;
+      const res = await fetch(`/api/parliament/archives?page=${page}`, { cache: 'no-store' });
+      if (!res.ok) {
+        setError('Failed to load more');
+        return;
+      }
+      const data: { items: { link: string; title: string; year: string }[]; hasMore: boolean } = await res.json();
+      const items = data.items || [];
+      if (items.length) {
+        const normalized = items.map((d, idx) => ({
+          id: `gh-${page * 50 + idx + 1}`,
+          title: d.title,
+          type: 'hansard',
+          category: 'Parliamentary Records',
+          date: d.year ? `${d.year}-01-01` : '1970-01-01',
+          year: d.year ? parseInt(d.year) : 0,
+          description: d.title,
+          author: 'Parliament of Ghana',
+          language: 'English',
+          pages: 0,
+          fileSize: '',
+          format: 'PDF',
+          status: 'public',
+          tags: [],
+          keywords: [],
+          collection: 'Parliamentary Records',
+          accessLevel: 'Public',
+          downloadCount: 0,
+          viewCount: 0,
+          rating: 0,
+          thumbnail: '',
+          preview: '',
+          relatedDocuments: [],
+          media: { audio: null, video: null, images: [] },
+          metadata: { parliament: '', session: '', committee: '', reference: '', link: d.link },
+        }));
+        setArchives(prev => ([...(prev as any[]), ...normalized] as any));
+        setLoadedPages(page + 1);
+      }
+      setHasMore(!!data.hasMore);
+    } catch {
+      setError('Failed to load more');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const stopLoading = () => {
+    cancelRef.current = true;
+  };
 
   // Filter and search logic
   useEffect(() => {
@@ -422,7 +367,7 @@ export default function ArchivesPage() {
             </select>
 
             {/* View Mode */}
-            <div className="flex border border-gray-300 rounded-lg">
+            <div className="flex border border-gray-300 rounded-lg overflow-hidden">
               <button
                 onClick={() => setViewMode('grid')}
                 className={`px-3 py-2 text-sm ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50'}`}
@@ -434,6 +379,12 @@ export default function ArchivesPage() {
                 className={`px-3 py-2 text-sm ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50'}`}
               >
                 List
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                className={`px-3 py-2 text-sm ${viewMode === 'table' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+              >
+                Table
               </button>
             </div>
           </div>
@@ -559,83 +510,135 @@ export default function ArchivesPage() {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
               <div className="p-6 border-b border-gray-200">
                 <h2 className="text-lg font-semibold text-gray-900">Documents</h2>
-                <p className="text-sm text-gray-600">Showing {filteredArchives.length} documents</p>
+                <p className="text-sm text-gray-600">
+                  {loading ? `Loading… (pages: ${loadedPages}, fetched: ${archives.length})` : `Showing ${filteredArchives.length} documents • Fetched ${archives.length}`}
+                </p>
+                {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
+                <div className="mt-2 flex gap-2">
+                  {loading && <button onClick={stopLoading} className="px-3 py-1.5 text-xs border border-gray-300 rounded hover:bg-gray-50">Stop loading</button>}
+                  {!loading && hasMore && <button onClick={loadNextPage} className="px-3 py-1.5 text-xs bg-blue-600 text-white rounded hover:bg-blue-700">Load more</button>}
+                </div>
               </div>
-              <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-6 p-6' : 'divide-y divide-gray-200'}>
-                {filteredArchives.map((archive) => (
-                  <div key={archive.id} className={viewMode === 'grid' ? 'bg-gray-50 rounded-lg p-4 hover:bg-gray-100 cursor-pointer' : 'p-6 hover:bg-gray-50 cursor-pointer'} onClick={() => setSelectedDocument(archive)}>
-                    {viewMode === 'grid' ? (
-                      <div className="space-y-3">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center space-x-2">
-                            {getTypeIcon(archive.type)}
-                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getTypeColor(archive.type)}`}>
-                              {archive.type}
-                            </span>
-                          </div>
-                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${getAccessColor(archive.accessLevel)}`}>
-                            {archive.accessLevel}
-                          </span>
-                        </div>
-                        <div className="w-full h-32 bg-gray-200 rounded flex items-center justify-center">
-                          <DocumentTextIcon className="w-8 h-8 text-gray-400" />
-                        </div>
-                        <div>
-                          <h3 className="font-medium text-gray-900 text-sm line-clamp-2">{archive.title}</h3>
-                          <p className="text-xs text-gray-600 mt-1">{archive.year} • {archive.pages} pages</p>
-                          <p className="text-xs text-gray-500 mt-1 line-clamp-2">{archive.description}</p>
-                        </div>
-                        <div className="flex items-center justify-between text-xs text-gray-500">
-                          <span>{archive.downloadCount.toLocaleString()} downloads</span>
-                          <span>{archive.rating}★</span>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex items-start space-x-4">
-                        <div className="flex-shrink-0">
-                          <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
-                            {getTypeIcon(archive.type)}
-                          </div>
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between mb-2">
-                            <div>
-                              <h3 className="text-lg font-medium text-gray-900">{archive.title}</h3>
-                              <p className="text-sm text-gray-600">{archive.description}</p>
-                              <p className="text-sm text-gray-500">{formatDate(archive.date)} • {archive.pages} pages • {archive.fileSize}</p>
-                            </div>
-                            <div className="flex flex-col items-end space-y-2">
+              {viewMode === 'table' ? (
+                <div className="p-6 overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Title</th>
+                        <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Year</th>
+                        <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Link</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {filteredArchives.map((archive) => (
+                        <tr key={archive.id} className="hover:bg-gray-50">
+                          <td className="px-4 py-3 text-sm text-gray-900 max-w-xl">
+                            <a href={(archive as any).metadata?.link || '#'} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                              {archive.title}
+                            </a>
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">{archive.year || '-'}</td>
+                          <td className="px-4 py-3 text-sm">
+                            <a
+                              href={(archive as any).metadata?.link || '#'}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              Open
+                            </a>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-6 p-6' : 'divide-y divide-gray-200'}>
+                  {filteredArchives.map((archive) => (
+                    <div key={archive.id} className={viewMode === 'grid' ? 'bg-gray-50 rounded-lg p-4 hover:bg-gray-100 cursor-pointer' : 'p-6 hover:bg-gray-50 cursor-pointer'} onClick={() => setSelectedDocument(archive)}>
+                      {viewMode === 'grid' ? (
+                        <div className="space-y-3">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center space-x-2">
+                              {getTypeIcon(archive.type)}
                               <span className={`px-2 py-1 text-xs font-medium rounded-full ${getTypeColor(archive.type)}`}>
                                 {archive.type}
                               </span>
-                              <span className={`px-2 py-1 text-xs font-medium rounded-full ${getAccessColor(archive.accessLevel)}`}>
-                                {archive.accessLevel}
-                              </span>
                             </div>
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getAccessColor(archive.accessLevel)}`}>
+                              {archive.accessLevel}
+                            </span>
                           </div>
-                          <div className="flex items-center space-x-6 text-sm text-gray-500 mb-3">
+                          <div className="w-full h-32 bg-gray-200 rounded flex items-center justify-center">
+                            <DocumentTextIcon className="w-8 h-8 text-gray-400" />
+                          </div>
+                          <div>
+                            <h3 className="font-medium text-gray-900 text-sm line-clamp-2">
+                              <a href={(archive as any).metadata?.link || '#'} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                                {archive.title}
+                              </a>
+                            </h3>
+                            <p className="text-xs text-gray-600 mt-1">{archive.year} • {archive.pages} pages</p>
+                            <p className="text-xs text-gray-500 mt-1 line-clamp-2">{archive.description}</p>
+                          </div>
+                          <div className="flex items-center justify-between text-xs text-gray-500">
                             <span>{archive.downloadCount.toLocaleString()} downloads</span>
-                            <span>{archive.viewCount.toLocaleString()} views</span>
-                            <span>{archive.rating}★ rating</span>
-                          </div>
-                          <div className="flex flex-wrap gap-2">
-                            {archive.tags.slice(0, 3).map((tag, index) => (
-                              <span key={index} className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full">
-                                {tag}
-                              </span>
-                            ))}
-                            {archive.tags.length > 3 && (
-                              <span className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full">
-                                +{archive.tags.length - 3} more
-                              </span>
-                            )}
+                            <span>{archive.rating}★</span>
                           </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+                      ) : (
+                        <div className="flex items-start space-x-4">
+                          <div className="flex-shrink-0">
+                            <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
+                              {getTypeIcon(archive.type)}
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-start justify-between mb-2">
+                              <div>
+                                <h3 className="text-lg font-medium text-gray-900">
+                                  <a href={(archive as any).metadata?.link || '#'} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                                    {archive.title}
+                                  </a>
+                                </h3>
+                                <p className="text-sm text-gray-600">{archive.description}</p>
+                                <p className="text-sm text-gray-500">{formatDate(archive.date)} • {archive.pages} pages • {archive.fileSize}</p>
+                              </div>
+                              <div className="flex flex-col items-end space-y-2">
+                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getTypeColor(archive.type)}`}>
+                                  {archive.type}
+                                </span>
+                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getAccessColor(archive.accessLevel)}`}>
+                                  {archive.accessLevel}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-6 text-sm text-gray-500 mb-3">
+                              <span>{archive.downloadCount.toLocaleString()} downloads</span>
+                              <span>{archive.viewCount.toLocaleString()} views</span>
+                              <span>{archive.rating}★ rating</span>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {archive.tags.slice(0, 3).map((tag, index) => (
+                                <span key={index} className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full">
+                                  {tag}
+                                </span>
+                              ))}
+                              {archive.tags.length > 3 && (
+                                <span className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full">
+                                  +{archive.tags.length - 3} more
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
