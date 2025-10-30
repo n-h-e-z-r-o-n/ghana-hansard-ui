@@ -6,7 +6,6 @@ import {
   ArrowPathIcon,
   CheckIcon,
   ExclamationTriangleIcon,
-  InformationCircleIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
 

@@ -11,9 +11,6 @@ import {
   UserGroupIcon,
   DocumentTextIcon,
   MicrophoneIcon,
-  ClockIcon,
-  ChevronDownIcon,
-  ChevronUpIcon
 } from '@heroicons/react/24/outline';
 
 interface SearchResult {

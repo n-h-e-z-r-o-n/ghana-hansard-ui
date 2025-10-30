@@ -5,20 +5,17 @@ import {
   MicrophoneIcon, 
   PaperAirplaneIcon, 
   XMarkIcon,
-  ChevronUpIcon,
   ChevronDownIcon,
   CpuChipIcon,
   DocumentTextIcon,
   SpeakerWaveIcon,
   ExclamationTriangleIcon,
-  CheckCircleIcon,
   LanguageIcon,
   UserIcon,
   BuildingOfficeIcon,
   AcademicCapIcon,
   BookOpenIcon,
   ChartBarIcon,
-  InformationCircleIcon
 } from '@heroicons/react/24/outline';
 import webhookService, { WebhookRequest } from '../lib/webhook';
 import WhisperService from '../lib/whisperService';
