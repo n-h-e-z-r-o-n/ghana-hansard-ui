@@ -28,6 +28,9 @@ export default function LandingPage() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeNavItem, setActiveNavItem] = useState('');
+  const [typedText, setTypedText] = useState('');
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Scroll effect for navigation
   useEffect(() => {
@@ -39,6 +42,48 @@ export default function LandingPage() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    const items = [
+      'Interactive Hub',
+      'Interactive Experience',
+      'Inclusive Space',
+      'Immersive Platform',
+      'Innovative Arena',
+      'Empowering Hub',
+      'Open Dialogue',
+      'Active Community',
+      'Voice for the People',
+      'Bridge to the People',
+      'Center of Change',
+      'Catalyst for Progress',
+    ];
+
+    const full = items[phraseIndex];
+    let delay = isDeleting ? 40 : 80;
+
+    if (!isDeleting && typedText === full) {
+      const t = setTimeout(() => setIsDeleting(true), 1200);
+      return () => clearTimeout(t);
+    }
+
+    if (isDeleting && typedText === '') {
+      const t = setTimeout(() => {
+        setIsDeleting(false);
+        setPhraseIndex((phraseIndex + 1) % items.length);
+      }, 200);
+      return () => clearTimeout(t);
+    }
+
+    const t = setTimeout(() => {
+      const next = isDeleting
+        ? full.slice(0, Math.max(typedText.length - 1, 0))
+        : full.slice(0, typedText.length + 1);
+      setTypedText(next);
+    }, delay);
+
+    return () => clearTimeout(t);
+  }, [typedText, isDeleting, phraseIndex]);
 
   // Smooth scroll to sections
   const scrollToSection = (sectionId: string) => {
@@ -295,7 +340,8 @@ export default function LandingPage() {
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
               Transforming Ghana's Parliament into an
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-yellow-500 to-green-600">
-                {' '}Interactive Hub
+                {' '}{typedText}
+                <span className="ml-1 opacity-80 animate-pulse">|</span>
               </span>
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
