@@ -41,7 +41,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import Navigation from '../components/Navigation';
 
 // Mock data for archives
-const mockArchives = []
+const mockArchives: any[] = [];
 
 const documentTypes = ['All', 'constitution', 'hansard', 'budget', 'report', 'debate', 'bill', 'motion', 'resolution'];
 const categories = ['All', 'Legal Documents', 'Parliamentary Records', 'Financial Documents', 'Committee Reports', 'Government Papers', 'Historical Records'];
