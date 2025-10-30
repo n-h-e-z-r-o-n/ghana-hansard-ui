@@ -93,6 +93,8 @@ export default function ArchivesPage() {
   const [viewMode, setViewMode] = useState('table');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState(null);
+  const [exporting, setExporting] = useState(false);
+  const [sharing, setSharing] = useState(false);
 
   useEffect(() => {
     cancelRef.current = false;
@@ -273,7 +275,7 @@ export default function ArchivesPage() {
       case 'report': return 'text-purple-600 bg-purple-100';
       case 'debate': return 'text-red-600 bg-red-100';
       case 'bill': return 'text-indigo-600 bg-indigo-100';
-      default: return 'text-gray-600 bg-gray-100';
+      default: return 'text-gray-800 bg-gray-100';
     }
   };
 
@@ -303,6 +305,66 @@ export default function ArchivesPage() {
     return filteredArchives.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5);
   };
 
+  const toCSV = (rows: any[]) => {
+    const esc = (v: any) => {
+      const s = v == null ? '' : String(v);
+      const needs = /[",\n]/.test(s);
+      return needs ? '"' + s.replace(/"/g, '""') + '"' : s;
+    };
+    const headers = ['Title', 'Year', 'Link'];
+    const lines = [headers.join(',')];
+    for (const r of rows) {
+      const link = (r as any).metadata?.link || '';
+      lines.push([esc(r.title), esc(r.year || ''), esc(link)].join(','));
+    }
+    return lines.join('\n');
+  };
+
+  const handleExport = async () => {
+    if (exporting) return;
+    try {
+      setExporting(true);
+      const rows = (filteredArchives as any[]);
+      const csv = toCSV(rows);
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const ts = new Date().toISOString().slice(0,10);
+      a.href = url;
+      a.download = `ghana-parliament-archives-${ts}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleShare = async () => {
+    if (sharing) return;
+    try {
+      setSharing(true);
+      const shareData = {
+        title: 'Ghana Parliamentary Archives',
+        text: `Explore ${filteredArchives.length} parliamentary documents`,
+        url: typeof window !== 'undefined' ? window.location.href : ''
+      } as any;
+      if (typeof navigator !== 'undefined' && 'share' in navigator) {
+        await (navigator as any).share(shareData);
+        return;
+      }
+      if (navigator?.clipboard && shareData.url) {
+        await navigator.clipboard.writeText(shareData.url);
+        alert('Link copied to clipboard');
+        return;
+      }
+      alert('Sharing not supported on this device');
+    } finally {
+      setSharing(false);
+    }
+  };
+
   return (
     <Navigation>
       <div className="p-6">
@@ -311,16 +373,16 @@ export default function ArchivesPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Parliamentary Archives</h1>
-              <p className="text-gray-600">Explore historical documents, records, and parliamentary materials</p>
+              <p className="text-gray-900">Explore historical documents, records, and parliamentary materials</p>
             </div>
             <div className="flex items-center space-x-4">
-              <button className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center space-x-2">
+              <button onClick={handleShare} disabled={sharing} className={`px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center space-x-2 ${sharing ? 'opacity-60 cursor-not-allowed text-gray-700' : 'text-gray-900'}`}>
                 <ShareIcon className="w-4 h-4" />
-                <span>Share</span>
+                <span>{sharing ? 'Sharing…' : 'Share'}</span>
               </button>
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2">
+              <button onClick={handleExport} disabled={exporting} className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${exporting ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'} text-white`}>
                 <ArrowDownTrayIcon className="w-4 h-4" />
-                <span>Export</span>
+                <span>{exporting ? 'Exporting…' : 'Export'}</span>
               </button>
             </div>
           </div>
@@ -332,13 +394,13 @@ export default function ArchivesPage() {
             {/* Search */}
             <div className="flex-1">
               <div className="relative">
-                <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-3 text-gray-400" />
+                <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-3 text-gray-700" />
                 <input
                   type="text"
                   placeholder="Search documents, titles, or keywords..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -346,7 +408,7 @@ export default function ArchivesPage() {
             {/* Filter Toggle */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center space-x-2"
+              className="text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center space-x-2"
             >
               <FunnelIcon className="w-4 h-4" />
               <span>Filters</span>
@@ -357,7 +419,7 @@ export default function ArchivesPage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="date">Sort by Date</option>
               <option value="title">Sort by Title</option>
@@ -367,22 +429,22 @@ export default function ArchivesPage() {
             </select>
 
             {/* View Mode */}
-            <div className="flex border border-gray-300 rounded-lg overflow-hidden">
+            <div className="flex border border-gray-400 rounded-lg overflow-hidden bg-white shadow-sm">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`px-3 py-2 text-sm ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+                className={`px-3 py-2 text-sm ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'text-gray-800 hover:bg-gray-100'}`}
               >
                 Grid
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`px-3 py-2 text-sm ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+                className={`px-3 py-2 text-sm ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-gray-800 hover:bg-gray-100'}`}
               >
                 List
               </button>
               <button
                 onClick={() => setViewMode('table')}
-                className={`px-3 py-2 text-sm ${viewMode === 'table' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+                className={`px-3 py-2 text-sm ${viewMode === 'table' ? 'bg-blue-600 text-white' : 'text-gray-800 hover:bg-gray-100'}`}
               >
                 Table
               </button>
@@ -394,11 +456,11 @@ export default function ArchivesPage() {
             <div className="mt-6 pt-6 border-t border-gray-200">
               <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Document Type</label>
+                  <label className="block text-sm font-medium text-gray-900 mb-2">Document Type</label>
                   <select
                     value={selectedType}
                     onChange={(e) => setSelectedType(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     {documentTypes.map(type => (
                       <option key={type} value={type}>{type.charAt(0).toUpperCase() + type.slice(1)}</option>
@@ -406,7 +468,7 @@ export default function ArchivesPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                  <label className="block text-sm font-medium text-gray-900 mb-2">Category</label>
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
@@ -418,7 +480,7 @@ export default function ArchivesPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Collection</label>
+                  <label className="block text-sm font-medium text-gray-900 mb-2">Collection</label>
                   <select
                     value={selectedCollection}
                     onChange={(e) => setSelectedCollection(e.target.value)}
@@ -430,7 +492,7 @@ export default function ArchivesPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Year</label>
+                  <label className="block text-sm font-medium text-gray-900 mb-2">Year</label>
                   <select
                     value={selectedYear}
                     onChange={(e) => setSelectedYear(e.target.value)}
@@ -442,7 +504,7 @@ export default function ArchivesPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Access Level</label>
+                  <label className="block text-sm font-medium text-gray-900 mb-2">Access Level</label>
                   <select
                     value={selectedAccess}
                     onChange={(e) => setSelectedAccess(e.target.value)}
@@ -463,7 +525,7 @@ export default function ArchivesPage() {
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Documents</p>
+                <p className="text-sm font-medium text-gray-900">Total Documents</p>
                 <p className="text-2xl font-bold text-gray-900">{filteredArchives.length}</p>
               </div>
               <ArchiveBoxIcon className="w-8 h-8 text-blue-600" />
@@ -472,7 +534,7 @@ export default function ArchivesPage() {
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Downloads</p>
+                <p className="text-sm font-medium text-gray-900">Total Downloads</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {filteredArchives.reduce((sum, archive) => sum + archive.downloadCount, 0).toLocaleString()}
                 </p>
@@ -483,7 +545,7 @@ export default function ArchivesPage() {
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Views</p>
+                <p className="text-sm font-medium text-gray-900">Total Views</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {filteredArchives.reduce((sum, archive) => sum + archive.viewCount, 0).toLocaleString()}
                 </p>
@@ -494,7 +556,7 @@ export default function ArchivesPage() {
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Avg. Rating</p>
+                <p className="text-sm font-medium text-gray-900">Avg. Rating</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {(filteredArchives.reduce((sum, archive) => sum + archive.rating, 0) / filteredArchives.length || 0).toFixed(1)}
                 </p>
@@ -510,7 +572,7 @@ export default function ArchivesPage() {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
               <div className="p-6 border-b border-gray-200">
                 <h2 className="text-lg font-semibold text-gray-900">Documents</h2>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-900">
                   {loading ? `Loading… (pages: ${loadedPages}, fetched: ${archives.length})` : `Showing ${filteredArchives.length} documents • Fetched ${archives.length}`}
                 </p>
                 {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
@@ -522,11 +584,11 @@ export default function ArchivesPage() {
               {viewMode === 'table' ? (
                 <div className="p-6 overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gray-100">
                       <tr>
-                        <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Title</th>
-                        <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Year</th>
-                        <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Link</th>
+                        <th className="px-4 py-2 text-left text-sm font-semibold text-gray-900">Title</th>
+                        <th className="px-4 py-2 text-left text-sm font-semibold text-gray-900">Year</th>
+                        <th className="px-4 py-2 text-left text-sm font-semibold text-gray-900">Link</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -537,7 +599,7 @@ export default function ArchivesPage() {
                               {archive.title}
                             </a>
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">{archive.year || '-'}</td>
+                          <td className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">{archive.year || '-'}</td>
                           <td className="px-4 py-3 text-sm">
                             <a
                               href={(archive as any).metadata?.link || '#'}
@@ -581,7 +643,7 @@ export default function ArchivesPage() {
                               </a>
                             </h3>
                             <p className="text-xs text-gray-600 mt-1">{archive.year} • {archive.pages} pages</p>
-                            <p className="text-xs text-gray-500 mt-1 line-clamp-2">{archive.description}</p>
+                            <p className="text-xs text-gray-700 mt-1 line-clamp-2">{archive.description}</p>
                           </div>
                           <div className="flex items-center justify-between text-xs text-gray-500">
                             <span>{archive.downloadCount.toLocaleString()} downloads</span>
