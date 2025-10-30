@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   ArchiveBoxIcon,
   MagnifyingGlassIcon,
@@ -365,6 +365,48 @@ export default function ArchivesPage() {
     }
   };
 
+  const pieColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#14B8A6', '#F97316', '#6366F1'];
+
+  const computedTypeData = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const a of filteredArchives) {
+      const key = a.category || a.type || 'Other';
+      map.set(key, (map.get(key) || 0) + 1);
+    }
+    const arr = Array.from(map.entries()).map(([name, value], idx) => ({ name, value, color: pieColors[idx % pieColors.length] }));
+    // limit to top 6 + "Other"
+    arr.sort((a, b) => b.value - a.value);
+    if (arr.length <= 7) return arr;
+    const top = arr.slice(0, 6);
+    const rest = arr.slice(6).reduce((s, x) => s + x.value, 0);
+    top.push({ name: 'Other', value: rest, color: pieColors[6 % pieColors.length] });
+    return top;
+  }, [filteredArchives]);
+
+  const computedYearlyData = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const a of filteredArchives) {
+      const y = a.year && a.year > 0 ? String(a.year) : '';
+      if (!y) continue;
+      map.set(y, (map.get(y) || 0) + 1);
+    }
+    const arr = Array.from(map.entries()).map(([year, documents]) => ({ year, documents }));
+    arr.sort((a, b) => parseInt(a.year, 10) - parseInt(b.year, 10));
+    return arr;
+  }, [filteredArchives]);
+
+  const computedCollectionData = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const a of filteredArchives) {
+      const key = a.collection || 'Other';
+      map.set(key, (map.get(key) || 0) + 1);
+    }
+    const total = Array.from(map.values()).reduce((s, v) => s + v, 0) || 1;
+    const arr = Array.from(map.entries()).map(([name, count], idx) => ({ name, value: Math.round((count / total) * 100), color: pieColors[idx % pieColors.length] }));
+    arr.sort((a, b) => b.value - a.value);
+    return arr;
+  }, [filteredArchives]);
+
   return (
     <Navigation>
       <div className="p-6">
@@ -713,14 +755,14 @@ export default function ArchivesPage() {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={typeData}
+                      data={computedTypeData}
                       cx="50%"
                       cy="50%"
                       innerRadius={40}
                       outerRadius={80}
                       dataKey="value"
                     >
-                      {typeData.map((entry, index) => (
+                      {computedTypeData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
@@ -746,7 +788,7 @@ export default function ArchivesPage() {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Document Trends</h3>
               <div className="h-32">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={yearlyData}>
+                  <LineChart data={computedYearlyData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                     <XAxis dataKey="year" stroke="#666" />
                     <YAxis stroke="#666" />
@@ -761,7 +803,7 @@ export default function ArchivesPage() {
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Collections</h3>
               <div className="space-y-3">
-                {collectionData.map((collection, index) => (
+                {computedCollectionData.map((collection, index) => (
                   <div key={collection.name} className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">{collection.name}</span>
                     <div className="flex items-center space-x-2">
