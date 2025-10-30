@@ -6,27 +6,19 @@ import {
   FunnelIcon,
   CalendarIcon,
   ClockIcon,
-  SpeakerWaveIcon,
   EyeIcon,
   ShareIcon,
   ArrowDownTrayIcon,
   PlayIcon,
-  PauseIcon,
   ChatBubbleLeftRightIcon,
   UserGroupIcon,
   ChartBarIcon,
-  TagIcon,
-  FireIcon,
-  StarIcon,
   HeartIcon,
-  ThumbUpIcon,
-  ThumbDownIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   XMarkIcon,
-  AdjustmentsHorizontalIcon
 } from '@heroicons/react/24/outline';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,  PieChart, Pie, Cell } from 'recharts';
 import Navigation from '../components/Navigation';
 
 // Mock data for debates

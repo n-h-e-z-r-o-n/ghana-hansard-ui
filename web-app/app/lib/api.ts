@@ -1,5 +1,5 @@
 // API client for communicating with the backend
-import { API_CONFIG, getApiUrl } from '../config/api';
+import { API_CONFIG } from '../config/api';
 
 const API_BASE_URL = API_CONFIG.BASE_URL;
 

@@ -8,36 +8,21 @@ import {
   UserGroupIcon,
   DocumentTextIcon,
   VideoCameraIcon,
-  SpeakerWaveIcon,
   BellIcon,
   ShareIcon,
   ArrowDownTrayIcon,
   MagnifyingGlassIcon,
   FunnelIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   PlayIcon,
-  PauseIcon,
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  XCircleIcon,
-  PlusIcon,
   EyeIcon,
   MicrophoneIcon,
   BuildingOfficeIcon,
-  FlagIcon,
-  AcademicCapIcon,
-  BriefcaseIcon,
-  HeartIcon,
   StarIcon,
-  FireIcon,
-  TrophyIcon,
-  AdjustmentsHorizontalIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
+import {  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 import Navigation from '../components/Navigation';
 
 // Mock data for parliamentary schedule
@@ -313,7 +298,7 @@ export default function SchedulePage() {
 
   // Filter and search logic
   useEffect(() => {
-    let filtered = sessions.filter(session => {
+      const filtered = sessions.filter(session => {
       const matchesSearch = session.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            session.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            session.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));

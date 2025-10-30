@@ -6,33 +6,22 @@ import {
   FunnelIcon,
   UserGroupIcon,
   ChartBarIcon,
-  CalendarIcon,
-  EyeIcon,
   ShareIcon,
   ArrowDownTrayIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   XMarkIcon,
-  AdjustmentsHorizontalIcon,
   EnvelopeIcon,
   PhoneIcon,
   MapPinIcon,
-  AcademicCapIcon,
-  BriefcaseIcon,
   StarIcon,
   HeartIcon,
-  HandThumbUpIcon,
-  HandThumbDownIcon,
   ClockIcon,
   DocumentTextIcon,
   MicrophoneIcon,
-  FireIcon,
-  TrophyIcon,
   UserIcon,
-  BuildingOfficeIcon,
-  FlagIcon
 } from '@heroicons/react/24/outline';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, ScatterChart, Scatter, XAxis as ScatterXAxis, YAxis as ScatterYAxis } from 'recharts';
+import {  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell,   XAxis as ScatterXAxis, YAxis as ScatterYAxis } from 'recharts';
 import Navigation from '../components/Navigation';
 import { ParliamentMember } from '../lib/parliamentMembersScraper';
 

@@ -27,25 +27,6 @@ export interface ParliamentBillsData {
 
 const PARLIAMENT_BASE_URL = 'https://www.parliament.gh';
 
-function absolutizeUrl(href: string | undefined): string {
-  if (!href) return '';
-  const trimmed = href.trim();
-  // Ignore data URLs
-  if (trimmed.startsWith('data:')) return '';
-  // Protocol-relative URLs
-  if (trimmed.startsWith('//')) return `https:${trimmed}`;
-  try {
-    // Ensure relative paths resolve to site root
-    const normalized = (/^[a-zA-Z]+:\/\//.test(trimmed) || trimmed.startsWith('/'))
-      ? trimmed
-      : `/${trimmed}`;
-    const url = new URL(normalized, "https://www.parliament.gh/epanel/docs//");
-    return url.toString();
-  } catch {
-    return '';
-  }
-}
-
 function parseDate(dateStr: string): string {
   try {
     // Handle Parliament date format: "17-08-2017" or "20-06-2025"
@@ -236,7 +217,6 @@ export async function fetchParliamentBills(page: number = 1): Promise<Parliament
             laidOn: laidOnText,
             gazettedOn: gazettedOnText,
             url:  "https://www.parliament.gh/epanel/docs/" + href,
-            //url: href ? absolutizeUrl(href) : `${PARLIAMENT_BASE_URL}/docs?type=Bills&OT`,
             billNumber,
             category,
             status,
