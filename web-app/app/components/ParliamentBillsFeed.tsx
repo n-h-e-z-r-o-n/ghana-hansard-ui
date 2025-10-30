@@ -37,7 +37,11 @@ interface ParliamentBillsData {
   lastUpdated: string;
 }
 
-export default function ParliamentBillsFeed() {
+interface ParliamentBillsFeedProps {
+  bills?: ParliamentBill[];
+}
+
+export default function ParliamentBillsFeed({ bills }: ParliamentBillsFeedProps) {
   const [billsData, setBillsData] = useState<ParliamentBillsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,6 +49,20 @@ export default function ParliamentBillsFeed() {
 
   useEffect(() => {
     let cancelled = false;
+
+    // If bills are provided by parent, use them and skip fetching
+    if (bills && Array.isArray(bills)) {
+      setBillsData({
+        bills,
+        totalPages: 1,
+        currentPage: 1,
+        lastUpdated: new Date().toISOString(),
+      });
+      setLoading(false);
+      setError(null);
+      return () => { cancelled = true; };
+    }
+
     async function loadBills() {
       try {
         setLoading(true);
@@ -62,7 +80,7 @@ export default function ParliamentBillsFeed() {
     }
     loadBills();
     return () => { cancelled = true; };
-  }, [currentPage]);
+  }, [currentPage, bills]);
 
   const formatDate = (dateStr: string) => {
     try {
@@ -255,8 +273,8 @@ export default function ParliamentBillsFeed() {
         ))}
       </div>
 
-      {/* Pagination */}
-      {billsData.totalPages > 1 && (
+      {/* Pagination (hidden when parent provides bills) */}
+      {!bills && billsData.totalPages > 1 && (
         <div className="mt-6 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <button

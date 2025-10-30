@@ -112,7 +112,12 @@ export default function ArchivesPage() {
             setError('Failed to load some pages');
             break;
           }
-          const data: { items: { link: string; title: string; year: string }[]; hasMore: boolean } = await res.json();
+          let data: { items: { link: string; title: string; year: string }[]; hasMore: boolean } = { items: [], hasMore: false } as any;
+          try {
+            data = await res.json();
+          } catch {
+            data = { items: [], hasMore: false } as any;
+          }
           const items = data.items || [];
           if (items.length) {
             const normalized = items.map((d, idx) => ({
@@ -634,8 +639,8 @@ export default function ArchivesPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                      {filteredArchives.map((archive) => (
-                        <tr key={archive.id} className="hover:bg-gray-50">
+                      {filteredArchives.map((archive, idx) => (
+                        <tr key={`${archive.id}-${(archive as any).metadata?.link || ''}-${idx}`} className="hover:bg-gray-50">
                           <td className="px-4 py-3 text-sm text-gray-900 max-w-xl">
                             <a href={(archive as any).metadata?.link || '#'} target="_blank" rel="noopener noreferrer" className="hover:underline">
                               {archive.title}
@@ -660,8 +665,8 @@ export default function ArchivesPage() {
                 </div>
               ) : (
                 <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-6 p-6' : 'divide-y divide-gray-200'}>
-                  {filteredArchives.map((archive) => (
-                    <div key={archive.id} className={viewMode === 'grid' ? 'bg-gray-50 rounded-lg p-4 hover:bg-gray-100 cursor-pointer' : 'p-6 hover:bg-gray-50 cursor-pointer'} onClick={() => setSelectedDocument(archive)}>
+                  {filteredArchives.map((archive, idx) => (
+                    <div key={`${archive.id}-${(archive as any).metadata?.link || ''}-${idx}`} className={viewMode === 'grid' ? 'bg-gray-50 rounded-lg p-4 hover:bg-gray-100 cursor-pointer' : 'p-6 hover:bg-gray-50 cursor-pointer'} onClick={() => setSelectedDocument(archive)}>
                       {viewMode === 'grid' ? (
                         <div className="space-y-3">
                           <div className="flex items-start justify-between">
