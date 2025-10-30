@@ -13,6 +13,7 @@ import {
 import Navigation from '../components/Navigation';
 import ProtectedRoute from '../components/ProtectedRoute';
 import DashboardNewsFeed from '../components/DashboardNewsFeed';
+import ParliamentAgendaFeed from '../components/ParliamentAgendaFeed';
 import ParliamentLeadership from '../components/ParliamentLeadership';
 import LoadingSpinner, { CardSkeleton } from '../components/LoadingSpinner';
 import ErrorBoundary from '../components/ErrorBoundary';
@@ -298,27 +299,17 @@ export default function Dashboard() {
                 </div>
               </motion.div>
 
-              {/* Placeholder for future content */}
+              {/* Parliamentary Agenda */}
               <motion.div
                 variants={itemVariants}
-                className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+                className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
               >
-                <div className="flex items-center justify-center h-full">
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-                    className="text-center"
-                  >
-                    <motion.div
-                      whileHover={{ scale: 1.1, rotate: 5 }}
-                      className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4"
-                    >
-                      <ChartBarIcon className="w-8 h-8 text-gray-600" />
-                    </motion.div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Analytics</h3>
-                    <p className="text-sm text-gray-600">Advanced parliamentary analytics coming soon</p>
-                  </motion.div>
+                <div className="p-6 border-b border-gray-200">                
+                </div>
+                <div className="h-96 overflow-y-auto">
+                  <div className="p-6">
+                    <ParliamentAgendaFeed />
+                  </div>
                 </div>
               </motion.div>
             </div>

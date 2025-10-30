@@ -1,5 +1,4 @@
 import * as cheerio from 'cheerio';
-import { URL } from 'url';
 
 export interface AgendaItem {
   date: string;
@@ -8,195 +7,77 @@ export interface AgendaItem {
   formattedDate: string;
   dayOfWeek: string;
   meetingType: string;
+  year: string;
 }
 
-export interface AgendaData {
-  agendas: AgendaItem[];
-  totalPages: number;
-  currentPage: number;
-  lastUpdated: string;
-}
-
-const PARLIAMENT_BASE_URL = 'https://www.parliament.gh';
-
-function absolutizeUrl(href: string | undefined): string {
-  if (!href) return '';
-  const trimmed = href.trim();
-  // Ignore data URLs
-  if (trimmed.startsWith('data:')) return '';
-  // Protocol-relative URLs
-  if (trimmed.startsWith('//')) return `https:${trimmed}`;
-  try {
-    // Ensure relative paths resolve to site root
-    const normalized = (/^[a-zA-Z]+:\/\//.test(trimmed) || trimmed.startsWith('/'))
-      ? trimmed
-      : `/${trimmed}`;
-    const url = new URL(normalized, PARLIAMENT_BASE_URL);
-    return url.toString();
-  } catch {
-    return '';
+function normalizeAgendaDate(input: string): Date | null {
+  if (!input) return null;
+  // Normalize whitespace and commas
+  const cleaned = input.replace(/\u00A0/g, ' ').trim();
+  // Try native parse first
+  const d1 = new Date(cleaned);
+  if (!isNaN(d1.getTime())) return d1;
+  // Remove ordinal suffixes (1st, 2nd, 3rd, 4th) and extra commas
+  const noOrd = cleaned.replace(/\b(\d{1,2})(st|nd|rd|th)\b/gi, '$1').replace(/,\s*/g, ' ');
+  const d2 = new Date(noOrd);
+  if (!isNaN(d2.getTime())) return d2;
+  // Handle DD/MM/YYYY or DD-MM-YYYY
+  const m = noOrd.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  if (m) {
+    const [, dd, mm, yyyy] = m;
+    const iso = `${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`;
+    const d3 = new Date(iso);
+    if (!isNaN(d3.getTime())) return d3;
   }
+  return null;
 }
 
-function parseDate(dateStr: string): { formattedDate: string; dayOfWeek: string } {
-  try {
-    // Handle Parliament date format: "Thursday, 12th June, 2025"
-    const dateMatch = dateStr.match(/(\w+day),?\s+(\d{1,2})(?:st|nd|rd|th)?\s+(\w+),?\s+(\d{4})/i);
-    if (dateMatch) {
-      const [, dayOfWeek, day, month, year] = dateMatch;
-      const monthMap: Record<string, string> = {
-        'january': '01', 'february': '02', 'march': '03', 'april': '04',
-        'may': '05', 'june': '06', 'july': '07', 'august': '08',
-        'september': '09', 'october': '10', 'november': '11', 'december': '12'
-      };
-      const monthNum = monthMap[month.toLowerCase()];
-      if (monthNum) {
-        const paddedDay = day.padStart(2, '0');
-        const formattedDate = `${year}-${monthNum}-${paddedDay}`;
-        return { formattedDate, dayOfWeek: dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1) };
-      }
-    }
-    
-    // Fallback to standard date parsing
-    const date = new Date(dateStr);
-    if (!isNaN(date.getTime())) {
-      const formattedDate = date.toISOString().split('T')[0];
-      const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' });
-      return { formattedDate, dayOfWeek };
-    }
-    
-    return { formattedDate: new Date().toISOString().split('T')[0], dayOfWeek: 'Unknown' };
-  } catch {
-    return { formattedDate: new Date().toISOString().split('T')[0], dayOfWeek: 'Unknown' };
-  }
-}
+export async function fetchParliamentAgenda(page = 1): Promise<{ agendas: AgendaItem[]; totalPages: number; currentPage: number; lastUpdated: string; }> {
+  const PARLIAMENT_BASE_URL = 'https://www.parliament.gh';
+  const url = `${PARLIAMENT_BASE_URL}/docs?type=AG&P=${(page-1)*50}`; // parliament site uses offset in multiples of 50
+  const res = await fetch(url, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
+  const html = await res.text();
+  const $ = cheerio.load(html);
 
-function extractMeetingType(title: string): string {
-  const titleLower = title.toLowerCase();
-  
-  if (titleLower.includes('first meeting')) return 'First Meeting';
-  if (titleLower.includes('second meeting')) return 'Second Meeting';
-  if (titleLower.includes('third meeting')) return 'Third Meeting';
-  if (titleLower.includes('fourth meeting')) return 'Fourth Meeting';
-  if (titleLower.includes('fifth meeting')) return 'Fifth Meeting';
-  if (titleLower.includes('sixth meeting')) return 'Sixth Meeting';
-  if (titleLower.includes('seventh meeting')) return 'Seventh Meeting';
-  if (titleLower.includes('eighth meeting')) return 'Eighth Meeting';
-  if (titleLower.includes('ninth meeting')) return 'Ninth Meeting';
-  if (titleLower.includes('tenth meeting')) return 'Tenth Meeting';
-  
-  return 'Parliamentary Meeting';
-}
+  const agendas: AgendaItem[] = [];
 
-export async function fetchParliamentAgenda(page: number = 1): Promise<AgendaData> {
-  try {
-    const url = `${PARLIAMENT_BASE_URL}/docs?type=AG&page=${page}`;
-    const res = await fetch(url, { cache: 'no-store' });
-    if (!res.ok) {
-      throw new Error(`Failed to fetch parliament agenda: ${res.status}`);
-    }
-    const html = await res.text();
-    const $ = cheerio.load(html);
+  $('table tbody tr[onclick]').each((i, row) => {
+    const onclick = $(row).attr('onclick') || '';
+    const date = $(row).find('td').eq(0).text().trim();
+    const title = $(row).find('td').eq(1).text().trim();
 
-    const agendas: AgendaItem[] = [];
+    const m = onclick.match(/showPDF\('([^']+)','([^']+)'\)/);
+    if (!m) return;
 
-    // Extract agenda items from the table
-    $('table tr').each((i, row) => {
-      const $row = $(row);
-      const cells = $row.find('td');
-      
-      if (cells.length >= 2) {
-        const dateCell = $(cells[0]);
-        const titleCell = $(cells[1]);
-        
-        const dateText = dateCell.text().trim();
-        const titleText = titleCell.text().trim();
-        
-        // Look for links in the title cell
-        const link = titleCell.find('a').first();
-        const href = link.attr('href');
-        
-        if (dateText && titleText && dateText !== 'Date' && titleText !== 'Title') {
-          const { formattedDate, dayOfWeek } = parseDate(dateText);
-          const meetingType = extractMeetingType(titleText);
-          
-          agendas.push({
-            date: dateText,
-            title: titleText,
-            url: href ? absolutizeUrl(href) : `${PARLIAMENT_BASE_URL}/docs?type=AG`,
-            formattedDate,
-            dayOfWeek,
-            meetingType
-          });
-        }
-      }
+    const linkPath = m[1].trim();
+    const fullUrl = `https://www.parliament.gh/epanel/docs/${linkPath}`;
+
+    const yearMatch = title.match(/\b(20\d{2}|19\d{2})\b/);
+    const year = yearMatch ? yearMatch[0] : 'Unknown';
+
+    const parsed = normalizeAgendaDate(date);
+    const formattedDate = parsed ? parsed.toISOString().split('T')[0] : '';
+    const dayOfWeek = parsed ? parsed.toLocaleDateString('en-US', { weekday: 'long' }) : '';
+
+    agendas.push({
+      date,
+      title: title.replace(/,\s*\d{4}$/, '').trim(),
+      url: fullUrl,
+      formattedDate,
+      dayOfWeek,
+      meetingType: /agenda/i.test(title) ? 'Agenda' : 'Parliamentary Meeting',
+      year
     });
+  });
 
-    // Extract pagination information
-    let totalPages = 1;
-    const currentPage = page;
-    
-    // Look for pagination links
-    $('a').each((i, link) => {
-      const href = $(link).attr('href');
-      if (href && href.includes('page=')) {
-        const pageMatch = href.match(/page=(\d+)/);
-        if (pageMatch) {
-          const pageNum = parseInt(pageMatch[1]);
-          if (pageNum > totalPages) {
-            totalPages = pageNum;
-          }
-        }
-      }
-    });
+  // Basic pagination hinting: if we got a full batch (50), assume there may be another page.
+  const pageSize = 50;
+  const currentPage = Math.max(1, page);
+  const totalPages = agendas.length === pageSize ? currentPage + 1 : currentPage; // best-effort estimate
+  const lastUpdated = new Date().toISOString();
 
-    // If no pagination found, estimate based on content
-    if (totalPages === 1 && agendas.length > 0) {
-      // Assume 20 items per page based on the website structure
-      totalPages = Math.max(1, Math.ceil(agendas.length / 20));
-    }
-
-    return {
-      agendas: agendas.slice(0, 20), // Limit to 20 items per page
-      totalPages,
-      currentPage,
-      lastUpdated: new Date().toISOString()
-    };
-
-  } catch (error) {
-    console.error('Error fetching parliament agenda:', error);
-    
-    // Return fallback data in case of error
-    return {
-      agendas: [
-        {
-          date: "Thursday, 12th June, 2025",
-          title: "Agenda for the Second Meeting of Parliament Commencing on Tuesday 27th May-July, 2025",
-          url: `${PARLIAMENT_BASE_URL}/docs?type=AG`,
-          formattedDate: "2025-06-12",
-          dayOfWeek: "Thursday",
-          meetingType: "Second Meeting"
-        },
-        {
-          date: "Tuesday, 25th January, 2022",
-          title: "Agenda - 1st Meeting 25th January-5th March, 2022",
-          url: `${PARLIAMENT_BASE_URL}/docs?type=AG`,
-          formattedDate: "2022-01-25",
-          dayOfWeek: "Tuesday",
-          meetingType: "First Meeting"
-        },
-        {
-          date: "Tuesday, 30th October, 2018",
-          title: "Agenda for the 3rd Meeting of Parliament commencing on Tuesday, 30th October, 2018",
-          url: `${PARLIAMENT_BASE_URL}/docs?type=AG`,
-          formattedDate: "2018-10-30",
-          dayOfWeek: "Tuesday",
-          meetingType: "Third Meeting"
-        }
-      ],
-      totalPages: 1,
-      currentPage: 1,
-      lastUpdated: new Date().toISOString()
-    };
-  }
+  return { agendas, totalPages, currentPage, lastUpdated };
 }
+
+export default fetchParliamentAgenda; // also export default for compatibility

@@ -15,9 +15,10 @@ const initializeTransformers = async () => {
     pipeline = transformers.pipeline;
     env = transformers.env;
     
-    // Configure transformers to use local models
-    env.allowRemoteModels = false;
+    // Configure transformers to allow remote models and use browser cache
+    env.allowRemoteModels = true;
     env.allowLocalModels = true;
+    env.useBrowserCache = true;
     
     return { pipeline, env };
   } catch (error) {
@@ -99,6 +100,7 @@ class WhisperService {
         this.config.model,
         {
           quantized: true, // Use quantized model for better performance
+          local_files_only: false,
           progress_callback: (progress: any) => {
             console.log('Model loading progress:', progress);
           }

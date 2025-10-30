@@ -39,7 +39,7 @@ function absolutizeUrl(href: string | undefined): string {
     const normalized = (/^[a-zA-Z]+:\/\//.test(trimmed) || trimmed.startsWith('/'))
       ? trimmed
       : `/${trimmed}`;
-    const url = new URL(normalized, PARLIAMENT_BASE_URL);
+    const url = new URL(normalized, "https://www.parliament.gh/epanel/docs//");
     return url.toString();
   } catch {
     return '';
@@ -205,7 +205,16 @@ export async function fetchParliamentBills(page: number = 1): Promise<Parliament
         
         // Look for links in the title cell
         const link = titleCell.find('a').first();
-        const href = link.attr('href');
+        let  href = link.attr('href');
+
+        const onclickAttr = $row.attr('onclick');
+        if (onclickAttr) {
+          const match = onclickAttr.match(/showPDF\('([^']+)'/);
+          if (match && match[1]) {
+            href = match[1].trim();
+          }
+        }
+        
         
         if (titleText && titleText !== 'Title' && laidByText && laidOnText) {
           const formattedLaidOn = parseDate(laidOnText);
@@ -226,7 +235,8 @@ export async function fetchParliamentBills(page: number = 1): Promise<Parliament
             laidBy: laidByText,
             laidOn: laidOnText,
             gazettedOn: gazettedOnText,
-            url: href ? absolutizeUrl(href) : `${PARLIAMENT_BASE_URL}/docs?type=Bills&OT`,
+            url:  "https://www.parliament.gh/epanel/docs/" + href,
+            //url: href ? absolutizeUrl(href) : `${PARLIAMENT_BASE_URL}/docs?type=Bills&OT`,
             billNumber,
             category,
             status,
