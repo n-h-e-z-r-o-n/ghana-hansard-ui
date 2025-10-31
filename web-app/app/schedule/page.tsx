@@ -255,6 +255,8 @@ const mockSessions = [
   }
 ];
 
+type Session = typeof mockSessions[number];
+
 const sessionTypes = ['All', 'plenary', 'committee', 'hearing', 'special'];
 const priorities = ['All', 'high', 'medium', 'low'];
 const statuses = ['All', 'scheduled', 'live', 'completed', 'cancelled'];
@@ -284,8 +286,8 @@ const weeklyData = [
 ];
 
 export default function SchedulePage() {
-  const [sessions, setSessions] = useState(mockSessions);
-  const [filteredSessions, setFilteredSessions] = useState(mockSessions);
+  const [sessions, setSessions] = useState<Session[]>(mockSessions);
+  const [filteredSessions, setFilteredSessions] = useState<Session[]>(mockSessions);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('All');
   const [selectedPriority, setSelectedPriority] = useState('All');
@@ -293,7 +295,7 @@ export default function SchedulePage() {
   const [selectedRoom, setSelectedRoom] = useState('All');
   const [viewMode, setViewMode] = useState('list');
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedSession, setSelectedSession] = useState(null);
+  const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
 
   // Filter and search logic

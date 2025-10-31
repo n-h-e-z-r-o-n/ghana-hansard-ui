@@ -21,8 +21,48 @@ import {
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,  PieChart, Pie, Cell } from 'recharts';
 import Navigation from '../components/Navigation';
 
+interface DebateSpeaker {
+  name: string;
+  role: string;
+  party: string;
+  speakingTime: string;
+}
+
+interface DebateVotes {
+  for: number;
+  against: number;
+  abstain: number;
+}
+
+interface DebateHighlight {
+  timestamp: string;
+  text: string;
+  speaker: string;
+}
+
+interface Debate {
+  id: string;
+  title: string;
+  category: string;
+  date: string;
+  time: string;
+  duration: string;
+  status: string;
+  participants: number;
+  views: number;
+  sentiment: string;
+  sentimentScore: number;
+  description: string;
+  keyPoints: string[];
+  speakers: DebateSpeaker[];
+  votes: DebateVotes;
+  tags: string[];
+  transcript: string;
+  highlights: DebateHighlight[];
+}
+
 // Mock data for debates
-const mockDebates = [
+const mockDebates: Debate[] = [
   {
     id: '1',
     title: 'Education Review Bill - Second Reading',
@@ -205,8 +245,8 @@ const debateTrendData = [
 ];
 
 export default function DebatesPage() {
-  const [debates, setDebates] = useState(mockDebates);
-  const [filteredDebates, setFilteredDebates] = useState(mockDebates);
+  const [debates, setDebates] = useState<Debate[]>(mockDebates);
+  const [filteredDebates, setFilteredDebates] = useState<Debate[]>(mockDebates);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedStatus, setSelectedStatus] = useState('All');
@@ -214,7 +254,7 @@ export default function DebatesPage() {
   const [sortBy, setSortBy] = useState('date');
   const [viewMode, setViewMode] = useState('grid');
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedDebate, setSelectedDebate] = useState(null);
+  const [selectedDebate, setSelectedDebate] = useState<Debate | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
   // Filter and search logic

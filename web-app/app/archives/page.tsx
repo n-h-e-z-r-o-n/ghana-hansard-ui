@@ -92,7 +92,7 @@ export default function ArchivesPage() {
   const [sortBy, setSortBy] = useState('date');
   const [viewMode, setViewMode] = useState('table');
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState(null);
+  const [selectedDocument, setSelectedDocument] = useState<any | null>(null);
   const [exporting, setExporting] = useState(false);
   const [sharing, setSharing] = useState(false);
 
@@ -359,10 +359,13 @@ export default function ArchivesPage() {
         await (navigator as any).share(shareData);
         return;
       }
-      if (navigator?.clipboard && shareData.url) {
-        await navigator.clipboard.writeText(shareData.url);
-        alert('Link copied to clipboard');
-        return;
+      if (typeof navigator !== 'undefined' && shareData.url) {
+        const nav = navigator as Navigator & { clipboard?: Clipboard };
+        if (nav.clipboard) {
+          await nav.clipboard.writeText(shareData.url);
+          alert('Link copied to clipboard');
+          return;
+        }
       }
       alert('Sharing not supported on this device');
     } finally {

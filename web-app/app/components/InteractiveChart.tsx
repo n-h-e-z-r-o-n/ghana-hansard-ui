@@ -33,6 +33,7 @@ import {
   YAxis as ScatterYAxis,
   Legend
 } from 'recharts';
+import type { PieLabelRenderProps } from 'recharts';
 
 interface ChartData {
   name: string;
@@ -186,7 +187,10 @@ export default function InteractiveChart({
               cx="50%"
               cy="50%"
               labelLine={false}
-              label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+              label={(props: PieLabelRenderProps) => {
+                const percent = typeof props.percent === 'number' ? props.percent : 0;
+                return `${props.name} ${Math.round(percent * 100)}%`;
+              }}
               outerRadius={80}
               fill="#8884d8"
               dataKey={yAxisKey}
@@ -272,7 +276,7 @@ export default function InteractiveChart({
         );
 
       default:
-        return null;
+        return <></>;
     }
   };
 

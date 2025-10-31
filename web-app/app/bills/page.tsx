@@ -24,8 +24,8 @@ import {
   FireIcon,
   StarIcon,
   HeartIcon,
-  ThumbUpIcon,
-  ThumbDownIcon,
+  HandThumbUpIcon,
+  HandThumbDownIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
@@ -53,7 +53,7 @@ export default function BillsPage() {
   const [sortBy, setSortBy] = useState('date');
   const [viewMode, setViewMode] = useState('grid');
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedBill, setSelectedBill] = useState(null);
+  const [selectedBill, setSelectedBill] = useState<any | null>(null);
 
   const handleExport = () => {
     try {

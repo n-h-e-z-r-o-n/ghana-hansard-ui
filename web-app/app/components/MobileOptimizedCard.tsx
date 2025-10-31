@@ -53,6 +53,7 @@ export default function MobileOptimizedCard({
   const y = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-15, 15]);
   const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0]);
+  const lastTapRef = useRef<number>(0);
 
   const handleDragEnd = (event: any, info: PanInfo) => {
     const threshold = 100;
@@ -90,9 +91,27 @@ export default function MobileOptimizedCard({
   };
 
   const handleTap = () => {
-    if (!isExpanded) {
-      setIsExpanded(true);
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 300; // ms
+
+    if (lastTapRef.current && now - lastTapRef.current < DOUBLE_TAP_DELAY) {
+      // Detected double tap
+      lastTapRef.current = 0;
+      handleDoubleTap();
+      return;
     }
+
+    lastTapRef.current = now;
+
+    // Delay single-tap action to differentiate from double-tap
+    setTimeout(() => {
+      if (lastTapRef.current === now) {
+        if (!isExpanded) {
+          setIsExpanded(true);
+        }
+        lastTapRef.current = 0;
+      }
+    }, DOUBLE_TAP_DELAY);
   };
 
   const handleDoubleTap = () => {
@@ -109,7 +128,6 @@ export default function MobileOptimizedCard({
       onDragEnd={handleDragEnd}
       whileTap={{ scale: 0.98 }}
       onTap={handleTap}
-      onDoubleTap={handleDoubleTap}
     >
       {/* Swipe Indicators */}
       <motion.div

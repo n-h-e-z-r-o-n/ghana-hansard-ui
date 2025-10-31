@@ -136,7 +136,6 @@ const constituencyToRegion: Record<string, string> = {
   'Jaman North': 'Bono',
   'Suaman': 'Western North',
   'Nkwanta South': 'Oti',
-  'Cape Coast South': 'Central',
   'Asene/Manso/Akroso': 'Eastern',
   'Tano North': 'Ahafo',
   'Awutu Senya West': 'Central',

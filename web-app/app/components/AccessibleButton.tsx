@@ -2,6 +2,7 @@
 
 import { forwardRef, useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import type { HTMLMotionProps } from 'framer-motion';
 import { 
   ArrowPathIcon,
   CheckIcon,
@@ -9,7 +10,7 @@ import {
   XMarkIcon
 } from '@heroicons/react/24/outline';
 
-interface AccessibleButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface AccessibleButtonProps extends Omit<HTMLMotionProps<'button'>, 'ref'> {
   variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'warning' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;

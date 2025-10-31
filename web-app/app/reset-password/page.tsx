@@ -1,8 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <ResetPasswordContent />
+    </Suspense>
+  );
+}
 import { 
   ArrowLeftIcon,
   LockClosedIcon,
@@ -13,7 +21,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../contexts/AuthContext';
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const [formData, setFormData] = useState({
     newPassword: '',
     confirmPassword: ''
