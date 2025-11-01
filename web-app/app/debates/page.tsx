@@ -344,7 +344,7 @@ export default function DebatesPage() {
                   placeholder="Search debates, topics, or speakers..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-400 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
                 />
               </div>
             </div>
@@ -354,7 +354,7 @@ export default function DebatesPage() {
               onClick={() => setShowFilters(!showFilters)}
               aria-expanded={showFilters}
               aria-controls="debates-filters-panel"
-              className="w-full sm:w-auto justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center space-x-2"
+              className="w-full sm:w-auto justify-center px-4 py-2 border border-gray-400 text-gray-900 rounded-lg hover:bg-gray-100 flex items-center space-x-2"
             >
               <FunnelIcon className="w-4 h-4" />
               <span>Filters</span>
@@ -365,7 +365,7 @@ export default function DebatesPage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full sm:w-auto px-4 py-2 border border-gray-400 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
             >
               <option value="date">Sort by Date</option>
               <option value="duration">Sort by Duration</option>
@@ -383,7 +383,7 @@ export default function DebatesPage() {
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-400 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
                   >
                     {categories.map(category => (
                       <option key={category} value={category}>{category}</option>
