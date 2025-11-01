@@ -439,12 +439,12 @@ export default function ArchivesPage() {
         </div>
 
         {/* Search and Filters */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          <div className="flex flex-col lg:flex-row gap-4">
+        <div className="bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-6 sticky top-[calc(3.5rem+env(safe-area-inset-top))] md:static z-30">
+          <div className="flex flex-col lg:flex-row gap-3 sm:gap-4">
             {/* Search */}
             <div className="flex-1">
               <div className="relative">
-                <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-3 text-gray-700" />
+                <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-3 text-gray-800" />
                 <input
                   type="text"
                   placeholder="Search documents, titles, or keywords..."
@@ -458,7 +458,9 @@ export default function ArchivesPage() {
             {/* Filter Toggle */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center space-x-2"
+              aria-expanded={showFilters}
+              aria-controls="archives-filters-panel"
+              className="w-full sm:w-auto justify-center px-4 py-2 text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center space-x-2"
             >
               <FunnelIcon className="w-4 h-4" />
               <span>Filters</span>
@@ -469,7 +471,7 @@ export default function ArchivesPage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="date">Sort by Date</option>
               <option value="title">Sort by Title</option>
@@ -503,8 +505,8 @@ export default function ArchivesPage() {
 
           {/* Advanced Filters */}
           {showFilters && (
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div id="archives-filters-panel" className="mt-6 pt-6 border-t border-gray-200">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-900 mb-2">Document Type</label>
                   <select

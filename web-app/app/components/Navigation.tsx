@@ -135,9 +135,9 @@ export default function Navigation({ children }: NavigationProps) {
       {/* Header */}
       <header className="bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 text-white shadow-lg">
         <div className="px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-14 md:h-16">
             {/* Logo and title */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 md:space-x-4">
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
                 className="lg:hidden text-white hover:text-yellow-200 transition-colors duration-200"

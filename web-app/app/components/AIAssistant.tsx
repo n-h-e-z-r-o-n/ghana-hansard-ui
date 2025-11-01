@@ -739,7 +739,7 @@ export default function AIAssistant() {
       `}</style>
 
       {/* Active Floating Button */}
-      <div className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-50 flex flex-col items-end gap-2">
+      <div className="fixed z-50 flex flex-col items-end gap-2" style={{ bottom: 'calc(1.5rem + env(safe-area-inset-bottom))', right: 'calc(1.5rem + env(safe-area-inset-right))' }}>
         {/* Compact helper badge (only when closed) */}
         {!isOpen && (
           <div className="select-none rounded-full bg-white/90 dark:bg-gray-900/90 text-gray-800 dark:text-gray-100 text-[11px] md:text-xs px-2.5 py-1 shadow-lg border border-gray-200 dark:border-gray-700 backdrop-blur-sm">
@@ -781,7 +781,7 @@ export default function AIAssistant() {
 
       {/* Active Popup Widget */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 w-[calc(100vw-1rem)] h-[calc(100vh-6rem)] sm:w-[520px] sm:h-[700px] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-8rem)] bg-white rounded-xl shadow-2xl border-2 border-green-200 z-40 flex flex-col animate-slide-up">
+        <div className="fixed w-[calc(100vw-1rem)] h-[calc(100vh-6rem)] sm:w-[520px] sm:h-[700px] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-8rem)] bg-white rounded-xl shadow-2xl border-2 border-green-200 z-40 flex flex-col animate-slide-up" style={{ bottom: 'calc(6rem + env(safe-area-inset-bottom))', right: 'calc(1.5rem + env(safe-area-inset-right))' }}>
           {/* Enhanced Parliamentary Header */}
           <div className={`p-4 border-b border-gray-200 bg-gradient-to-r ${modeConfig.headerBg} rounded-t-xl`}>
             {/* Session Context Bar */}

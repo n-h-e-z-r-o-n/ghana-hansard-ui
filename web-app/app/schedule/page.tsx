@@ -366,16 +366,16 @@ export default function SchedulePage() {
 
   return (
     <Navigation>
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         {/* Page Header */}
         <div className="mb-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Parliamentary Schedule</h1>
               <p className="text-gray-600">View and manage parliamentary sessions, meetings, and events</p>
             </div>
-            <div className="flex items-center space-x-4">
-              <button className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center space-x-2">
+            <div className="flex w-full sm:w-auto items-center justify-between sm:justify-end space-x-2 md:space-x-4 flex-wrap">
+              <button className="px-4 py-2 text-gray-900 border border-gray-400 rounded-lg hover:bg-gray-100 flex items-center space-x-2">
                 <BellIcon className="w-4 h-4" />
                 <span>Notifications</span>
               </button>
@@ -416,18 +416,18 @@ export default function SchedulePage() {
         )}
 
         {/* Search and Filters */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          <div className="flex flex-col lg:flex-row gap-4">
+        <div className="bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-6 sticky top-[calc(3.5rem+env(safe-area-inset-top))] md:static z-30">
+          <div className="flex flex-col lg:flex-row gap-3 sm:gap-4">
             {/* Search */}
             <div className="flex-1">
               <div className="relative">
-                <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-3 text-gray-400" />
+                <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-3 text-gray-700" />
                 <input
                   type="text"
                   placeholder="Search sessions, topics, or participants..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-400 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
                 />
               </div>
             </div>
@@ -435,7 +435,9 @@ export default function SchedulePage() {
             {/* Filter Toggle */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center space-x-2"
+              aria-expanded={showFilters}
+              aria-controls="schedule-filters-panel"
+              className="w-full sm:w-auto justify-center px-4 py-2 border border-gray-400 text-gray-900 rounded-lg hover:bg-gray-100 flex items-center space-x-2"
             >
               <FunnelIcon className="w-4 h-4" />
               <span>Filters</span>
@@ -443,32 +445,74 @@ export default function SchedulePage() {
             </button>
 
             {/* View Mode */}
-            <div className="flex border border-gray-300 rounded-lg">
+            <div className="flex w-full sm:w-auto border border-gray-400 rounded-lg overflow-hidden">
               <button
                 onClick={() => setViewMode('list')}
-                className={`px-3 py-2 text-sm ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+                className={`px-3 py-2 text-sm ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-gray-800 hover:bg-gray-100'} flex-1 sm:flex-none`}
               >
                 List
               </button>
               <button
                 onClick={() => setViewMode('calendar')}
-                className={`px-3 py-2 text-sm ${viewMode === 'calendar' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+                className={`px-3 py-2 text-sm ${viewMode === 'calendar' ? 'bg-blue-600 text-white' : 'text-gray-800 hover:bg-gray-100'} flex-1 sm:flex-none`}
               >
                 Calendar
               </button>
             </div>
           </div>
 
+          {/* Active filters (chips) */}
+          {(searchTerm || selectedType !== 'All' || selectedPriority !== 'All' || selectedStatus !== 'All' || selectedRoom !== 'All') && (
+            <div className="mt-4 flex flex-wrap gap-2 text-sm">
+              {searchTerm && (
+                <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                  Search: "{searchTerm}"
+                  <button onClick={() => setSearchTerm('')} className="hover:text-blue-900">×</button>
+                </span>
+              )}
+              {selectedType !== 'All' && (
+                <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-gray-100 text-gray-800 border border-gray-300">
+                  Type: {selectedType}
+                  <button onClick={() => setSelectedType('All')} className="hover:text-gray-900">×</button>
+                </span>
+              )}
+              {selectedPriority !== 'All' && (
+                <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-gray-100 text-gray-800 border border-gray-300">
+                  Priority: {selectedPriority}
+                  <button onClick={() => setSelectedPriority('All')} className="hover:text-gray-900">×</button>
+                </span>
+              )}
+              {selectedStatus !== 'All' && (
+                <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-gray-100 text-gray-800 border border-gray-300">
+                  Status: {selectedStatus}
+                  <button onClick={() => setSelectedStatus('All')} className="hover:text-gray-900">×</button>
+                </span>
+              )}
+              {selectedRoom !== 'All' && (
+                <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-gray-100 text-gray-800 border border-gray-300">
+                  Room: {selectedRoom}
+                  <button onClick={() => setSelectedRoom('All')} className="hover:text-gray-900">×</button>
+                </span>
+              )}
+              <button
+                onClick={() => { setSearchTerm(''); setSelectedType('All'); setSelectedPriority('All'); setSelectedStatus('All'); setSelectedRoom('All'); }}
+                className="ml-auto px-2.5 py-1 rounded border border-gray-300 hover:bg-gray-50 text-gray-700"
+              >
+                Clear all
+              </button>
+            </div>
+          )}
+
           {/* Advanced Filters */}
           {showFilters && (
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div id="schedule-filters-panel" className="mt-6 pt-6 border-t border-gray-200">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Session Type</label>
                   <select
                     value={selectedType}
                     onChange={(e) => setSelectedType(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-400 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
                   >
                     {sessionTypes.map(type => (
                       <option key={type} value={type}>{type.charAt(0).toUpperCase() + type.slice(1)}</option>

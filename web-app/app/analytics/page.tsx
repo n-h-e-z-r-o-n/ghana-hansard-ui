@@ -193,15 +193,15 @@ export default function AnalyticsPage() {
 
   return (
     <Navigation>
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         {/* Page Header */}
         <div className="mb-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Parliamentary Analytics</h1>
               <p className="text-gray-600">Comprehensive insights and data visualization for parliamentary activities</p>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex w-full sm:w-auto items-center justify-between sm:justify-end space-x-2 md:space-x-4 flex-wrap">
               <button className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center space-x-2">
                 <ArrowPathIcon className="w-4 h-4" />
                 <span>Refresh</span>
@@ -219,15 +219,15 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Controls */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          <div className="flex flex-col lg:flex-row gap-4">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
+          <div className="flex flex-col lg:flex-row gap-3 sm:gap-4">
             {/* Period Selection */}
             <div className="flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-2">Time Period</label>
               <select
                 value={selectedPeriod}
                 onChange={(e) => setSelectedPeriod(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-400 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
               >
                 {periods.map(period => (
                   <option key={period.value} value={period.value}>{period.label}</option>
@@ -252,7 +252,9 @@ export default function AnalyticsPage() {
             {/* Filter Toggle */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center space-x-2"
+              aria-expanded={showFilters}
+              aria-controls="analytics-filters-panel"
+              className="w-full sm:w-auto justify-center px-4 py-2 border border-gray-400 text-gray-900 rounded-lg hover:bg-gray-100 flex items-center space-x-2"
             >
               <FunnelIcon className="w-4 h-4" />
               <span>Filters</span>
@@ -260,10 +262,52 @@ export default function AnalyticsPage() {
             </button>
           </div>
 
-          {/* Advanced Filters */}
+          {/* Active filters (chips) */}
+        {(selectedParty !== 'All' || selectedCommittee !== 'All' || selectedRegion !== 'All' || selectedPeriod !== '6months' || selectedView !== 'overview') && (
+          <div className="mt-4 flex flex-wrap gap-2 text-sm">
+            {selectedPeriod !== '6months' && (
+              <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-gray-100 text-gray-800 border border-gray-300">
+                Period: {periods.find(p => p.value === selectedPeriod)?.label || selectedPeriod}
+                <button onClick={() => setSelectedPeriod('6months')} className="hover:text-gray-900">×</button>
+              </span>
+            )}
+            {selectedView !== 'overview' && (
+              <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-gray-100 text-gray-800 border border-gray-300">
+                View: {views.find(v => v.value === selectedView)?.label || selectedView}
+                <button onClick={() => setSelectedView('overview')} className="hover:text-gray-900">×</button>
+              </span>
+            )}
+            {selectedParty !== 'All' && (
+              <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-gray-100 text-gray-800 border border-gray-300">
+                Party: {selectedParty}
+                <button onClick={() => setSelectedParty('All')} className="hover:text-gray-900">×</button>
+              </span>
+            )}
+            {selectedCommittee !== 'All' && (
+              <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-gray-100 text-gray-800 border border-gray-300">
+                Committee: {selectedCommittee}
+                <button onClick={() => setSelectedCommittee('All')} className="hover:text-gray-900">×</button>
+              </span>
+            )}
+            {selectedRegion !== 'All' && (
+              <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-gray-100 text-gray-800 border border-gray-300">
+                Region: {selectedRegion}
+                <button onClick={() => setSelectedRegion('All')} className="hover:text-gray-900">×</button>
+              </span>
+            )}
+            <button
+              onClick={() => { setSelectedPeriod('6months'); setSelectedView('overview'); setSelectedParty('All'); setSelectedCommittee('All'); setSelectedRegion('All'); }}
+              className="ml-auto px-2.5 py-1 rounded border border-gray-300 hover:bg-gray-50 text-gray-700"
+            >
+              Clear all
+            </button>
+          </div>
+        )}
+
+        {/* Advanced Filters */}
           {showFilters && (
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div id="analytics-filters-panel" className="mt-6 pt-6 border-t border-gray-200">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Party</label>
                   <select

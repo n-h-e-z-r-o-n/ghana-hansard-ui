@@ -98,7 +98,7 @@ export default function Dashboard() {
     <ProtectedRoute>
       <Navigation>
         <ErrorBoundary>
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {/* Welcome Banner */}
             <motion.div
               initial={{ opacity: 0, y: -20 }}

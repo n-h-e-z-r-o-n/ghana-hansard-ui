@@ -153,7 +153,7 @@ export default function LandingPage() {
           : 'bg-white shadow-sm border-b border-gray-200'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center h-14 md:h-16">
             {/* Logo with Animation */}
             <div className="flex items-center space-x-3 group cursor-pointer" onClick={() => scrollToSection('hero')}>
               <div className="w-8 h-8 rounded flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
@@ -334,7 +334,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section id="hero" className="relative bg-gradient-to-br from-red-50 via-yellow-50 to-green-50 py-20">
+      <section id="hero" className="relative bg-gradient-to-br from-red-50 via-yellow-50 to-green-50 py-14 md:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
@@ -351,14 +351,14 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 href="/auth"
-                className="bg-gradient-to-r from-red-600 to-green-600 hover:from-red-700 hover:to-green-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl"
+                className="w-full sm:w-auto bg-gradient-to-r from-red-600 to-green-600 hover:from-red-700 hover:to-green-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl"
               >
                   Get Started
                 <ArrowRightIcon className="ml-2 w-5 h-5" />
               </Link>
               <button
                 onClick={() => setIsVideoPlaying(true)}
-                  className="border border-gray-300 hover:border-gray-400 text-gray-700 px-8 py-4 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center hover:bg-gray-50"
+                  className="w-full sm:w-auto border border-gray-300 hover:border-gray-400 text-gray-700 px-8 py-4 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center hover:bg-gray-50"
               >
                 <PlayIcon className="mr-2 w-5 h-5" />
                 Watch Demo
@@ -369,7 +369,7 @@ export default function LandingPage() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-white">
+      <section className="py-10 md:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
@@ -383,9 +383,9 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-12 md:py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <div className="text-center mb-8 md:mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Powerful Features for Modern Democracy
             </h2>
@@ -393,7 +393,7 @@ export default function LandingPage() {
               Our platform combines cutting-edge AI technology with user-friendly design to make parliamentary data accessible and actionable.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {features.map((feature, index) => {
               const colors = [
                 'bg-red-100 text-red-600',
@@ -404,7 +404,7 @@ export default function LandingPage() {
               const colorClass = colors[index % colors.length];
               
               return (
-                <div key={index} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 hover:scale-105">
+                <div key={index} className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 hover:scale-105">
                   <div className={`w-12 h-12 ${colorClass.split(' ')[0]} rounded-lg flex items-center justify-center mb-4`}>
                     <feature.icon className={`w-6 h-6 ${colorClass.split(' ')[1]}`} />
                 </div>
@@ -418,7 +418,7 @@ export default function LandingPage() {
       </section>
 
       {/* AI Assistant Showcase Section */}
-      <section className="py-20 bg-gradient-to-br from-red-50 via-yellow-50 to-green-50">
+      <section className="py-14 md:py-20 bg-gradient-to-br from-red-50 via-yellow-50 to-green-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -429,7 +429,7 @@ export default function LandingPage() {
               Our AI assistant is always ready to help you navigate complex legislative information.
             </p>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12 items-center">
             <div>
               <div className="space-y-6">
                 <div className="flex items-start space-x-4">
@@ -489,7 +489,7 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="relative">
-              <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-200">
+              <div className="bg-white rounded-2xl shadow-2xl p-4 sm:p-8 border border-gray-200">
                 <div className="text-center mb-6">
                   <div className="w-16 h-16 bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
                     <MicrophoneIcon className="w-8 h-8 text-white" />
@@ -518,7 +518,7 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-20 bg-white">
+      <section className="py-14 md:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -528,7 +528,7 @@ export default function LandingPage() {
               Simple steps to access comprehensive parliamentary insights
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
             <div className="text-center">
               <div className="w-16 h-16 bg-gradient-to-r from-red-600 to-green-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">1</div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Sign Up</h3>
@@ -556,7 +556,7 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-14 md:py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -568,7 +568,7 @@ export default function LandingPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
-              <div key={index} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+              <div key={index} className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200">
                 <div className="flex items-center mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
                     <StarIcon key={i} className="w-5 h-5 text-yellow-400 fill-current" />

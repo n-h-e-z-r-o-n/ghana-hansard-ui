@@ -156,7 +156,7 @@ export default function MembersPage() {
   if (loading) {
     return (
       <Navigation>
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           </div>
@@ -187,12 +187,12 @@ export default function MembersPage() {
       <div className="p-6">
         {/* Page Header */}
         <div className="mb-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Parliamentary Members</h1>
               <p className="text-gray-600">Explore, analyze, and connect with parliamentary representatives from Parliament of Ghana</p>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex w-full sm:w-auto items-center justify-between sm:justify-end gap-2 flex-wrap">
               <button className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center space-x-2">
                 <ShareIcon className="w-4 h-4" />
                 <span>Export</span>
@@ -206,12 +206,12 @@ export default function MembersPage() {
         </div>
 
         {/* Search and Filters */}
-        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 mb-6">
-          <div className="flex flex-col lg:flex-row gap-4">
+        <div className="bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 rounded-lg shadow-md border border-gray-200 p-4 sm:p-6 mb-6 sticky top-[calc(3.5rem+env(safe-area-inset-top))] md:static z-30">
+          <div className="flex flex-col lg:flex-row gap-3 sm:gap-4">
             {/* Search */}
             <div className="flex-1">
               <div className="relative">
-                <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-3 text-gray-600" />
+                <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-3 text-gray-700" />
                 <input
                   type="text"
                   placeholder="Search members, constituencies, or parties..."
@@ -225,7 +225,9 @@ export default function MembersPage() {
             {/* Filter Toggle */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="px-4 py-2 border-2 border-gray-400 rounded-lg hover:bg-gray-100 hover:border-gray-500 flex items-center space-x-2 text-gray-900 bg-white font-medium transition-colors"
+              aria-expanded={showFilters}
+              aria-controls="members-filters-panel"
+              className="w-full sm:w-auto justify-center px-4 py-2 border-2 border-gray-400 rounded-lg hover:bg-gray-100 hover:border-gray-500 flex items-center space-x-2 text-gray-900 bg-white font-medium transition-colors"
             >
               <FunnelIcon className="w-4 h-4" />
               <span>Filters</span>
@@ -236,7 +238,7 @@ export default function MembersPage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2 border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white font-medium"
+              className="w-full sm:w-auto px-4 py-2 border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white font-medium"
             >
               <option value="name">Sort by Name</option>
               <option value="attendance">Sort by Attendance</option>
@@ -248,8 +250,8 @@ export default function MembersPage() {
 
           {/* Advanced Filters */}
           {showFilters && (
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div id="members-filters-panel" className="mt-6 pt-6 border-t border-gray-200">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-800 mb-2">Party</label>
                   <select
