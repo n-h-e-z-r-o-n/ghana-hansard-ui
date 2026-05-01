@@ -23,34 +23,23 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<User | null>({
+    id: 1,
+    email: 'admin@parliament.gh',
+    firstName: 'Admin',
+    lastName: 'User',
+    role: 'admin',
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    lastLogin: new Date().toISOString()
+  });
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const isAuthenticated = !!user;
+  const isAuthenticated = true;
 
   useEffect(() => {
-    // Check if user is logged in on app load
-    const checkAuth = async () => {
-      try {
-        if (apiClient.isAuthenticated()) {
-          const response = await apiClient.getCurrentUser();
-          if (response.success && response.data?.user) {
-            setUser(response.data.user);
-          } else {
-            // Token is invalid, clear it
-            apiClient.setToken(null);
-          }
-        }
-      } catch (error) {
-        console.error('Auth check failed:', error);
-        apiClient.setToken(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAuth();
+    setIsLoading(false);
   }, []);
 
   const login = async (email: string, password: string): Promise<{ success: boolean; message: string }> => {
@@ -86,15 +75,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async (): Promise<void> => {
-    try {
-      await apiClient.logout();
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      setUser(null);
-      apiClient.setToken(null);
-      router.push('/');
-    }
+    // No-op to maintain full access
+    return;
   };
 
   const forgotPassword = async (email: string): Promise<{ success: boolean; message: string }> => {

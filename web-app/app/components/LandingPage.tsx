@@ -270,10 +270,10 @@ export default function LandingPage() {
             {/* Enhanced Desktop Auth Button */}
             <div className="hidden lg:flex items-center">
               <Link
-                href="/auth"
+                href="/dashboard"
                 className="relative bg-gradient-to-r from-red-600 to-green-600 hover:from-red-700 hover:to-green-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg group overflow-hidden"
               >
-                <span className="relative z-10">Get Started</span>
+                <span className="relative z-10">Go to Dashboard</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-red-700 to-green-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
               </Link>
@@ -321,10 +321,10 @@ export default function LandingPage() {
                 </Link>
                 <div className="pt-4 border-t border-gray-200">
                   <Link
-                    href="/auth"
+                    href="/dashboard"
                     className="block w-full text-center px-4 py-3 bg-gradient-to-r from-red-600 to-green-600 hover:from-red-700 hover:to-green-700 text-white rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg"
               >
-                Get Started
+                Go to Dashboard
               </Link>
             </div>
           </div>
@@ -350,10 +350,10 @@ export default function LandingPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="/auth"
+                href="/dashboard"
                 className="w-full sm:w-auto bg-gradient-to-r from-red-600 to-green-600 hover:from-red-700 hover:to-green-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl"
               >
-                  Get Started
+                  Go to Dashboard
                 <ArrowRightIcon className="ml-2 w-5 h-5" />
               </Link>
               <button
@@ -738,10 +738,10 @@ export default function LandingPage() {
             Join thousands of users who are already using our platform to stay informed about Ghana's parliamentary proceedings.
           </p>
           <Link
-            href="/auth"
+            href="/dashboard"
             className="bg-white hover:bg-gray-100 text-red-600 px-8 py-4 rounded-lg text-lg font-semibold transition-colors inline-flex items-center shadow-lg hover:shadow-xl"
           >
-            Get Started Today
+            Go to Dashboard
             <ArrowRightIcon className="ml-2 w-5 h-5" />
           </Link>
         </div>
